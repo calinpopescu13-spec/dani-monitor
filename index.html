@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -10,130 +11,357 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0a0c0f;--bg2:#111318;--bg3:#181c23;
-  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
-  --text:#e8e6e0;--muted:#6b6960;--muted2:#9a9890;
-  --accent:#00d4aa;--accent2:#ff6b35;
-  --green:#4ade80;--amber:#fbbf24;--red:#f87171;--red2:#ef4444;
-  --font:'Syne',sans-serif;--mono:'DM Mono',monospace;--r:14px;--r2:20px;
+  --bg:#0a0c0f;
+  --bg2:#111318;
+  --bg3:#181c23;
+  --border:rgba(255,255,255,0.07);
+  --border2:rgba(255,255,255,0.13);
+  --text:#e8e6e0;
+  --muted:#6b6960;
+  --muted2:#9a9890;
+  --accent:#00d4aa;
+  --accent2:#ff6b35;
+  --green:#4ade80;
+  --amber:#fbbf24;
+  --red:#f87171;
+  --red2:#ef4444;
+  --blue:#60a5fa;
+  --purple:#a78bfa;
+  --font:'Syne',sans-serif;
+  --mono:'DM Mono',monospace;
+  --r:14px;
+  --r2:20px;
 }
 html{background:var(--bg);color:var(--text);font-family:var(--font);-webkit-font-smoothing:antialiased}
 body{min-height:100vh;background:var(--bg)}
-#lock-screen{position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;transition:opacity 0.4s,transform 0.4s}
+
+/* ══ PASSWORD SCREEN ══ */
+#lock-screen{
+position:fixed;inset:0;z-index:1000;
+background:var(–bg);
+display:flex;flex-direction:column;
+align-items:center;justify-content:center;
+padding:40px 24px;
+transition:opacity 0.4s,transform 0.4s;
+}
 #lock-screen.hide{opacity:0;transform:scale(1.03);pointer-events:none}
-.lock-logo{font-size:11px;letter-spacing:0.2em;color:var(--muted);font-family:var(--mono);text-transform:uppercase;margin-bottom:48px}
-.lock-title{font-size:32px;font-weight:800;letter-spacing:-0.03em;margin-bottom:6px;text-align:center}
-.lock-sub{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:40px;text-align:center;letter-spacing:0.05em}
-.lock-input{width:100%;max-width:320px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:16px 20px;font-family:var(--mono);font-size:15px;color:var(--text);outline:none;transition:border-color 0.2s;letter-spacing:0.1em;display:block;margin-bottom:14px}
-.lock-input:focus{border-color:var(--accent)}
-.lock-btn{width:100%;max-width:320px;padding:16px;background:var(--accent);border:none;border-radius:var(--r);font-family:var(--font);font-size:14px;font-weight:700;color:#0a0c0f;cursor:pointer;transition:opacity 0.2s,transform 0.1s;display:block}
+.lock-logo{
+font-size:11px;letter-spacing:0.2em;color:var(–muted);
+font-family:var(–mono);text-transform:uppercase;margin-bottom:48px;
+}
+.lock-title{
+font-size:32px;font-weight:800;letter-spacing:-0.03em;
+margin-bottom:6px;text-align:center;
+}
+.lock-sub{
+font-family:var(–mono);font-size:11px;color:var(–muted);
+margin-bottom:40px;text-align:center;letter-spacing:0.05em;
+}
+.lock-input-wrap{position:relative;width:100%;max-width:320px;margin-bottom:14px}
+.lock-input{
+width:100%;background:var(–bg3);border:1px solid var(–border2);
+border-radius:var(–r);padding:16px 20px;
+font-family:var(–mono);font-size:15px;color:var(–text);
+outline:none;transition:border-color 0.2s;letter-spacing:0.1em;
+-webkit-text-security:disc;
+}
+.lock-input:focus{border-color:var(–accent)}
+.lock-btn{
+width:100%;max-width:320px;padding:16px;
+background:var(–accent);border:none;border-radius:var(–r);
+font-family:var(–font);font-size:14px;font-weight:700;
+color:#0a0c0f;cursor:pointer;letter-spacing:0.03em;
+transition:opacity 0.2s,transform 0.1s;
+}
 .lock-btn:hover{opacity:0.9}
 .lock-btn:active{transform:scale(0.98)}
-.lock-error{font-family:var(--mono);font-size:11px;color:var(--red);margin-top:10px;opacity:0;transition:opacity 0.2s;text-align:center}
+.lock-error{
+font-family:var(–mono);font-size:11px;color:var(–red);
+margin-top:10px;opacity:0;transition:opacity 0.2s;
+text-align:center;
+}
 .lock-error.show{opacity:1}
-.lock-accent-bar{width:48px;height:3px;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));margin-bottom:32px}
+.lock-accent-bar{
+width:48px;height:3px;border-radius:2px;
+background:linear-gradient(90deg,var(–accent),var(–accent2));
+margin-bottom:32px;
+}
+
+/* ══ APP SHELL ══ */
 #app{display:none;flex-direction:column;min-height:100vh}
 #app.show{display:flex}
-.topbar{position:sticky;top:0;z-index:100;background:rgba(10,12,15,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:56px}
-.topbar-brand{font-size:14px;font-weight:800;letter-spacing:-0.01em}
-.topbar-brand span{color:var(--accent)}
-.topbar-date{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:0.08em}
-.nav{display:flex;gap:2px;overflow-x:auto;padding:12px 20px 0;scrollbar-width:none;border-bottom:1px solid var(--border);background:var(--bg2)}
+
+/* TOP BAR */
+.topbar{
+position:sticky;top:0;z-index:100;
+background:rgba(10,12,15,0.92);
+backdrop-filter:blur(12px);
+border-bottom:1px solid var(–border);
+padding:0 20px;
+display:flex;align-items:center;justify-content:space-between;
+height:56px;
+}
+.topbar-brand{
+font-size:14px;font-weight:800;letter-spacing:-0.01em;
+}
+.topbar-brand span{color:var(–accent)}
+.topbar-date{
+font-family:var(–mono);font-size:10px;color:var(–muted);
+letter-spacing:0.08em;
+}
+
+/* NAV */
+.nav{
+display:flex;gap:2px;overflow-x:auto;
+padding:12px 20px 0;
+scrollbar-width:none;
+border-bottom:1px solid var(–border);
+background:var(–bg2);
+}
 .nav::-webkit-scrollbar{display:none}
-.nav-btn{flex-shrink:0;padding:8px 16px;border-radius:8px 8px 0 0;font-family:var(--mono);font-size:11px;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;border:none;background:transparent;color:var(--muted);transition:color 0.2s,background 0.2s}
-.nav-btn:hover{color:var(--text)}
-.nav-btn.active{color:var(--accent);background:var(--bg);border:1px solid var(--border);border-bottom:1px solid var(--bg);margin-bottom:-1px}
-.page{display:none;padding:20px 20px 80px;animation:fadeIn 0.3s ease}
+.nav-btn{
+flex-shrink:0;padding:8px 16px;border-radius:8px 8px 0 0;
+font-family:var(–mono);font-size:11px;letter-spacing:0.06em;
+text-transform:uppercase;cursor:pointer;border:none;
+background:transparent;color:var(–muted);
+transition:color 0.2s,background 0.2s;
+position:relative;
+}
+.nav-btn:hover{color:var(–text)}
+.nav-btn.active{
+color:var(–accent);background:var(–bg);
+border:1px solid var(–border);border-bottom:1px solid var(–bg);
+margin-bottom:-1px;
+}
+
+/* PAGES */
+.page{display:none;padding:20px 20px 60px;animation:fadeIn 0.3s ease}
 .page.active{display:block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* PAGE HEADER */
 .page-header{margin-bottom:24px}
-.page-tag{font-family:var(--mono);font-size:10px;letter-spacing:0.15em;color:var(--accent);text-transform:uppercase;margin-bottom:6px}
+.page-tag{
+font-family:var(–mono);font-size:10px;letter-spacing:0.15em;
+color:var(–accent);text-transform:uppercase;margin-bottom:6px;
+}
 .page-title{font-size:26px;font-weight:800;letter-spacing:-0.02em}
-.page-sub{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:4px}
-.cards-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
+.page-sub{font-family:var(–mono);font-size:11px;color:var(–muted);margin-top:4px}
+
+/* HERO CARDS ROW */
+.cards-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
 .cards-row.three{grid-template-columns:repeat(3,1fr)}
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:16px;position:relative;overflow:hidden}
-.card-accent{border-top:2px solid var(--accent)}
-.card-label{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+.card{
+background:var(–bg2);border:1px solid var(–border);
+border-radius:var(–r2);padding:16px;
+position:relative;overflow:hidden;
+}
+.card-accent{border-top:2px solid var(–accent)}
+.card-label{font-family:var(–mono);font-size:9px;letter-spacing:0.12em;color:var(–muted);text-transform:uppercase;margin-bottom:8px}
 .card-value{font-size:28px;font-weight:800;letter-spacing:-0.03em;line-height:1}
-.card-sub{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:5px}
-.gauge-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:18px;margin-bottom:16px}
-.gauge-label{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;margin-bottom:14px}
-.gauge-track{position:relative;height:10px;border-radius:999px;background:linear-gradient(90deg,#ef4444 0%,#f87171 20%,#fbbf24 35%,#4ade80 48%,#4ade80 65%,#00d4aa 80%,#00d4aa 100%);margin-bottom:6px}
-.gauge-needle{position:absolute;top:-4px;width:18px;height:18px;border-radius:50%;background:#fff;border:2px solid var(--bg);transform:translateX(-50%);transition:left 1s cubic-bezier(.34,1.56,.64,1);box-shadow:0 0 10px rgba(255,255,255,0.3)}
-.gauge-ticks{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;color:var(--muted)}
+.card-sub{font-family:var(–mono);font-size:10px;color:var(–muted);margin-top:5px}
+
+/* GAUGE */
+.gauge-wrap{
+background:var(–bg2);border:1px solid var(–border);
+border-radius:var(–r2);padding:18px;margin-bottom:20px;
+}
+.gauge-label{font-family:var(–mono);font-size:9px;letter-spacing:0.12em;color:var(–muted);text-transform:uppercase;margin-bottom:14px}
+.gauge-track{
+position:relative;height:10px;border-radius:999px;
+background:linear-gradient(90deg,#ef4444 0%,#f87171 20%,#fbbf24 35%,#4ade80 48%,#4ade80 65%,#00d4aa 80%,#00d4aa 100%);
+margin-bottom:6px;
+}
+.gauge-needle{
+position:absolute;top:-4px;
+width:18px;height:18px;border-radius:50%;
+background:#fff;border:2px solid var(–bg);
+transform:translateX(-50%);
+transition:left 1s cubic-bezier(.34,1.56,.64,1);
+box-shadow:0 0 10px rgba(255,255,255,0.3);
+}
+.gauge-ticks{display:flex;justify-content:space-between;font-family:var(–mono);font-size:9px;color:var(–muted)}
 .gauge-reading{text-align:center;font-size:32px;font-weight:800;letter-spacing:-0.03em;margin-top:14px}
-.gauge-reading-sub{text-align:center;font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:3px}
-.chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:16px;margin-bottom:16px}
-.chart-card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-.chart-card-title{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase}
+.gauge-reading-sub{text-align:center;font-family:var(–mono);font-size:10px;color:var(–muted);margin-top:3px}
+
+/* CHART CARDS */
+.chart-card{
+background:var(–bg2);border:1px solid var(–border);
+border-radius:var(–r2);padding:16px;margin-bottom:16px;
+}
+.chart-card-head{
+display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;
+}
+.chart-card-title{font-family:var(–mono);font-size:9px;letter-spacing:0.12em;color:var(–muted);text-transform:uppercase}
 .chart-legend{display:flex;gap:12px}
-.leg{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;color:var(--muted)}
+.leg{display:flex;align-items:center;gap:5px;font-family:var(–mono);font-size:9px;color:var(–muted)}
+.leg-dot{width:8px;height:8px;border-radius:50%}
 .leg-line{width:14px;height:2px;border-radius:1px}
 .leg-dash{width:14px;border-top:2px dashed}
 .chart-inner{position:relative}
-.strip-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:16px;margin-bottom:16px}
-.strip-head{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;margin-bottom:12px}
+
+/* SIGNAL STRIP */
+.strip-wrap{
+background:var(–bg2);border:1px solid var(–border);
+border-radius:var(–r2);padding:16px;margin-bottom:16px;
+}
+.strip-head{font-family:var(–mono);font-size:9px;letter-spacing:0.12em;color:var(–muted);text-transform:uppercase;margin-bottom:12px}
 .strip{display:flex;gap:4px;overflow-x:auto;padding-bottom:8px;align-items:flex-end;scrollbar-width:none}
 .strip::-webkit-scrollbar{display:none}
-.strip-block{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px}
+.strip-block{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:default}
 .strip-bar{width:20px;border-radius:3px 3px 0 0;min-height:4px}
-.strip-lbl{font-family:var(--mono);font-size:8px;color:var(--muted);writing-mode:vertical-rl;transform:rotate(180deg);height:26px}
-.strip-hint{font-family:var(--mono);font-size:9px;color:var(--muted);text-align:center;margin-top:4px}
-.table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;margin-bottom:16px}
-.table-head{display:grid;padding:10px 16px;border-bottom:1px solid var(--border2);font-family:var(--mono);font-size:9px;letter-spacing:0.1em;color:var(--muted);text-transform:uppercase}
-.table-row{display:grid;padding:10px 16px;border-bottom:1px solid var(--border);align-items:center;transition:background 0.15s}
+.strip-lbl{font-family:var(–mono);font-size:8px;color:var(–muted);writing-mode:vertical-rl;transform:rotate(180deg);height:26px}
+.strip-hint{font-family:var(–mono);font-size:9px;color:var(–muted);text-align:center;margin-top:4px}
+
+/* TABLE */
+.table-wrap{
+background:var(–bg2);border:1px solid var(–border);
+border-radius:var(–r2);overflow:hidden;margin-bottom:16px;
+}
+.table-head{
+display:grid;padding:10px 16px;
+border-bottom:1px solid var(–border2);
+font-family:var(–mono);font-size:9px;letter-spacing:0.1em;color:var(–muted);text-transform:uppercase;
+}
+.table-row{
+display:grid;padding:10px 16px;
+border-bottom:1px solid var(–border);
+align-items:center;transition:background 0.15s;
+}
 .table-row:last-child{border-bottom:none}
 .table-row:hover{background:rgba(255,255,255,0.02)}
-.table-row.today{background:rgba(0,212,170,0.05);border-left:2px solid var(--accent)}
-.td-date{font-family:var(--mono);font-size:11px;color:var(--muted2)}
-.td-val{font-family:var(--mono);font-size:13px;font-weight:500}
-.td-ewma{font-family:var(--mono);font-size:11px;color:var(--muted)}
-.td-pct{font-family:var(--mono);font-size:12px;font-weight:500}
-.td-sig{font-family:var(--mono);font-size:9px}
-.coming-soon{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center;gap:12px}
+.table-row.today{background:rgba(0,212,170,0.05);border-left:2px solid var(–accent)}
+.td-date{font-family:var(–mono);font-size:11px;color:var(–muted2)}
+.td-val{font-family:var(–mono);font-size:13px;font-weight:500}
+.td-ewma{font-family:var(–mono);font-size:11px;color:var(–muted)}
+.td-pct{font-family:var(–mono);font-size:12px;font-weight:500}
+.td-sig{font-family:var(–mono);font-size:9px}
+
+/* COMING SOON */
+.coming-soon{
+display:flex;flex-direction:column;align-items:center;justify-content:center;
+padding:60px 20px;text-align:center;gap:12px;
+}
 .cs-icon{font-size:40px;opacity:0.3}
-.cs-title{font-size:18px;font-weight:700;color:var(--muted2)}
-.cs-sub{font-family:var(--mono);font-size:11px;color:var(--muted);max-width:260px;line-height:1.6}
-.c-green{color:var(--green)}.c-amber{color:var(--amber)}.c-red{color:var(--red)}.c-red2{color:var(--red2)}.c-accent{color:var(--accent)}.c-muted{color:var(--muted)}
-.badge{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:999px;font-family:var(--mono);font-size:10px;font-weight:500}
-.badge-green{background:rgba(74,222,128,0.12);color:var(--green);border:1px solid rgba(74,222,128,0.2)}
-.badge-amber{background:rgba(251,191,36,0.12);color:var(--amber);border:1px solid rgba(251,191,36,0.2)}
-.badge-red{background:rgba(248,113,113,0.12);color:var(--red);border:1px solid rgba(248,113,113,0.2)}
-.badge-accent{background:rgba(0,212,170,0.12);color:var(--accent);border:1px solid rgba(0,212,170,0.2)}
+.cs-title{font-size:18px;font-weight:700;color:var(–muted2)}
+.cs-sub{font-family:var(–mono);font-size:11px;color:var(–muted);max-width:260px;line-height:1.6}
+
+/* SIGNAL COLORS */
+.c-green{color:var(–green)}
+.c-amber{color:var(–amber)}
+.c-red{color:var(–red)}
+.c-red2{color:var(–red2)}
+.c-accent{color:var(–accent)}
+.c-muted{color:var(–muted)}
+
+/* BADGE */
+.badge{
+display:inline-flex;align-items:center;gap:5px;
+padding:5px 11px;border-radius:999px;
+font-family:var(–mono);font-size:10px;font-weight:500;
+}
+.badge-green{background:rgba(74,222,128,0.12);color:var(–green);border:1px solid rgba(74,222,128,0.2)}
+.badge-amber{background:rgba(251,191,36,0.12);color:var(–amber);border:1px solid rgba(251,191,36,0.2)}
+.badge-red{background:rgba(248,113,113,0.12);color:var(–red);border:1px solid rgba(248,113,113,0.2)}
+.badge-accent{background:rgba(0,212,170,0.12);color:var(–accent);border:1px solid rgba(0,212,170,0.2)}
 .badge-dot{width:5px;height:5px;border-radius:50%;background:currentColor}
-.ref-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:16px}
-.ref-title{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
+
+/* LEGEND REF */
+.ref-box{
+background:var(–bg2);border:1px solid var(–border);
+border-radius:var(–r);padding:14px 16px;margin-bottom:16px;
+}
+.ref-title{font-family:var(–mono);font-size:9px;letter-spacing:0.12em;color:var(–muted);text-transform:uppercase;margin-bottom:10px}
 .ref-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.ref-item{display:flex;align-items:flex-start;gap:7px;font-family:var(--mono);font-size:10px;color:var(--muted);line-height:1.4}
+.ref-item{display:flex;align-items:flex-start;gap:7px;font-family:var(–mono);font-size:10px;color:var(–muted);line-height:1.4}
 .ref-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:2px}
-.loading{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;color:var(--muted);padding:40px 0;justify-content:center}
-.spin{width:16px;height:16px;border-radius:50%;border:2px solid var(--border2);border-top-color:var(--accent);animation:spin 0.8s linear infinite}
+
+/* LOADING */
+.loading{
+display:flex;align-items:center;gap:10px;
+font-family:var(–mono);font-size:11px;color:var(–muted);
+padding:40px 0;justify-content:center;
+}
+.spin{
+width:16px;height:16px;border-radius:50%;
+border:2px solid var(–border2);border-top-color:var(–accent);
+animation:spin 0.8s linear infinite;
+}
 @keyframes spin{to{transform:rotate(360deg)}}
-.error-box{background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);border-radius:var(--r);padding:16px;font-family:var(--mono);font-size:11px;color:var(--red);line-height:1.6;margin-bottom:16px}
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(10,12,15,0.95);backdrop-filter:blur(12px);border-top:1px solid var(--border);display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom))}
-.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;border:none;background:transparent;cursor:pointer;font-family:var(--mono);font-size:8px;letter-spacing:0.05em;color:var(--muted);text-transform:uppercase;transition:color 0.2s}
-.bnav-btn.active{color:var(--accent)}
+
+/* ERROR */
+.error-box{
+background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);
+border-radius:var(–r);padding:16px;
+font-family:var(–mono);font-size:11px;color:var(–red);line-height:1.6;
+margin-bottom:16px;
+}
+
+/* BOTTOM NAV (mobile) */
+.bottom-nav{
+position:fixed;bottom:0;left:0;right:0;z-index:100;
+background:rgba(10,12,15,0.95);backdrop-filter:blur(12px);
+border-top:1px solid var(–border);
+display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));
+}
+.bnav-btn{
+flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+padding:6px 4px;border:none;background:transparent;cursor:pointer;
+font-family:var(–mono);font-size:8px;letter-spacing:0.05em;
+color:var(–muted);text-transform:uppercase;transition:color 0.2s;
+}
+.bnav-btn.active{color:var(–accent)}
 .bnav-icon{font-size:18px;line-height:1}
+
+/* ── MOBILE FIXES ── */
+@media(max-width:430px){
+.cards-row.three .card-value{font-size:18px}
+.cards-row.three .card{padding:12px 10px}
+.gauge-reading{font-size:26px}
+.page{padding:16px 14px 80px}
+.topbar{padding:0 14px}
+.card-value{font-size:24px}
+.table-wrap{font-size:11px}
+.td-date{font-size:10px}
+.td-pct{font-size:11px}
+.td-sig{font-size:9px}
+.strip-bar{width:14px}
+.nav{padding:10px 14px 0}
+.nav-btn{padding:6px 12px;font-size:10px}
+}
 </style>
+
 </head>
 <body>
+
+<!-- ══ LOCK SCREEN ══ -->
 
 <div id="lock-screen">
   <div class="lock-logo">Performance Monitor · v1.0</div>
   <div class="lock-accent-bar"></div>
   <div class="lock-title">Dani</div>
   <div class="lock-sub">Enter your access code</div>
-  <input class="lock-input" id="pin-input" type="password" placeholder="password" autocomplete="off" onkeydown="if(event.key==='Enter')tryUnlock()">
+  <input class="lock-input" id="pin-input" type="password"
+    placeholder="password" autocomplete="off"
+    onkeydown="if(event.key==='Enter')tryUnlock()">
+  <div style="height:14px"></div>
   <button class="lock-btn" onclick="tryUnlock()">Enter Dashboard</button>
   <div class="lock-error" id="lock-error">Incorrect password — try again</div>
 </div>
 
+<!-- ══ APP ══ -->
+
 <div id="app">
+
+  <!-- Top bar -->
+
   <div class="topbar">
     <div class="topbar-brand">Dani <span>Monitor</span></div>
     <div class="topbar-date" id="top-date"></div>
   </div>
+
+  <!-- Desktop nav (hidden on mobile, shown via bottom nav) -->
+
   <div class="nav" id="top-nav">
     <button class="nav-btn active" onclick="showPage('hrv',this)">HRV</button>
     <button class="nav-btn" onclick="showPage('td',this)">Total Distance</button>
@@ -142,50 +370,114 @@ body{min-height:100vh;background:var(--bg)}
     <button class="nav-btn" onclick="showPage('sprint',this)">Sprint</button>
   </div>
 
+  <!-- ── HRV PAGE ── -->
+
   <div class="page active" id="page-hrv">
     <div class="page-header">
       <div class="page-tag">Recovery Monitoring</div>
       <div class="page-title">Heart Rate Variability</div>
       <div class="page-sub" id="hrv-lastupdate">Loading data...</div>
     </div>
-    <div id="hrv-content"><div class="loading"><div class="spin"></div>Connecting to Google Sheets...</div></div>
+    <div id="hrv-content"><div class="loading"><div class="spin"></div>Fetching data from Google Sheets...</div></div>
   </div>
+
+  <!-- ── TD PAGE ── -->
 
   <div class="page" id="page-td">
-    <div class="page-header"><div class="page-tag">Load Monitoring</div><div class="page-title">Total Distance</div></div>
-    <div class="coming-soon"><div class="cs-icon">📏</div><div class="cs-title">Coming soon</div><div class="cs-sub">Add a "TD" tab to your Google Sheet</div></div>
+    <div class="page-header">
+      <div class="page-tag">Load Monitoring</div>
+      <div class="page-title">Total Distance</div>
+      <div class="page-sub">Daily metres covered in training</div>
+    </div>
+    <div class="coming-soon">
+      <div class="cs-icon">📏</div>
+      <div class="cs-title">Coming soon</div>
+      <div class="cs-sub">Add a "TD" tab to your Google Sheet and this page will populate automatically</div>
+    </div>
   </div>
+
+  <!-- ── HML PAGE ── -->
 
   <div class="page" id="page-hml">
-    <div class="page-header"><div class="page-tag">Load Monitoring</div><div class="page-title">High Metabolic Load</div></div>
-    <div class="coming-soon"><div class="cs-icon">⚡</div><div class="cs-title">Coming soon</div><div class="cs-sub">Add a "HML" tab to your Google Sheet</div></div>
+    <div class="page-header">
+      <div class="page-tag">Load Monitoring</div>
+      <div class="page-title">High Metabolic Load</div>
+      <div class="page-sub">Daily HML distance (m)</div>
+    </div>
+    <div class="coming-soon">
+      <div class="cs-icon">⚡</div>
+      <div class="cs-title">Coming soon</div>
+      <div class="cs-sub">Add a "HML" tab to your Google Sheet and this page will populate automatically</div>
+    </div>
   </div>
+
+  <!-- ── HSR PAGE ── -->
 
   <div class="page" id="page-hsr">
-    <div class="page-header"><div class="page-tag">Speed Monitoring</div><div class="page-title">High Speed Running</div></div>
-    <div class="coming-soon"><div class="cs-icon">🏃</div><div class="cs-title">Coming soon</div><div class="cs-sub">Add a "HSR" tab to your Google Sheet</div></div>
+    <div class="page-header">
+      <div class="page-tag">Speed Monitoring</div>
+      <div class="page-title">High Speed Running</div>
+      <div class="page-sub">Distance covered above 19.8 km/h</div>
+    </div>
+    <div class="coming-soon">
+      <div class="cs-icon">🏃</div>
+      <div class="cs-title">Coming soon</div>
+      <div class="cs-sub">Add a "HSR" tab to your Google Sheet and this page will populate automatically</div>
+    </div>
   </div>
+
+  <!-- ── SPRINT PAGE ── -->
 
   <div class="page" id="page-sprint">
-    <div class="page-header"><div class="page-tag">Speed Monitoring</div><div class="page-title">Sprint Distance</div></div>
-    <div class="coming-soon"><div class="cs-icon">💨</div><div class="cs-title">Coming soon</div><div class="cs-sub">Add a "Sprint" tab to your Google Sheet</div></div>
+    <div class="page-header">
+      <div class="page-tag">Speed Monitoring</div>
+      <div class="page-title">Sprint Distance</div>
+      <div class="page-sub">Distance covered above 25 km/h</div>
+    </div>
+    <div class="coming-soon">
+      <div class="cs-icon">💨</div>
+      <div class="cs-title">Coming soon</div>
+      <div class="cs-sub">Add a "Sprint" tab to your Google Sheet and this page will populate automatically</div>
+    </div>
   </div>
+
+  <!-- Bottom nav (mobile) -->
 
   <div class="bottom-nav">
-    <button class="bnav-btn active" id="bn-hrv" onclick="showPage('hrv',null,'bn-hrv')"><span class="bnav-icon">♥</span>HRV</button>
-    <button class="bnav-btn" id="bn-td" onclick="showPage('td',null,'bn-td')"><span class="bnav-icon">📏</span>TD</button>
-    <button class="bnav-btn" id="bn-hml" onclick="showPage('hml',null,'bn-hml')"><span class="bnav-icon">⚡</span>HML</button>
-    <button class="bnav-btn" id="bn-hsr" onclick="showPage('hsr',null,'bn-hsr')"><span class="bnav-icon">🏃</span>HSR</button>
-    <button class="bnav-btn" id="bn-sprint" onclick="showPage('sprint',null,'bn-sprint')"><span class="bnav-icon">💨</span>Sprint</button>
+    <button class="bnav-btn active" id="bn-hrv" onclick="showPage('hrv',null,'bn-hrv')">
+      <span class="bnav-icon">♥</span>HRV
+    </button>
+    <button class="bnav-btn" id="bn-td" onclick="showPage('td',null,'bn-td')">
+      <span class="bnav-icon">📏</span>TD
+    </button>
+    <button class="bnav-btn" id="bn-hml" onclick="showPage('hml',null,'bn-hml')">
+      <span class="bnav-icon">⚡</span>HML
+    </button>
+    <button class="bnav-btn" id="bn-hsr" onclick="showPage('hsr',null,'bn-hsr')">
+      <span class="bnav-icon">🏃</span>HSR
+    </button>
+    <button class="bnav-btn" id="bn-sprint" onclick="showPage('sprint',null,'bn-sprint')">
+      <span class="bnav-icon">💨</span>Sprint
+    </button>
   </div>
-</div>
+
+</div><!-- /app -->
 
 <script>
-const PASSWORD = 'dani2026';
+// ══════════════════════════════════════════
+//  !! CONFIGURE THESE TWO LINES !!
+// ══════════════════════════════════════════
+const PASSWORD = 'dani2026';          // Change this to your password
+const SHEET_ID = '1RGRifUmIg5LoEdIOaRP19b1f-QswRC8g10-IDGhSCJY'; // Paste your Google Sheet ID here
+// ══════════════════════════════════════════
+
+// Google Apps Script API — no CORS, reads live from your Sheet
 const API_URL = 'https://script.google.com/macros/s/AKfycbx-mCY7HFbCLCccrOwGEu0zO-JZl0mzMWow5bMWDSg7agO7njMlrzsal5bb_w6iEYoU/exec';
+function sheetUrl(tabName){
+  return API_URL + '?sheet=' + encodeURIComponent(tabName);
+}
 
-function sheetUrl(tab){ return API_URL + '?sheet=' + encodeURIComponent(tab); }
-
+// ── PASSWORD ──
 function tryUnlock(){
   const val = document.getElementById('pin-input').value;
   const err = document.getElementById('lock-error');
@@ -203,120 +495,325 @@ function tryUnlock(){
   }
 }
 
+// ── NAV ──
+let currentPage = 'hrv';
 function showPage(id, btn, bnId){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-  else document.querySelectorAll('.nav-btn').forEach(b=>{ if(b.textContent.toLowerCase().includes(id)) b.classList.add('active'); });
+  currentPage = id;
+  // top nav
+  if(btn){
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  } else {
+    document.querySelectorAll('.nav-btn').forEach(b=>{
+      b.classList.toggle('active', b.textContent.toLowerCase().includes(id));
+    });
+  }
+  // bottom nav
   document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
-  const el = document.getElementById(bnId||'bn-'+id);
+  const bnTarget = bnId || 'bn-'+id;
+  const el = document.getElementById(bnTarget);
   if(el) el.classList.add('active');
 }
 
-document.getElementById('top-date').textContent = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+// ── DATE ──
+document.getElementById('top-date').textContent =
+  new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
 
-const L = 2/29;
-function calcEWMA(v){ const s=v.slice(0,Math.min(7,v.length)).reduce((a,b)=>a+b,0)/Math.min(7,v.length); const e=[s]; for(let i=1;i<v.length;i++) e.push(+(L*v[i]+(1-L)*e[i-1]).toFixed(2)); return e; }
-function calcPct(v,e){ return v.map((x,i)=>+((x-e[i])/e[i]*100).toFixed(1)); }
-function sig(p){
-  if(p>=10)  return{t:'Well above', cls:'c-accent',badge:'badge-accent',color:'var(--accent)'};
-  if(p>=0)   return{t:'Normal',     cls:'c-green', badge:'badge-green', color:'var(--green)'};
-  if(p>=-5)  return{t:'Slightly low',cls:'c-amber',badge:'badge-amber', color:'var(--amber)'};
-  if(p>=-10) return{t:'Mild supp.', cls:'c-amber', badge:'badge-amber', color:'var(--amber)'};
-  if(p>=-20) return{t:'Significant',cls:'c-red',   badge:'badge-red',   color:'var(--red)'};
-  return          {t:'Strong ⚠',   cls:'c-red2',  badge:'badge-red',   color:'var(--red2)'};
+// ── EWMA HELPERS ──
+const lambda28 = 2/29;
+function calcEWMA(values){
+  const seed = values.slice(0,Math.min(7,values.length)).reduce((a,b)=>a+b,0)/Math.min(7,values.length);
+  const ewma = [seed];
+  for(let i=1;i<values.length;i++)
+    ewma.push(+(lambda28*values[i]+(1-lambda28)*ewma[i-1]).toFixed(2));
+  return ewma;
+}
+function calcPct(values,ewma){
+  return values.map((v,i)=>+((v-ewma[i])/ewma[i]*100).toFixed(1));
+}
+function sigInfo(p){
+  if(p>=10)  return{t:'Well above',cls:'c-accent',badge:'badge-accent',color:'var(--accent)'};
+  if(p>=0)   return{t:'Normal',    cls:'c-green', badge:'badge-green', color:'var(--green)'};
+  if(p>=-5)  return{t:'Slightly low',cls:'c-amber',badge:'badge-amber',color:'var(--amber)'};
+  if(p>=-10) return{t:'Mild supp.',cls:'c-amber', badge:'badge-amber', color:'var(--amber)'};
+  if(p>=-20) return{t:'Significant',cls:'c-red',  badge:'badge-red',   color:'var(--red)'};
+  return          {t:'Strong ⚠',  cls:'c-red2',  badge:'badge-red',   color:'var(--red2)'};
 }
 
-const co = {
+// Chart defaults
+const chartOpts = {
   responsive:true,maintainAspectRatio:false,
-  plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(8,10,13,0.95)',titleColor:'#e8e6e0',bodyColor:'#6b6960',borderColor:'rgba(255,255,255,0.08)',borderWidth:1,titleFont:{family:'DM Mono',size:11},bodyFont:{family:'DM Mono',size:10},padding:10,cornerRadius:8}},
+  plugins:{legend:{display:false},tooltip:{
+    backgroundColor:'rgba(8,10,13,0.95)',
+    titleColor:'#e8e6e0',bodyColor:'#6b6960',
+    borderColor:'rgba(255,255,255,0.08)',borderWidth:1,
+    titleFont:{family:'DM Mono',size:11},bodyFont:{family:'DM Mono',size:10},
+    padding:10,cornerRadius:8,
+  }},
   scales:{
-    x:{ticks:{color:'#6b6960',font:{family:'DM Mono',size:9},maxRotation:45,autoSkip:true,maxTicksLimit:10},grid:{color:'rgba(255,255,255,0.04)'},border:{color:'rgba(255,255,255,0.06)'}},
-    y:{ticks:{color:'#6b6960',font:{family:'DM Mono',size:9}},grid:{color:'rgba(255,255,255,0.04)'},border:{color:'rgba(255,255,255,0.06)'}}
+    x:{ticks:{color:'#6b6960',font:{family:'DM Mono',size:9},maxRotation:0,autoSkip:true,maxTicksLimit:6},
+       grid:{color:'rgba(255,255,255,0.04)'},border:{color:'rgba(255,255,255,0.06)'}},
+    y:{ticks:{color:'#6b6960',font:{family:'DM Mono',size:9}},
+       grid:{color:'rgba(255,255,255,0.04)'},border:{color:'rgba(255,255,255,0.06)'}}
   }
 };
 
+// ── PARSE CSV ──
+function parseCSV(text){
+  const lines = text.trim().split('\n').filter(l=>l.trim());
+  const data = [];
+  for(let i=1;i<lines.length;i++){
+    const cols = lines[i].replace(/"/g,'').split(',');
+    const dateStr = cols[0]?.trim();
+    const val = parseFloat(cols[1]);
+    if(dateStr && !isNaN(val)) data.push({date:dateStr,value:val});
+  }
+  return data;
+}
+
+// ── BUILD HRV PAGE ──
+function cleanDate(raw){
+  if(!raw) return '';
+  const s = raw.toString().trim();
+  const d = new Date(s);
+  if(!isNaN(d.getTime())){
+    return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0');
+  }
+  if(s.includes('/')){
+    const p = s.split('/');
+    return p[0].padStart(2,'0')+'/'+p[1].padStart(2,'0');
+  }
+  const mo = {jan:'01',feb:'02',mar:'03',apr:'04',mai:'05',iun:'06',iul:'07',aug:'08',sep:'09',oct:'10',nov:'11',dec:'12'};
+  const m = s.toLowerCase().match(/(\d+)[^a-z]*([a-z]{3})/);
+  if(m) return m[1].padStart(2,'0')+'/'+(mo[m[2]]||'??');
+  return s.slice(0,5);
+}
+
 function buildHRV(data){
-  if(!data.length){ document.getElementById('hrv-content').innerHTML='<div class="error-box">No data found. Make sure your Sheet has a tab named "HRV" with columns Date and HRV.</div>'; return; }
-  const labels=data.map(d=>d.date), raw=data.map(d=>d.value), n=raw.length;
-  const ewma=calcEWMA(raw), pct=calcPct(raw,ewma);
-  const pL=pct[n-1], eL=ewma[n-1], si=sig(pL);
-  const p7=pct.slice(-7), tr=p7[p7.length-1]-p7[0];
-  document.getElementById('hrv-lastupdate').textContent=`Last entry: ${labels[n-1]} · ${n} readings`;
-  document.getElementById('hrv-content').innerHTML=`
+  if(!data.length){
+    document.getElementById('hrv-content').innerHTML =
+      `<div class="error-box">No data found. Make sure your Google Sheet has a tab named "HRV" with columns: Date, HRV</div>`;
+    return;
+  }
+  const labels = data.map(d=>cleanDate(d.date));
+  const raw    = data.map(d=>d.value);
+  const ewma   = calcEWMA(raw);
+  const pct    = calcPct(raw,ewma);
+  const n      = raw.length;
+  const last   = raw[n-1];
+  const ewmaL  = ewma[n-1];
+  const pctL   = pct[n-1];
+  const si     = sigInfo(pctL);
+
+  // 7-day trend
+  const p7 = pct.slice(-7);
+  const trend = p7[p7.length-1] - p7[0];
+
+  document.getElementById('hrv-lastupdate').textContent =
+    `Last entry: ${labels[n-1]} · ${n} total readings`;
+
+  const html = `
+    <!-- CARDS -->
     <div class="cards-row">
-      <div class="card card-accent"><div class="card-label">Today's HRV</div><div class="card-value">${raw[n-1]}</div><div class="card-sub">ms · lnRMSSD</div></div>
-      <div class="card"><div class="card-label">EWMA baseline</div><div class="card-value">${eL.toFixed(1)}</div><div class="card-sub">28-day weighted</div></div>
+      <div class="card card-accent">
+        <div class="card-label">Today's HRV</div>
+        <div class="card-value">${last}</div>
+        <div class="card-sub">ms · lnRMSSD</div>
+      </div>
+      <div class="card">
+        <div class="card-label">EWMA baseline</div>
+        <div class="card-value">${ewmaL.toFixed(1)}</div>
+        <div class="card-sub">28-day weighted avg</div>
+      </div>
     </div>
     <div class="cards-row three">
-      <div class="card"><div class="card-label">Deviation</div><div class="card-value" style="font-size:22px;color:${si.color}">${pL>=0?'+':''}${pL}%</div><div class="card-sub">${si.t}</div></div>
-      <div class="card"><div class="card-label">Status</div><div style="margin-top:6px"><span class="badge ${si.badge}"><span class="badge-dot"></span>${si.t}</span></div></div>
-      <div class="card"><div class="card-label">7d trend</div><div class="card-value" style="font-size:22px;color:${tr>2?'var(--green)':tr<-2?'var(--red)':'var(--muted2)'}">${tr>2?'↑':tr<-2?'↓':'→'}</div><div class="card-sub">${tr>=0?'+':''}${tr.toFixed(1)}%</div></div>
+      <div class="card">
+        <div class="card-label">Deviation</div>
+        <div class="card-value" style="font-size:22px;color:${si.color}">${pctL>=0?'+':''}${pctL}%</div>
+        <div class="card-sub">${si.t}</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Status</div>
+        <div style="margin-top:6px"><span class="badge ${si.badge}"><span class="badge-dot"></span>${si.t}</span></div>
+      </div>
+      <div class="card">
+        <div class="card-label">7d trend</div>
+        <div class="card-value" style="font-size:22px;color:${trend>2?'var(--green)':trend<-2?'var(--red)':'var(--muted2)'}">${trend>2?'↑':trend<-2?'↓':'→'}</div>
+        <div class="card-sub">${trend>=0?'+':''}${trend.toFixed(1)}%</div>
+      </div>
     </div>
+
+    <!-- GAUGE -->
     <div class="gauge-wrap">
       <div class="gauge-label">Recovery gauge — today vs EWMA baseline</div>
       <div class="gauge-track"><div class="gauge-needle" id="gneedle"></div></div>
       <div class="gauge-ticks"><span>−25%</span><span>−10%</span><span>0</span><span>+10%</span><span>+20%</span></div>
-      <div class="gauge-reading" style="color:${si.color}">${pL>=0?'+':''}${pL}%</div>
+      <div class="gauge-reading" style="color:${si.color}">${pctL>=0?'+':''}${pctL}%</div>
       <div class="gauge-reading-sub">deviation from personal EWMA baseline</div>
     </div>
+
+    <!-- TREND CHART -->
     <div class="chart-card">
       <div class="chart-card-head">
         <div class="chart-card-title">HRV vs 28-day EWMA</div>
-        <div class="chart-legend"><div class="leg"><div class="leg-line" style="background:var(--accent)"></div>HRV</div><div class="leg"><div class="leg-dash" style="border-color:var(--accent2)"></div>EWMA</div></div>
+        <div class="chart-legend">
+          <div class="leg"><div class="leg-line" style="background:var(--accent)"></div>HRV</div>
+          <div class="leg"><div class="leg-dash" style="border-color:var(--accent2)"></div>EWMA</div>
+        </div>
       </div>
-      <div class="chart-inner" style="height:200px"><canvas id="hc1"></canvas></div>
+      <div class="chart-inner" style="height:200px"><canvas id="hrv-chart1"></canvas></div>
     </div>
+
+    <!-- DEVIATION CHART -->
     <div class="chart-card">
-      <div class="chart-card-head"><div class="chart-card-title">Daily % deviation from EWMA</div></div>
-      <div class="chart-inner" style="height:150px"><canvas id="hc2"></canvas></div>
+      <div class="chart-card-head">
+        <div class="chart-card-title">Daily % deviation from EWMA</div>
+      </div>
+      <div class="chart-inner" style="height:150px"><canvas id="hrv-chart2"></canvas></div>
     </div>
+
+    <!-- STRIP -->
     <div class="strip-wrap">
-      <div class="strip-head">Signal history</div>
-      <div class="strip" id="hstrip"></div>
+      <div class="strip-head">Signal history — all readings</div>
+      <div class="strip" id="hrv-strip"></div>
       <div class="strip-hint">← scroll to see older readings →</div>
     </div>
+
+    <!-- REF -->
     <div class="ref-box">
       <div class="ref-title">Signal reference</div>
       <div class="ref-grid">
-        <div class="ref-item"><div class="ref-dot" style="background:var(--accent)"></div><span>≥ +10% Well above</span></div>
-        <div class="ref-item"><div class="ref-dot" style="background:var(--green)"></div><span>0 to +10% Normal</span></div>
-        <div class="ref-item"><div class="ref-dot" style="background:var(--amber)"></div><span>−10% to 0% Mild supp.</span></div>
-        <div class="ref-item"><div class="ref-dot" style="background:var(--red)"></div><span>−10% to −20% Significant</span></div>
-        <div class="ref-item"><div class="ref-dot" style="background:var(--red2)"></div><span>&lt; −20% Strong ⚠</span></div>
-        <div class="ref-item"><div class="ref-dot" style="background:var(--muted)"></div><span>EWMA λ=2/29 (28-day)</span></div>
+        <div class="ref-item"><div class="ref-dot" style="background:var(--accent)"></div><span>≥ +10% — Well above baseline</span></div>
+        <div class="ref-item"><div class="ref-dot" style="background:var(--green)"></div><span>0 to +10% — Normal / recovered</span></div>
+        <div class="ref-item"><div class="ref-dot" style="background:var(--amber)"></div><span>−10% to 0% — Mild suppression</span></div>
+        <div class="ref-item"><div class="ref-dot" style="background:var(--red)"></div><span>−10% to −20% — Significant</span></div>
+        <div class="ref-item"><div class="ref-dot" style="background:var(--red2)"></div><span>< −20% — Strong ⚠ reduce load</span></div>
+        <div class="ref-item"><div class="ref-dot" style="background:var(--muted)"></div><span>EWMA λ = 2/29 ≈ 0.069 (28-day)</span></div>
       </div>
     </div>
+
+    <!-- TABLE -->
     <div class="table-wrap">
-      <div class="table-head" style="grid-template-columns:70px 44px 52px 58px 1fr"><span>Date</span><span>HRV</span><span>EWMA</span><span>Dev%</span><span>Signal</span></div>
-      <div id="htbl"></div>
-    </div>`;
+      <div class="table-head" style="grid-template-columns:70px 44px 52px 58px 1fr">
+        <span>Date</span><span>HRV</span><span>EWMA</span><span>Dev %</span><span>Signal</span>
+      </div>
+      <div id="hrv-table"></div>
+    </div>
+  `;
+  document.getElementById('hrv-content').innerHTML = html;
 
-  setTimeout(()=>{ const el=document.getElementById('gneedle'); if(el){ const gp=Math.min(Math.max((pL+30)/50*100,3),97); el.style.left=gp+'%'; } },300);
+  // Gauge needle
+  const gMin=-30,gMax=20;
+  const gPos=Math.min(Math.max((pctL-gMin)/(gMax-gMin)*100,3),97);
+  setTimeout(()=>{
+    const el=document.getElementById('gneedle');
+    if(el)el.style.left=gPos+'%';
+  },300);
 
-  new Chart(document.getElementById('hc1'),{type:'line',data:{labels,datasets:[
-    {label:'HRV',data:raw,borderColor:'#00d4aa',backgroundColor:'rgba(0,212,170,0.05)',pointRadius:raw.map((_,i)=>i===n-1?5:2.5),pointBackgroundColor:raw.map((_,i)=>pct[i]>=0?'#4ade80':pct[i]>=-10?'#fbbf24':'#f87171'),pointBorderColor:'rgba(10,12,15,0.7)',pointBorderWidth:1.5,tension:0.35,fill:true,borderWidth:2,order:1},
-    {label:'EWMA',data:ewma,borderColor:'#ff6b35',borderDash:[4,3],pointRadius:0,tension:0.4,fill:false,borderWidth:1.5,order:2}
-  ]},options:{...co,scales:{...co.scales,y:{...co.scales.y,min:30,max:90}}}});
+  // Chart 1
+  new Chart(document.getElementById('hrv-chart1'),{
+    type:'line',
+    data:{labels,datasets:[
+      {label:'HRV',data:raw,borderColor:'#00d4aa',backgroundColor:'rgba(0,212,170,0.05)',
+       pointRadius:raw.map((_,i)=>i===n-1?5:2.5),
+       pointBackgroundColor:raw.map((_,i)=>{const p=pct[i];return p>=0?'#4ade80':p>=-10?'#fbbf24':'#f87171'}),
+       pointBorderColor:'rgba(10,12,15,0.7)',pointBorderWidth:1.5,
+       tension:0.35,fill:true,borderWidth:2,order:1},
+      {label:'EWMA',data:ewma,borderColor:'#ff6b35',borderDash:[4,3],pointRadius:0,
+       tension:0.4,fill:false,borderWidth:1.5,order:2}
+    ]},
+    options:{...chartOpts,scales:{...chartOpts.scales,y:{...chartOpts.scales.y,min:30,max:90}}}
+  });
 
-  new Chart(document.getElementById('hc2'),{type:'bar',data:{labels,datasets:[{label:'%',data:pct,borderRadius:3,backgroundColor:pct.map(p=>p>=0?'rgba(74,222,128,0.7)':p>=-10?'rgba(251,191,36,0.7)':'rgba(248,113,113,0.7)')}]},options:{...co,scales:{...co.scales,y:{...co.scales.y,min:-45,max:25,ticks:{...co.scales.y.ticks,callback:v=>v+'%'}}}}});
+  // Chart 2
+  new Chart(document.getElementById('hrv-chart2'),{
+    type:'bar',
+    data:{labels,datasets:[{
+      label:'% dev',data:pct,borderRadius:3,
+      backgroundColor:pct.map(p=>p>=0?'rgba(74,222,128,0.7)':p>=-10?'rgba(251,191,36,0.7)':'rgba(248,113,113,0.7)')
+    }]},
+    options:{...chartOpts,scales:{
+      ...chartOpts.scales,
+      y:{...chartOpts.scales.y,min:-45,max:25,
+         ticks:{...chartOpts.scales.y.ticks,callback:v=>v+'%'}}
+    }}
+  });
 
-  const strip=document.getElementById('hstrip');
-  const mx=Math.max(...pct.map(Math.abs),1);
-  pct.forEach((p,i)=>{ const s2=sig(p),h=Math.max(6,Math.abs(p)/mx*70),b=document.createElement('div'); b.className='strip-block'; b.title=`${labels[i]}: ${raw[i]} (${p>=0?'+':''}${p}%)`; b.innerHTML=`<div class="strip-bar" style="height:${h}px;background:${s2.color};opacity:${i===n-1?1:0.65}"></div><div class="strip-lbl">${labels[i]}</div>`; strip.appendChild(b); });
+  // Strip
+  const strip=document.getElementById('hrv-strip');
+  const maxA=Math.max(...pct.map(Math.abs),1);
+  pct.forEach((p,i)=>{
+    const info=sigInfo(p);
+    const h=Math.max(6,Math.abs(p)/maxA*70);
+    const b=document.createElement('div');
+    b.className='strip-block';
+    b.title=`${labels[i]}: ${raw[i]} (${p>=0?'+':''}${p}%)`;
+    b.innerHTML=`<div class="strip-bar" style="height:${h}px;background:${info.color};opacity:${i===n-1?1:0.65}"></div><div class="strip-lbl">${labels[i]}</div>`;
+    strip.appendChild(b);
+  });
   setTimeout(()=>{strip.scrollLeft=strip.scrollWidth;},100);
 
-  const tbl=document.getElementById('htbl');
-  for(let i=n-1;i>=0;i--){ const p=pct[i],s2=sig(p),isT=i===n-1,row=document.createElement('div'); row.className='table-row'+(isT?' today':''); row.style.gridTemplateColumns='70px 44px 52px 58px 1fr'; row.innerHTML=`<span class="td-date">${labels[i]}${isT?' ★':''}</span><span class="td-val">${raw[i]}</span><span class="td-ewma">${ewma[i].toFixed(1)}</span><span class="td-pct ${s2.cls}">${p>=0?'+':''}${p}%</span><span class="td-sig ${s2.cls}">${s2.t}</span>`; tbl.appendChild(row); }
+  // Table
+  const tbl=document.getElementById('hrv-table');
+  for(let i=n-1;i>=0;i--){
+    const p=pct[i];const si2=sigInfo(p);const isT=i===n-1;
+    const row=document.createElement('div');
+    row.className='table-row'+(isT?' today':'');
+    row.style.gridTemplateColumns='70px 44px 52px 58px 1fr';
+    row.innerHTML=`
+      <span class="td-date">${labels[i]}${isT?' ★':''}</span>
+      <span class="td-val">${raw[i]}</span>
+      <span class="td-ewma">${ewma[i].toFixed(1)}</span>
+      <span class="td-pct ${si2.cls}">${p>=0?'+':''}${p}%</span>
+      <span class="td-sig ${si2.cls}">${si2.t}</span>
+    `;
+    tbl.appendChild(row);
+  }
 }
 
+// ── INIT ──
 function initApp(){
+  // Try to fetch from Google Sheets
+  if(false){
+    // Demo mode — use Dani's existing data
+    const demoData = [
+      {date:'07/03',value:57},{date:'08/03',value:65},{date:'09/03',value:66},
+      {date:'10/03',value:72},{date:'11/03',value:65},{date:'12/03',value:65},
+      {date:'13/03',value:56},{date:'14/03',value:60},{date:'15/03',value:57},
+      {date:'16/03',value:55},{date:'17/03',value:62},{date:'18/03',value:60},
+      {date:'19/03',value:68},{date:'20/03',value:62},{date:'21/03',value:55},
+      {date:'22/03',value:59},{date:'23/03',value:57},{date:'24/03',value:66},
+      {date:'25/03',value:62},{date:'26/03',value:62},{date:'27/03',value:55},
+      {date:'28/03',value:51},{date:'29/03',value:44},{date:'30/03',value:54},
+      {date:'31/03',value:64},{date:'01/04',value:68},{date:'02/04',value:62},
+      {date:'03/04',value:60},{date:'04/04',value:70},{date:'05/04',value:77},
+      {date:'06/04',value:66},{date:'07/04',value:78},{date:'08/04',value:71},
+      {date:'09/04',value:62}
+    ];
+    buildHRV(demoData);
+    return;
+  }
+
   fetch(sheetUrl('HRV'))
-    .then(r=>{ if(!r.ok) throw new Error('Apps Script error: '+r.status); return r.json(); })
-    .then(data=>{ if(data.error) throw new Error(data.error); buildHRV(data); })
-    .catch(err=>{ document.getElementById('hrv-content').innerHTML=`<div class="error-box">⚠ ${err.message}<br><br>Check:<br>1. Apps Script deployed as Web App<br>2. Access set to "Anyone"<br>3. Sheet tab named exactly "HRV"</div>`; });
+    .then(r=>{
+      if(!r.ok) throw new Error('Apps Script error: ' + r.status);
+      return r.json();
+    })
+    .then(data=>{
+      if(data.error) throw new Error(data.error);
+      buildHRV(data);
+    })
+    .catch(err=>{
+      document.getElementById('hrv-content').innerHTML=
+        `<div class="error-box">⚠ ${err.message}<br><br>Check:<br>
+        1. Apps Script is deployed as Web App<br>
+        2. Access is set to "Anyone"<br>
+        3. Sheet tab is named exactly "HRV"</div>`;
+    });
 }
 </script>
+
 </body>
 </html>
