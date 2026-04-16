@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session Template</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  /* ══ SESSION TEMPLATE STYLES ══
+     These styles are self-contained.
+     The session viewer in index.html will inject them automatically. */
+  :root {
+    --bg: #0a0608;
+    --surface: #120a0d;
+    --card: #1a0f12;
+    --rapid: #8B0020;
+    --rapid2: #a8002a;
+    --accent: #8B0020;   /* change to #c8f547 for lime, #47f5c8 for teal etc */
+    --accent2: #a8002a;
+    --text: #ede8e2;
+    --muted: #5a5450;
+    --border: #1e1214;
+  }
+  .session-wrap { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-weight: 300; padding: 32px 20px 60px; max-width: 860px; margin: 0 auto; }
+  .s-header { margin-bottom: 48px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
+  .s-tag { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; font-family: 'DM Sans', sans-serif; }
+  .s-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(44px, 9vw, 80px); line-height: 0.92; letter-spacing: 0.02em; }
+  .s-title span { color: var(--accent); }
+  .s-meta { display: flex; gap: 20px; margin-top: 18px; flex-wrap: wrap; }
+  .s-meta-item { font-size: 12px; color: var(--muted); letter-spacing: 0.06em; display: flex; align-items: center; gap: 5px; }
+  .s-meta-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
+
+  /* VIDEO EMBED */
+  .video-wrap { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 2px; margin: 24px 0; border: 1px solid var(--border); }
+  .video-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+
+  /* IMAGE */
+  .s-img { width: 100%; border-radius: 2px; border: 1px solid var(--border); display: block; margin: 16px 0; }
+
+  /* PHASES */
+  .phases { display: flex; flex-direction: column; gap: 20px; }
+  .phase { background: var(--card); border: 1px solid var(--border); border-radius: 2px; overflow: hidden; animation: fadeUp 0.5s ease both; }
+  .phase-header { display: flex; align-items: center; gap: 20px; padding: 20px 24px; border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; transition: background 0.2s; }
+  .phase-header:hover { background: rgba(139,0,32,0.06); }
+  .phase-num { font-family: 'Bebas Neue', sans-serif; font-size: 44px; line-height: 1; color: rgba(139,0,32,0.3); min-width: 44px; }
+  .phase-info { flex: 1; }
+  .phase-roman { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 3px; }
+  .phase-title { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 0.05em; }
+  .phase-toggle { width: 26px; height: 26px; border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 15px; transition: all 0.2s; flex-shrink: 0; }
+  .phase.open .phase-toggle { border-color: var(--accent); color: var(--accent); transform: rotate(45deg); }
+  .phase-body { display: none; padding: 24px; }
+  .phase.open .phase-body { display: block; }
+
+  /* TAGS / MUSCLES */
+  .tags { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 20px; }
+  .tag { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 11px; border: 1px solid var(--border); border-radius: 100px; color: var(--muted); }
+  .tag.hi { border-color: rgba(139,0,32,0.5); color: var(--accent); }
+
+  /* INSTRUCTIONS */
+  .instructions { display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; }
+  .instruction { display: flex; gap: 14px; align-items: flex-start; }
+  .instruction-num { width: 22px; height: 22px; background: var(--accent); color: #0a0608; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 500; flex-shrink: 0; margin-top: 2px; }
+  .instruction p { font-size: 14px; line-height: 1.7; color: #9a9490; }
+  .instruction p strong { color: var(--text); font-weight: 500; }
+
+  /* EXERCISE BLOCK */
+  .ex-block { background: var(--surface); border: 1px solid var(--border); border-radius: 2px; margin-bottom: 14px; overflow: hidden; }
+  .ex-header { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  .ex-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent2); flex-shrink: 0; }
+  .ex-name { font-size: 14px; color: var(--text); flex: 1; }
+  .ex-detail { font-size: 11px; color: var(--muted); white-space: nowrap; }
+  .ex-video { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; }
+  .ex-video iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+  .ex-img { width: 100%; display: block; }
+  .ex-note { padding: 10px 16px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); line-height: 1.6; }
+
+  /* TIMING GRID */
+  .timing { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 18px 0; }
+  .timing-box { background: var(--surface); border: 1px solid var(--border); padding: 14px; text-align: center; }
+  .timing-val { font-family: 'Bebas Neue', sans-serif; font-size: 30px; color: var(--accent); display: block; line-height: 1; }
+  .timing-lbl { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 3px; display: block; }
+
+  /* PAIRS */
+  .pairs { display: flex; flex-direction: column; gap: 10px; }
+  .pair { background: var(--surface); border: 1px solid var(--border); padding: 14px 18px; }
+  .pair-label { font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent2); margin-bottom: 8px; }
+  .pair-exercises { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .pair-ex { font-size: 13px; color: var(--text); flex: 1; min-width: 160px; }
+  .pair-ex span { display: block; font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .pair-div { font-size: 16px; color: var(--border); }
+  .pair-rest { font-size: 10px; color: var(--muted); letter-spacing: 0.05em; white-space: nowrap; }
+
+  /* NOTE */
+  .note { margin-top: 18px; padding: 12px 16px; border-left: 2px solid var(--accent); background: var(--surface); font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .note strong { color: var(--text); font-weight: 500; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+<div class="session-wrap">
+
+  <!-- ══ HEADER — edit this ══ -->
+  <div class="s-header">
+    <div class="s-tag">Session Type · Category</div>
+    <div class="s-title">Session<br><span>Title</span><br>Here</div>
+    <div class="s-meta">
+      <div class="s-meta-item"><div class="s-meta-dot"></div>45 min</div>
+      <div class="s-meta-item"><div class="s-meta-dot"></div>Activation</div>
+      <div class="s-meta-item"><div class="s-meta-dot"></div>Low intensity</div>
+    </div>
+  </div>
+
+  <!-- ══ OPTIONAL: session overview video ══ -->
+  <!--
+  <div class="video-wrap">
+    <iframe src="https://www.youtube.com/embed/VIDEO_ID_HERE" allowfullscreen></iframe>
+  </div>
+  -->
+
+  <!-- ══ PHASES ══ -->
+  <div class="phases">
+
+    <!-- PHASE 1 -->
+    <div class="phase open" id="p1">
+      <div class="phase-header" onclick="stoggle('p1')">
+        <div class="phase-num">01</div>
+        <div class="phase-info">
+          <div class="phase-roman">Phase I</div>
+          <div class="phase-title">Phase Name Here</div>
+        </div>
+        <div class="phase-toggle">+</div>
+      </div>
+      <div class="phase-body">
+
+        <!-- Tags / muscles targeted -->
+        <div class="tags">
+          <div class="tag hi">Muscle Group 1</div>
+          <div class="tag hi">Muscle Group 2</div>
+          <div class="tag">Secondary</div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="instructions">
+          <div class="instruction">
+            <div class="instruction-num">1</div>
+            <p>Write your instruction here. You can use <strong>bold text</strong> for emphasis.</p>
+          </div>
+          <div class="instruction">
+            <div class="instruction-num">2</div>
+            <p>Second instruction. Keep it clear and actionable.</p>
+          </div>
+        </div>
+
+        <!-- Exercise with video -->
+        <div class="ex-block">
+          <div class="ex-header">
+            <div class="ex-dot"></div>
+            <div class="ex-name">Exercise Name</div>
+            <div class="ex-detail">3x10 · 60s rest</div>
+          </div>
+          <!-- YouTube video — replace VIDEO_ID with the ID from the YouTube URL -->
+          <div class="ex-video">
+            <iframe src="https://www.youtube.com/embed/VIDEO_ID_HERE" allowfullscreen></iframe>
+          </div>
+          <div class="ex-note">Coaching note: Keep the lower back neutral throughout the movement.</div>
+        </div>
+
+        <!-- Exercise with image instead of video -->
+        <div class="ex-block">
+          <div class="ex-header">
+            <div class="ex-dot"></div>
+            <div class="ex-name">Exercise Name 2</div>
+            <div class="ex-detail">2x30s hold</div>
+          </div>
+          <!-- Image: upload to /images/ folder in GitHub and reference here -->
+          <!-- <img class="ex-img" src="../images/exercise-name.jpg" alt="Exercise Name 2"> -->
+          <div class="ex-note">Coaching note here.</div>
+        </div>
+
+        <!-- Timing grid (for timed circuits) -->
+        <div class="timing">
+          <div class="timing-box"><span class="timing-val">3</span><span class="timing-lbl">Sets</span></div>
+          <div class="timing-box"><span class="timing-val">45"</span><span class="timing-lbl">Work</span></div>
+          <div class="timing-box"><span class="timing-val">15"</span><span class="timing-lbl">Rest</span></div>
+        </div>
+
+        <div class="note"><strong>Coach note:</strong> Add any important notes for this phase here. Keep weight light — focus on activation, not fatigue.</div>
+      </div>
+    </div>
+
+    <!-- PHASE 2 -->
+    <div class="phase" id="p2">
+      <div class="phase-header" onclick="stoggle('p2')">
+        <div class="phase-num">02</div>
+        <div class="phase-info">
+          <div class="phase-roman">Phase II</div>
+          <div class="phase-title">Second Phase</div>
+        </div>
+        <div class="phase-toggle">+</div>
+      </div>
+      <div class="phase-body">
+        <div class="tags">
+          <div class="tag hi">Focus Area</div>
+        </div>
+
+        <!-- PAIRS (superset format) -->
+        <div class="pairs">
+          <div class="pair">
+            <div class="pair-label">Superset 1</div>
+            <div class="pair-exercises">
+              <div class="pair-ex">Exercise A<span>3x12</span></div>
+              <div class="pair-div">+</div>
+              <div class="pair-ex">Exercise B<span>3x12</span></div>
+              <div class="pair-rest">90s rest</div>
+            </div>
+          </div>
+          <div class="pair">
+            <div class="pair-label">Superset 2</div>
+            <div class="pair-exercises">
+              <div class="pair-ex">Exercise C<span>3x10</span></div>
+              <div class="pair-div">+</div>
+              <div class="pair-ex">Exercise D<span>30s hold</span></div>
+              <div class="pair-rest">60s rest</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="note">Add notes for this phase.</div>
+      </div>
+    </div>
+
+    <!-- Add more phases by copying a phase block above -->
+
+  </div><!-- /phases -->
+
+</div><!-- /session-wrap -->
+
+<script>
+  function stoggle(id){document.getElementById(id).classList.toggle('open');}
+</script>
+</body>
+</html>
