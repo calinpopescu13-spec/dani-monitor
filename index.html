@@ -9,10 +9,10 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#040a06;--sf:#08120a;--sf2:#0e1f12;
+  --bg:#040a06;--sf:#08120a;--sf2:#0e1f12;--sf3:#152918;
   --b:rgba(255,255,255,0.07);--b2:rgba(255,255,255,0.12);
   --rp:#1a7a3c;--rp2:#229e4f;--rp3:#2db85e;
-  --rpd:rgba(26,122,60,0.14);
+  --rpd:rgba(26,122,60,0.14);--rpg:rgba(26,122,60,0.28);
   --wh:#f0ece6;--tx:#ede8e2;--t2:#9a9490;--t3:#5a5450;
   --gn:#4cd97b;--gnd:rgba(76,217,123,0.12);
   --am:#f5b333;--amd:rgba(245,179,51,0.12);
@@ -23,54 +23,53 @@
 html{background:var(--bg);color:var(--tx);font-family:var(--f);-webkit-font-smoothing:antialiased}
 body{min-height:100dvh;overflow-x:hidden}
 
-/* ══ SCREEN SYSTEM ══ */
+/* ══ SCREENS ══ */
 .screen{display:none;position:fixed;inset:0;background:var(--bg);overflow-y:auto;transition:opacity .35s,transform .35s}
 .screen.on{display:flex;flex-direction:column}
 .screen.out{opacity:0;transform:scale(1.03);pointer-events:none}
 
-/* ══ SCREEN 1 — PROFILE SELECT ══ */
+/* ══ PROFILE SELECT ══ */
 #s1{align-items:center;padding:0 20px 40px}
-.fps-header{width:100%;max-width:480px;padding:48px 0 32px;text-align:center}
+.fps-header{width:100%;max-width:480px;padding:48px 0 28px;text-align:center}
 .fps-shield{width:60px;height:60px;border-radius:50%;background:var(--rpd);border:1px solid rgba(26,122,60,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 0 32px rgba(26,122,60,.1)}
 .fps-shield svg{width:26px;height:32px}
 .fps-eyebrow{font-family:var(--m);font-size:9px;letter-spacing:.2em;color:var(--rp2);text-transform:uppercase;margin-bottom:6px}
 .fps-name{font-family:var(--bb);font-size:26px;letter-spacing:.06em;color:var(--wh);line-height:1}
-.fps-divider{width:36px;height:2px;background:var(--rp);border-radius:1px;margin:18px auto 14px}
+.fps-divider{width:36px;height:2px;background:var(--rp);border-radius:1px;margin:16px auto 12px}
 .fps-prompt{font-family:var(--m);font-size:10px;color:var(--t3);letter-spacing:.08em}
 .profiles-grid{width:100%;max-width:480px;display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-
-/* Profile card */
 .pc{background:var(--sf);border:1px solid var(--b);border-radius:18px;padding:22px 14px 18px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:10px;position:relative;overflow:hidden}
 .pc::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(26,122,60,.07),transparent);opacity:0;transition:opacity .2s}
 .pc:hover{border-color:rgba(26,122,60,.45);background:var(--sf2)}.pc:hover::after{opacity:1}
 .pc:active{transform:scale(.97)}
-.pc-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--rp),var(--rp2));display:flex;align-items:center;justify-content:center;font-family:var(--bb);font-size:28px;color:var(--wh);border:2px solid rgba(26,122,60,.5);flex-shrink:0;position:relative}
+.pc-avatar{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--bb);font-size:28px;color:var(--wh);border:2px solid rgba(26,122,60,.5);flex-shrink:0;position:relative}
 .pc-online{position:absolute;bottom:2px;right:2px;width:10px;height:10px;border-radius:50%;background:var(--gn);border:2px solid var(--sf);box-shadow:0 0 6px rgba(76,217,123,.6)}
 .pc-name{font-family:var(--bb);font-size:20px;letter-spacing:.04em;color:var(--wh)}
 .pc-role{font-family:var(--m);font-size:8px;letter-spacing:.1em;color:var(--t3);text-transform:uppercase}
-.pc-arrow{font-family:var(--m);font-size:10px;color:var(--rp2);letter-spacing:.04em;margin-top:2px}
-
-/* Add athlete card */
+.pc-arrow{font-family:var(--m);font-size:9px;color:var(--rp2);letter-spacing:.04em}
 .pc-add{border:1px dashed rgba(255,255,255,.1);background:transparent}
 .pc-add:hover{border-color:rgba(26,122,60,.3);background:var(--rpd)}
 .pc-add-icon{width:44px;height:44px;border-radius:50%;border:1px dashed rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--t3)}
 .pc-add-lbl{font-family:var(--m);font-size:8px;letter-spacing:.1em;color:var(--t3);text-transform:uppercase}
+.admin-entry{margin-top:20px;width:100%;max-width:480px;text-align:center}
+.admin-link{font-family:var(--m);font-size:9px;letter-spacing:.1em;color:var(--t3);cursor:pointer;padding:8px 16px;border:1px solid var(--b);border-radius:6px;background:transparent;transition:all .2s;text-transform:uppercase}
+.admin-link:hover{color:var(--rp2);border-color:rgba(26,122,60,.3)}
 
-/* ══ SCREEN 2 — PASSWORD ══ */
-#s2{align-items:center;justify-content:center;padding:40px 28px}
+/* ══ PASSWORD ══ */
+#s2{align-items:center;justify-content:center;padding:40px 28px;position:relative}
 .pw-back{position:absolute;top:20px;left:20px;background:none;border:1px solid var(--b);border-radius:8px;padding:7px 12px;font-family:var(--m);font-size:9px;letter-spacing:.1em;color:var(--t3);cursor:pointer;text-transform:uppercase;transition:all .2s}
 .pw-back:hover{color:var(--rp2);border-color:rgba(26,122,60,.3)}
-.pw-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--rp),var(--rp2));display:flex;align-items:center;justify-content:center;font-family:var(--bb);font-size:32px;color:var(--wh);margin:0 auto 16px;border:2px solid rgba(26,122,60,.5);box-shadow:0 0 32px rgba(26,122,60,.2)}
+.pw-avatar{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--bb);font-size:32px;color:var(--wh);margin:0 auto 16px;border:2px solid rgba(26,122,60,.5);box-shadow:0 0 32px rgba(26,122,60,.2)}
 .pw-name{font-family:var(--bb);font-size:36px;letter-spacing:.04em;color:var(--wh);text-align:center;margin-bottom:4px}
 .pw-sub{font-family:var(--m);font-size:9px;color:var(--t3);letter-spacing:.08em;text-align:center;margin-bottom:32px}
 .pw-input{width:100%;max-width:300px;background:var(--sf2);border:1px solid var(--b2);border-radius:10px;padding:14px 18px;font-family:var(--m);font-size:14px;color:var(--tx);outline:none;letter-spacing:.12em;display:block;margin-bottom:10px;transition:border-color .2s,box-shadow .2s;-webkit-text-security:disc;text-align:center}
 .pw-input:focus{border-color:var(--rp2);box-shadow:0 0 0 3px var(--rpd)}
-.pw-btn{width:100%;max-width:300px;padding:14px;background:var(--rp);border:none;border-radius:10px;font-family:var(--bb);font-size:20px;letter-spacing:.12em;color:var(--wh);cursor:pointer;transition:background .15s,transform .1s;box-shadow:0 0 24px rgba(26,122,60,.25)}
+.pw-btn{width:100%;max-width:300px;padding:14px;background:var(--rp);border:none;border-radius:10px;font-family:var(--bb);font-size:20px;letter-spacing:.12em;color:var(--wh);cursor:pointer;transition:background .15s,transform .1s}
 .pw-btn:hover{background:var(--rp2)}.pw-btn:active{transform:scale(.98)}
 .pw-err{font-family:var(--m);font-size:10px;color:var(--rd);margin-top:10px;text-align:center;opacity:0;transition:opacity .2s;height:14px}
 .pw-err.show{opacity:1}
 
-/* ══ SCREEN 3 — APP ══ */
+/* ══ APP ══ */
 #s3{overflow-y:auto}
 .topbar{position:sticky;top:0;z-index:50;height:52px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;background:rgba(4,10,6,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--b);flex-shrink:0}
 .tb-l{display:flex;align-items:center;gap:10px}
@@ -132,12 +131,14 @@ body{min-height:100dvh;overflow-x:hidden}
 .tda{font-family:var(--m);font-size:10px;color:var(--t3)}
 .tva{font-family:var(--bb);font-size:15px;font-weight:400;color:var(--wh)}
 .tpa{font-family:var(--m);font-size:10px;font-weight:500}.tsa{font-family:var(--m);font-size:8px}
-.cg_{color:var(--gn)}.ca{color:var(--am)}.cr{color:var(--rd)}.cr2{color:#cc2200}.cup{color:#00c896}
+.cgn{color:var(--gn)}.ca{color:var(--am)}.cr{color:var(--rd)}.cr2{color:#cc2200}.cup{color:#00c896}
 .pill{display:inline-flex;align-items:center;gap:5px;background:var(--rpd);color:var(--rp2);border:1px solid rgba(26,122,60,.2);border-radius:5px;padding:3px 9px;font-family:var(--m);font-size:8px;letter-spacing:.06em;margin-bottom:10px}
 .refcrd{background:var(--sf);border:1px solid var(--b);border-radius:12px;padding:13px;margin-bottom:14px}
 .refgrid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:8px}
 .refrow{display:flex;align-items:center;gap:6px;font-family:var(--m);font-size:9px;color:var(--t3)}
 .refdot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+
+/* ══ TRAINING ══ */
 .train-controls{display:flex;gap:8px;margin-bottom:10px}
 .tsearch{flex:1;background:var(--sf);border:1px solid var(--b);border-radius:8px;padding:9px 12px;font-family:var(--m);font-size:11px;color:var(--tx);outline:none;transition:border-color .2s}
 .tsearch:focus{border-color:var(--rp2)}.tsearch::placeholder{color:var(--t3)}
@@ -162,12 +163,41 @@ body{min-height:100dvh;overflow-x:hidden}
 .scard-tags{display:flex;flex-wrap:wrap;gap:5px;padding:0 14px 10px}
 .scti{font-family:var(--m);font-size:7px;letter-spacing:.06em;padding:2px 8px;border:1px solid var(--b);border-radius:4px;color:var(--t3)}
 .no-res{font-family:var(--m);font-size:11px;color:var(--t3);text-align:center;padding:40px 0}
+
+/* ══ SESSION VIEWER ══ */
 #sv{display:none;position:fixed;inset:0;z-index:200;background:var(--bg);overflow-y:auto}
 #sv.on{display:block}
-.svtop{position:sticky;top:0;z-index:10;height:52px;padding:0 16px;display:flex;align-items:center;gap:12px;background:rgba(8,6,8,.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--b)}
+.svtop{position:sticky;top:0;z-index:10;height:52px;padding:0 16px;display:flex;align-items:center;gap:12px;background:rgba(4,10,6,.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--b)}
 .svback{background:none;border:none;color:var(--rp2);font-family:var(--bb);font-size:16px;letter-spacing:.08em;cursor:pointer;padding:8px 0}
-.svback:hover{color:var(--rp3)}
-#svcontent{padding:0 0 80px}
+#svcontent{padding:20px 20px 80px}
+
+/* ══ SESSION VIEWER CONTENT ══ */
+.sv-title{font-family:var(--bb);font-size:36px;letter-spacing:.04em;color:var(--wh);margin-bottom:4px;line-height:1}
+.sv-tag{font-family:var(--m);font-size:9px;letter-spacing:.15em;color:var(--rp2);text-transform:uppercase;margin-bottom:16px}
+.sv-meta{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--b)}
+.sv-meta-item{font-family:var(--m);font-size:10px;color:var(--t3)}
+.sv-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px}
+.sv-phase{background:var(--sf);border:1px solid var(--b);border-radius:12px;overflow:hidden;margin-bottom:12px}
+.sv-phase-hd{display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;border-bottom:1px solid var(--b);transition:background .2s}
+.sv-phase-hd:hover{background:rgba(26,122,60,.05)}
+.sv-phase-num{font-family:var(--bb);font-size:36px;line-height:1;color:rgba(26,122,60,.3);min-width:44px}
+.sv-phase-info{flex:1}
+.sv-phase-label{font-family:var(--m);font-size:8px;letter-spacing:.15em;color:var(--rp2);text-transform:uppercase;margin-bottom:2px}
+.sv-phase-name{font-family:var(--bb);font-size:20px;letter-spacing:.04em;color:var(--wh)}
+.sv-phase-toggle{color:var(--rp2);font-size:18px;transition:transform .2s}
+.sv-phase-body{padding:14px 16px;display:none}
+.sv-phase-body.open{display:block}
+.sv-exercise{background:var(--sf2);border:1px solid var(--b);border-radius:8px;margin-bottom:10px;overflow:hidden}
+.sv-ex-hd{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--b)}
+.sv-ex-dot{width:5px;height:5px;border-radius:50%;background:var(--rp2);flex-shrink:0}
+.sv-ex-name{font-family:var(--fc);font-size:15px;font-weight:600;color:var(--wh);flex:1}
+.sv-ex-sets{font-family:var(--m);font-size:10px;color:var(--t3)}
+.sv-ex-video{position:relative;padding-bottom:56.25%;height:0;overflow:hidden}
+.sv-ex-video iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+.sv-ex-note{padding:10px 14px;font-family:var(--f);font-size:13px;color:var(--t2);line-height:1.6;border-top:1px solid var(--b)}
+.sv-note{margin-top:12px;padding:12px 14px;border-left:2px solid var(--rp);background:var(--sf2);font-family:var(--f);font-size:13px;color:var(--t2);line-height:1.6;border-radius:0 8px 8px 0}
+
+/* ══ JOURNAL ══ */
 .jform{background:var(--sf);border:1px solid var(--b);border-radius:12px;padding:16px;margin-bottom:12px}
 .jftitle{font-family:var(--bb);font-size:20px;letter-spacing:.06em;color:var(--wh);margin-bottom:14px}
 .jfrow{margin-bottom:14px}
@@ -193,6 +223,68 @@ body{min-height:100dvh;overflow-x:hidden}
 .jeval{font-family:var(--bb);font-size:20px;line-height:1;color:var(--wh)}
 .jelbl{font-family:var(--m);font-size:7px;letter-spacing:.08em;color:var(--t3);text-transform:uppercase;margin-top:2px}
 .jenote{font-family:var(--f);font-size:13px;color:var(--t2);line-height:1.6;border-top:1px solid var(--b);padding-top:8px;margin-top:4px}
+
+/* ══ ADMIN PANEL ══ */
+#s-admin{overflow-y:auto;background:var(--bg)}
+.admin-topbar{position:sticky;top:0;z-index:50;height:52px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;background:rgba(4,10,6,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--b)}
+.admin-title{font-family:var(--bb);font-size:18px;letter-spacing:.08em;color:var(--wh)}
+.admin-back{background:none;border:1px solid var(--b);border-radius:8px;padding:6px 12px;font-family:var(--m);font-size:9px;letter-spacing:.1em;color:var(--t3);cursor:pointer;text-transform:uppercase;transition:all .2s}
+.admin-back:hover{color:var(--rp2);border-color:rgba(26,122,60,.3)}
+.admin-tabs{display:flex;background:var(--sf);border-bottom:1px solid var(--b);padding:0 16px}
+.admin-tab{flex:1;padding:11px 8px 10px;font-family:var(--bb);font-size:13px;letter-spacing:.08em;color:var(--t3);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;transition:all .2s;text-align:center}
+.admin-tab.on{color:var(--wh);border-bottom-color:var(--rp)}
+.admin-pg{display:none;padding:16px}.admin-pg.on{display:block}
+
+/* Admin form elements */
+.aform{background:var(--sf);border:1px solid var(--b);border-radius:12px;padding:16px;margin-bottom:14px}
+.aform-title{font-family:var(--bb);font-size:18px;letter-spacing:.06em;color:var(--wh);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.arow{margin-bottom:12px}
+.albl{font-family:var(--m);font-size:9px;letter-spacing:.12em;color:var(--t3);text-transform:uppercase;margin-bottom:6px;display:block}
+.ainput{width:100%;background:var(--sf2);border:1px solid var(--b);border-radius:8px;padding:10px 12px;font-family:var(--f);font-size:14px;color:var(--tx);outline:none;transition:border-color .2s}
+.ainput:focus{border-color:var(--rp2)}
+.ainput::placeholder{color:var(--t3)}
+.aselect{width:100%;background:var(--sf2);border:1px solid var(--b);border-radius:8px;padding:10px 12px;font-family:var(--f);font-size:14px;color:var(--tx);outline:none;cursor:pointer}
+.aselect:focus{border-color:var(--rp2)}
+.atextarea{width:100%;background:var(--sf2);border:1px solid var(--b);border-radius:8px;padding:10px 12px;font-family:var(--f);font-size:14px;color:var(--tx);outline:none;resize:none;line-height:1.6}
+.atextarea:focus{border-color:var(--rp2)}
+.agrid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.abtn{padding:11px 18px;background:var(--rp);border:none;border-radius:8px;font-family:var(--bb);font-size:16px;letter-spacing:.08em;color:var(--wh);cursor:pointer;transition:background .15s}
+.abtn:hover{background:var(--rp2)}
+.abtn.secondary{background:var(--sf2);border:1px solid var(--b);color:var(--t2)}
+.abtn.secondary:hover{border-color:var(--b2);color:var(--tx)}
+.abtn.danger{background:rgba(255,82,82,.1);border:1px solid rgba(255,82,82,.2);color:var(--rd)}
+.abtn.danger:hover{background:rgba(255,82,82,.2)}
+.abtn.small{padding:6px 12px;font-size:13px}
+.amsg{font-family:var(--m);font-size:10px;color:var(--gn);margin-top:8px;opacity:0;transition:opacity .3s;height:14px}
+.amsg.show{opacity:1}.amsg.err{color:var(--rd)}
+
+/* Phase builder */
+.phase-builder{border:1px solid var(--b);border-radius:10px;overflow:hidden;margin-bottom:10px}
+.pb-header{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--sf2);border-bottom:1px solid var(--b)}
+.pb-num{font-family:var(--bb);font-size:24px;color:rgba(26,122,60,.4);min-width:32px}
+.pb-name-input{flex:1;background:transparent;border:none;font-family:var(--bb);font-size:18px;color:var(--wh);outline:none;letter-spacing:.04em}
+.pb-name-input::placeholder{color:var(--t3)}
+.pb-body{padding:12px 14px}
+.ex-builder{background:var(--sf);border:1px solid var(--b);border-radius:8px;padding:12px;margin-bottom:8px;position:relative}
+.ex-builder-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.ex-remove{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--t3);cursor:pointer;font-size:16px;transition:color .2s}
+.ex-remove:hover{color:var(--rd)}
+.add-ex-btn{width:100%;padding:8px;background:transparent;border:1px dashed rgba(26,122,60,.3);border-radius:8px;font-family:var(--m);font-size:9px;letter-spacing:.1em;color:var(--rp2);cursor:pointer;text-transform:uppercase;transition:all .2s;margin-top:4px}
+.add-ex-btn:hover{background:var(--rpd)}
+.add-phase-btn{width:100%;padding:10px;background:transparent;border:1px dashed rgba(26,122,60,.3);border-radius:10px;font-family:var(--m);font-size:9px;letter-spacing:.1em;color:var(--rp2);cursor:pointer;text-transform:uppercase;transition:all .2s;margin-bottom:12px}
+.add-phase-btn:hover{background:var(--rpd)}
+.phase-remove{background:none;border:none;color:var(--t3);cursor:pointer;font-size:13px;transition:color .2s}
+.phase-remove:hover{color:var(--rd)}
+
+/* Admin list items */
+.alist-item{background:var(--sf);border:1px solid var(--b);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
+.alist-item:hover{border-color:rgba(26,122,60,.2)}
+.alist-info{flex:1}
+.alist-name{font-family:var(--bb);font-size:17px;letter-spacing:.04em;color:var(--wh)}
+.alist-sub{font-family:var(--m);font-size:9px;color:var(--t3);margin-top:2px}
+.alist-actions{display:flex;gap:6px}
+
+/* Misc */
 .soon{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:44px 20px;gap:8px;text-align:center}
 .soon-ico{font-size:28px;opacity:.2}.soon-t{font-family:var(--bb);font-size:18px;letter-spacing:.06em;color:var(--t2)}
 .soon-s{font-family:var(--m);font-size:10px;color:var(--t3);max-width:220px;line-height:1.7;margin-top:2px}
@@ -200,17 +292,17 @@ body{min-height:100dvh;overflow-x:hidden}
 .spin{width:14px;height:14px;border-radius:50%;border:2px solid var(--b2);border-top-color:var(--rp2);animation:sp .7s linear infinite;flex-shrink:0}
 @keyframes sp{to{transform:rotate(360deg)}}
 .errbox{background:rgba(255,82,82,.07);border:1px solid rgba(255,82,82,.18);border-radius:10px;padding:13px;font-family:var(--m);font-size:10px;color:var(--rd);line-height:1.8}
-.infobox{background:var(--rpd);border:1px solid rgba(26,122,60,.2);border-radius:10px;padding:13px;font-family:var(--m);font-size:10px;color:var(--rp2);line-height:1.8}
 .bnav{position:fixed;bottom:0;left:0;right:0;z-index:50;background:rgba(4,10,6,.96);backdrop-filter:blur(20px);border-top:1px solid var(--b);display:flex;padding-bottom:max(6px,env(safe-area-inset-bottom))}
 .bn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 4px 5px;border:none;background:transparent;cursor:pointer;font-family:var(--m);font-size:7px;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);transition:color .2s}
 .bn.on{color:var(--rp2)}.bn-ico{font-size:15px;line-height:1}
+.divider{height:1px;background:var(--b);margin:14px 0}
 @media(max-width:360px){.cval{font-size:24px}.gpct{font-size:28px}.pg{padding:12px 12px 80px}}
-@media(min-width:600px){.bnav{display:none}.pg{padding:20px 24px 40px;max-width:720px;margin:0 auto}}
+@media(min-width:600px){.bnav{display:none}.pg{padding:20px 24px 40px;max-width:720px;margin:0 auto}.admin-pg{max-width:720px;margin:0 auto}}
 </style>
 </head>
 <body>
 
-<!-- ══ SCREEN 1 — PROFILE SELECT ══ -->
+<!-- PROFILE SELECT -->
 <div class="screen on" id="s1">
   <div class="fps-header">
     <div class="fps-shield">
@@ -224,13 +316,15 @@ body{min-height:100dvh;overflow-x:hidden}
     <div class="fps-divider"></div>
     <div class="fps-prompt">Choose your athlete profile to continue</div>
   </div>
-
   <div class="profiles-grid" id="profiles-grid">
-    <!-- Rendered by JS -->
+    <div class="loader"><div class="spin"></div>Loading...</div>
+  </div>
+  <div class="admin-entry">
+    <button class="admin-link" onclick="goAdmin()">⚙ Admin Panel</button>
   </div>
 </div>
 
-<!-- ══ SCREEN 2 — PASSWORD ══ -->
+<!-- PASSWORD -->
 <div class="screen" id="s2">
   <button class="pw-back" onclick="backToProfiles()">← Profiles</button>
   <div class="pw-avatar" id="pw-avatar"></div>
@@ -242,34 +336,43 @@ body{min-height:100dvh;overflow-x:hidden}
   <div class="pw-err" id="pw-err">Wrong password — try again</div>
 </div>
 
-<!-- ══ SCREEN 3 — APP ══ -->
+<!-- ADMIN PASSWORD -->
+<div class="screen" id="s-adminpw">
+  <button class="pw-back" onclick="backToProfiles()">← Profiles</button>
+  <div class="pw-avatar" style="background:linear-gradient(135deg,#1a3a7a,#224a9e)">⚙</div>
+  <div class="pw-name">Admin</div>
+  <div class="pw-sub">Enter admin password</div>
+  <input class="pw-input" id="admin-pw-input" type="password" placeholder="••••••••"
+    autocomplete="off" onkeydown="if(event.key==='Enter')tryAdminLogin()">
+  <button class="pw-btn" onclick="tryAdminLogin()">Enter</button>
+  <div class="pw-err" id="admin-pw-err">Wrong password</div>
+</div>
+
+<!-- ATHLETE APP -->
 <div class="screen" id="s3">
   <div class="topbar">
     <div class="tb-l">
       <div class="tb-stripe"></div>
-      <div class="tb-brand">
+      <div>
         <div class="tb-title" id="tb-title">Dashboard</div>
         <div class="tb-sub">Football Performance Society</div>
       </div>
     </div>
     <div class="tb-r">
       <div class="ldot" id="ldot"></div>
-      <div class="tb-profile" onclick="backToProfiles()" title="Switch profile">
+      <div class="tb-profile" onclick="backToProfiles()">
         <div class="tb-av" id="tb-av"></div>
         <div class="tb-pname" id="tb-pname"></div>
       </div>
     </div>
   </div>
-
   <div class="tabs">
     <button class="tab on" onclick="goTab('dash',this)">Dashboard</button>
     <button class="tab"    onclick="goTab('monitor',this)">Monitoring</button>
     <button class="tab"    onclick="goTab('training',this)">Training</button>
     <button class="tab"    onclick="goTab('journal',this)">Journal</button>
   </div>
-
   <div class="pg on" id="pg-dash"><div id="dash-body"><div class="loader"><div class="spin"></div>Loading...</div></div></div>
-
   <div class="pg" id="pg-monitor">
     <div class="subtabs">
       <button class="stab on" onclick="goMon('hrv',this)">HRV</button>
@@ -284,7 +387,6 @@ body{min-height:100dvh;overflow-x:hidden}
     <div class="spg" id="spg-hsr"><div class="soon"><div class="soon-ico">🏃</div><div class="soon-t">HSR</div><div class="soon-s">Add HSR tab to Google Sheet</div></div></div>
     <div class="spg" id="spg-sprint"><div class="soon"><div class="soon-ico">💨</div><div class="soon-t">Sprint</div><div class="soon-s">Add Sprint tab to Google Sheet</div></div></div>
   </div>
-
   <div class="pg" id="pg-training">
     <div class="train-controls">
       <input class="tsearch" id="tsearch" placeholder="Search sessions..." oninput="renderSessions()">
@@ -293,7 +395,6 @@ body{min-height:100dvh;overflow-x:hidden}
     <div class="scount" id="scount"></div>
     <div id="sessions-list"></div>
   </div>
-
   <div class="pg" id="pg-journal">
     <div class="sh"><div class="shb"></div><div class="sht">Daily Journal</div></div>
     <div class="jform">
@@ -309,7 +410,6 @@ body{min-height:100dvh;overflow-x:hidden}
     <div class="sh"><div class="shb"></div><div class="sht">Previous Entries</div></div>
     <div id="journal-entries"><div class="loader"><div class="spin"></div>Loading...</div></div>
   </div>
-
   <div class="bnav">
     <button class="bn on" id="bn-dash"     onclick="goTab('dash',null,'bn-dash')"><span class="bn-ico">⊞</span>Home</button>
     <button class="bn"    id="bn-monitor"  onclick="goTab('monitor',null,'bn-monitor')"><span class="bn-ico">📊</span>Monitor</button>
@@ -327,216 +427,352 @@ body{min-height:100dvh;overflow-x:hidden}
   <div id="svcontent"></div>
 </div>
 
+<!-- ADMIN PANEL -->
+<div class="screen" id="s-admin">
+  <div class="admin-topbar">
+    <div class="admin-title">⚙ Admin Panel</div>
+    <button class="admin-back" onclick="backToProfiles()">← Exit</button>
+  </div>
+  <div class="admin-tabs">
+    <button class="admin-tab on" onclick="goAdminTab('sessions',this)">Sessions</button>
+    <button class="admin-tab"    onclick="goAdminTab('athletes',this)">Athletes</button>
+    <button class="admin-tab"    onclick="goAdminTab('journal',this)">Journal</button>
+  </div>
+
+  <!-- SESSIONS ADMIN -->
+  <div class="admin-pg on" id="apg-sessions">
+    <!-- Add/Edit Session Form -->
+    <div class="aform" id="session-form">
+      <div class="aform-title">
+        <span id="session-form-title">New Session</span>
+        <button class="abtn secondary small" onclick="cancelSessionEdit()">Cancel</button>
+      </div>
+      <div class="agrid2">
+        <div class="arow">
+          <label class="albl">Title *</label>
+          <input class="ainput" id="sf-title" placeholder="Session name">
+        </div>
+        <div class="arow">
+          <label class="albl">Date *</label>
+          <input class="ainput" type="date" id="sf-date">
+        </div>
+      </div>
+      <div class="agrid2">
+        <div class="arow">
+          <label class="albl">Type</label>
+          <select class="aselect" id="sf-type">
+            <option>Activation</option>
+            <option>Gym</option>
+            <option>Speed</option>
+            <option>Recovery</option>
+            <option>Match Prep</option>
+            <option>Cardio</option>
+            <option>Strength</option>
+            <option>Field</option>
+          </select>
+        </div>
+        <div class="arow">
+          <label class="albl">Duration</label>
+          <input class="ainput" id="sf-duration" placeholder="45 min">
+        </div>
+      </div>
+      <div class="agrid2">
+        <div class="arow">
+          <label class="albl">Tag (short label)</label>
+          <input class="ainput" id="sf-tag" placeholder="Recovery & Activation">
+        </div>
+        <div class="arow">
+          <label class="albl">Keywords (comma separated)</label>
+          <input class="ainput" id="sf-tags" placeholder="Foam Rolling, Stretching">
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- PHASES -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-family:var(--m);font-size:9px;letter-spacing:.12em;color:var(--t3);text-transform:uppercase">Phases (optional)</div>
+      </div>
+      <div id="phases-container"></div>
+      <button class="add-phase-btn" onclick="addPhase()">+ Add Phase</button>
+
+      <button class="abtn" style="width:100%" onclick="saveSession()">Save Session</button>
+      <div class="amsg" id="session-msg"></div>
+    </div>
+
+    <!-- Sessions List -->
+    <div class="sh"><div class="shb"></div><div class="sht">All Sessions</div></div>
+    <div id="admin-sessions-list"><div class="loader"><div class="spin"></div>Loading...</div></div>
+  </div>
+
+  <!-- ATHLETES ADMIN -->
+  <div class="admin-pg" id="apg-athletes">
+    <div class="aform" id="athlete-form">
+      <div class="aform-title">
+        <span id="athlete-form-title">New Athlete</span>
+        <button class="abtn secondary small" onclick="cancelAthleteEdit()">Cancel</button>
+      </div>
+      <div class="agrid2">
+        <div class="arow">
+          <label class="albl">Name *</label>
+          <input class="ainput" id="af-name" placeholder="Dani">
+        </div>
+        <div class="arow">
+          <label class="albl">Initials</label>
+          <input class="ainput" id="af-initials" placeholder="D" maxlength="2">
+        </div>
+      </div>
+      <div class="agrid2">
+        <div class="arow">
+          <label class="albl">Position</label>
+          <input class="ainput" id="af-position" placeholder="Striker">
+        </div>
+        <div class="arow">
+          <label class="albl">Password</label>
+          <input class="ainput" id="af-password" placeholder="athlete2026">
+        </div>
+      </div>
+      <div class="arow">
+        <label class="albl">Google Sheet Tab (HRV data tab name)</label>
+        <input class="ainput" id="af-sheet" placeholder="HRV">
+      </div>
+      <button class="abtn" style="width:100%;margin-top:4px" onclick="saveAthlete()">Save Athlete</button>
+      <div class="amsg" id="athlete-msg"></div>
+    </div>
+    <div class="sh"><div class="shb"></div><div class="sht">All Athletes</div></div>
+    <div id="admin-athletes-list"><div class="loader"><div class="spin"></div>Loading...</div></div>
+  </div>
+
+  <!-- JOURNAL ADMIN -->
+  <div class="admin-pg" id="apg-journal">
+    <div class="sh"><div class="shb"></div><div class="sht">All Journal Entries</div></div>
+    <div id="admin-journal-list"><div class="loader"><div class="spin"></div>Loading...</div></div>
+  </div>
+</div>
+
 <script>
 // ══════════════════════════════════════════════
-// !! CONFIG — edit these !!
+// CONFIG
 // ══════════════════════════════════════════════
-const API    = 'https://script.google.com/macros/s/AKfycbx-mCY7HFbCLCccrOwGEu0zO-JZl0mzMWow5bMWDSg7agO7njMlrzsal5bb_w6iEYoU/exec';
-const SB_URL = 'https://tbgghnngqsbaexrypfuo.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRiZ2dobm5ncXNiYWV4cnlwZnVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNDA3OTYsImV4cCI6MjA5MTkxNjc5Nn0.hoxIiVE8MUQYkyTeztJEMbJ5KjURjQaDIqd7h2Smq-w';
-const WIN    = 28;
+const API        = 'https://script.google.com/macros/s/AKfycbx-mCY7HFbCLCccrOwGEu0zO-JZl0mzMWow5bMWDSg7agO7njMlrzsal5bb_w6iEYoU/exec';
+const SB_URL     = 'https://tbgghnngqsbaexrypfuo.supabase.co';
+const SB_KEY     = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRiZ2dobm5ncXNiYWV4cnlwZnVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNDA3OTYsImV4cCI6MjA5MTkxNjc5Nn0.hoxIiVE8MUQYkyTeztJEMbJ5KjURjQaDIqd7h2Smq-w';
+const ADMIN_PW   = 'Calinfb2014';  // ← CHANGE THIS
+const WIN        = 28;
 
 // ══════════════════════════════════════════════
-// ATHLETE PROFILES
-// To add a new athlete:
-// 1. Add an entry to PROFILES below
-// 2. Give them their own password
-// 3. Their Google Sheet tab should be named with their id (e.g. "HRV_john")
-//    OR keep all athletes on the same HRV tab if they share a sheet
+// SUPABASE HELPERS
 // ══════════════════════════════════════════════
-const PROFILES = [
-  {
-    id:       'dani',
-    name:     'Dani',
-    initials: 'D',
-    position: 'Striker',
-    password: 'dani2026',
-    color:    '#1a7a3c',
-    sheetTab: 'HRV',        // Google Sheet tab name for this athlete's HRV data
-    online:   true
+const sb = {
+  headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' },
+  async get(table, query='') {
+    const r = await fetch(`${SB_URL}/rest/v1/${table}${query}`, { headers: this.headers });
+    return r.json();
   },
-  // ADD MORE ATHLETES BELOW:
-  // {
-  //   id:       'alex',
-  //   name:     'Alex',
-  //   initials: 'A',
-  //   position: 'Defender',
-  //   password: 'alex2026',
-  //   color:    '#1a7a3c',
-  //   sheetTab: 'HRV_Alex',
-  //   online:   false
-  // },
-];
-
-// ══════════════════════════════════════════════
-// TRAINING SESSIONS
-// Add sessions here — each needs a matching HTML
-// file in the sessions/ folder
-// ══════════════════════════════════════════════
-const SESSIONS = [
-  {
-    id:       'program_activare_dani_v2_3',
-    date:     '2026-04-09',
-    tag:      'Recovery & Activation',
-    title:    'Program Activare',
-    duration: '45 min',
-    type:     'Activation',
-    tags:     ['Foam Rolling','Stretching','Activation','Strengthening']
+  async post(table, data) {
+    const r = await fetch(`${SB_URL}/rest/v1/${table}`, { method:'POST', headers:{...this.headers,'Prefer':'return=minimal'}, body: JSON.stringify(data) });
+    return r;
   },
-  // {
-  //   id:       'gym_lower_01',
-  //   date:     '2026-04-10',
-  //   tag:      'Strength',
-  //   title:    'Gym Lower Body A',
-  //   duration: '60 min',
-  //   type:     'Gym',
-  //   tags:     ['Squat','Hip Hinge','Core']
-  // },
-];
-// ══════════════════════════════════════════════
+  async patch(table, id, data) {
+    const r = await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, { method:'PATCH', headers:{...this.headers,'Prefer':'return=minimal'}, body: JSON.stringify(data) });
+    return r;
+  },
+  async delete(table, id) {
+    const r = await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, { method:'DELETE', headers: this.headers });
+    return r;
+  }
+};
 
+// ══════════════════════════════════════════════
+// SCREEN TRANSITIONS
+// ══════════════════════════════════════════════
 let currentProfile = null;
-let activeFilter   = 'All';
+let editingSessionId = null;
+let editingAthleteId = null;
 
-// ── SCREEN TRANSITIONS ──
-function showScreen(id, prev){
-  if(prev){
+function showScreen(id, prev) {
+  if(prev) {
     const el = document.getElementById(prev);
     el.classList.add('out');
-    setTimeout(()=>{ el.classList.remove('on','out'); }, 380);
+    setTimeout(() => el.classList.remove('on','out'), 380);
   }
   const next = document.getElementById(id);
   next.style.opacity = '0';
   next.classList.add('on');
-  requestAnimationFrame(()=>{ next.style.transition='opacity .35s'; next.style.opacity='1'; });
-  setTimeout(()=>{ next.style.transition=''; next.style.opacity=''; }, 400);
+  requestAnimationFrame(() => { next.style.transition = 'opacity .35s'; next.style.opacity = '1'; });
+  setTimeout(() => { next.style.transition = ''; next.style.opacity = ''; }, 400);
 }
 
-// ── BUILD PROFILES ──
-function buildProfiles(){
+function backToProfiles() {
+  currentProfile = null;
+  const prev = ['s2','s3','s-admin','s-adminpw'].find(id => document.getElementById(id).classList.contains('on'));
+  showScreen('s1', prev);
+  loadProfiles();
+}
+
+function goAdmin() {
+  showScreen('s-adminpw', 's1');
+  setTimeout(() => document.getElementById('admin-pw-input').focus(), 400);
+}
+
+function tryAdminLogin() {
+  const val = document.getElementById('admin-pw-input').value;
+  const err = document.getElementById('admin-pw-err');
+  if(val === ADMIN_PW) {
+    err.classList.remove('show');
+    document.getElementById('admin-pw-input').value = '';
+    showScreen('s-admin', 's-adminpw');
+    loadAdminSessions();
+    loadAdminAthletes();
+    loadAdminJournal();
+  } else {
+    err.classList.add('show');
+    document.getElementById('admin-pw-input').value = '';
+    setTimeout(() => err.classList.remove('show'), 2500);
+  }
+}
+
+// ══════════════════════════════════════════════
+// PROFILES
+// ══════════════════════════════════════════════
+async function loadProfiles() {
   const grid = document.getElementById('profiles-grid');
-  grid.innerHTML = '';
-  PROFILES.forEach(p => {
-    const card = document.createElement('div');
-    card.className = 'pc';
-    card.innerHTML = `
-      <div class="pc-avatar" style="background:linear-gradient(135deg,${p.color},${p.color}cc)">
-        ${p.initials}
-        ${p.online ? '<div class="pc-online"></div>' : ''}
-      </div>
-      <div class="pc-name">${p.name}</div>
-      <div class="pc-role">${p.position}</div>
-      <div class="pc-arrow">Tap to enter →</div>
-    `;
-    card.onclick = () => selectProfile(p);
-    grid.appendChild(card);
-  });
-  // Add athlete card
-  const add = document.createElement('div');
-  add.className = 'pc pc-add';
-  add.innerHTML = `<div class="pc-add-icon">+</div><div class="pc-add-lbl">Add athlete</div>`;
-  add.onclick = () => alert('Add a new entry to the PROFILES array in index.html');
-  grid.appendChild(add);
+  grid.innerHTML = '<div class="loader"><div class="spin"></div>Loading...</div>';
+  try {
+    const athletes = await sb.get('athletes', '?order=name&online=eq.true');
+    grid.innerHTML = '';
+    athletes.forEach(a => {
+      const card = document.createElement('div');
+      card.className = 'pc';
+      card.innerHTML = `
+        <div class="pc-avatar" style="background:linear-gradient(135deg,${a.color||'#1a7a3c'},${a.color||'#1a7a3c'}cc)">
+          ${a.initials||a.name[0]}
+          <div class="pc-online"></div>
+        </div>
+        <div class="pc-name">${a.name}</div>
+        <div class="pc-role">${a.position||''}</div>
+        <div class="pc-arrow">Tap to enter →</div>
+      `;
+      card.onclick = () => selectProfile(a);
+      grid.appendChild(card);
+    });
+    // Add athlete card
+    const add = document.createElement('div');
+    add.className = 'pc pc-add';
+    add.innerHTML = `<div class="pc-add-icon">+</div><div class="pc-add-lbl">Add athlete</div>`;
+    add.onclick = () => goAdmin();
+    grid.appendChild(add);
+  } catch(e) {
+    grid.innerHTML = '<div class="errbox">Could not load profiles</div>';
+  }
 }
 
-function selectProfile(profile){
+function selectProfile(profile) {
   currentProfile = profile;
-  document.getElementById('pw-avatar').textContent = profile.initials;
-  document.getElementById('pw-avatar').style.background = `linear-gradient(135deg,${profile.color},${profile.color}cc)`;
+  document.getElementById('pw-avatar').textContent = profile.initials || profile.name[0];
+  document.getElementById('pw-avatar').style.background = `linear-gradient(135deg,${profile.color||'#1a7a3c'},${profile.color||'#1a7a3c'}cc)`;
   document.getElementById('pw-name').textContent = profile.name;
   document.getElementById('pw-input').value = '';
   document.getElementById('pw-err').classList.remove('show');
   showScreen('s2', 's1');
-  setTimeout(()=> document.getElementById('pw-input').focus(), 400);
+  setTimeout(() => document.getElementById('pw-input').focus(), 400);
 }
 
-function backToProfiles(){
-  currentProfile = null;
-  showScreen('s1', document.getElementById('s3').classList.contains('on') ? 's3' : 's2');
-}
-
-function tryLogin(){
+function tryLogin() {
   const val = document.getElementById('pw-input').value;
   const err = document.getElementById('pw-err');
-  if(val === currentProfile.password){
+  if(val === currentProfile.password) {
     err.classList.remove('show');
     showScreen('s3', 's2');
-    // Update topbar
     document.getElementById('tb-title').textContent = currentProfile.name;
-    document.getElementById('tb-av').textContent = currentProfile.initials;
+    document.getElementById('tb-av').textContent = currentProfile.initials || currentProfile.name[0];
     document.getElementById('tb-pname').textContent = currentProfile.name;
     document.getElementById('j-title').textContent = `${currentProfile.name}'s Entry`;
-    // Boot the app
     bootApp();
   } else {
     err.classList.add('show');
     document.getElementById('pw-input').value = '';
-    setTimeout(()=> err.classList.remove('show'), 2500);
+    setTimeout(() => err.classList.remove('show'), 2500);
   }
 }
 
-// ── NAV ──
-function goTab(id, tabEl, bnId){
+// ══════════════════════════════════════════════
+// APP NAV
+// ══════════════════════════════════════════════
+function goTab(id, tabEl, bnId) {
   document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
   document.getElementById('pg-'+id).classList.add('on');
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
   document.querySelectorAll('.bn').forEach(b => b.classList.remove('on'));
   if(tabEl) tabEl.classList.add('on');
-  else document.querySelectorAll('.tab').forEach(t=>{ if(t.textContent.toLowerCase().startsWith(id.slice(0,3))) t.classList.add('on'); });
+  else document.querySelectorAll('.tab').forEach(t => { if(t.textContent.toLowerCase().startsWith(id.slice(0,3))) t.classList.add('on'); });
   const bn = document.getElementById(bnId||'bn-'+id);
   if(bn) bn.classList.add('on');
 }
 
-function goMon(id, tabEl){
+function goMon(id, tabEl) {
   document.querySelectorAll('.spg').forEach(p => p.classList.remove('on'));
   document.getElementById('spg-'+id).classList.add('on');
   document.querySelectorAll('.stab').forEach(t => t.classList.remove('on'));
   if(tabEl) tabEl.classList.add('on');
 }
 
-// ── UTILS ──
-function cleanDate(r){
+function goAdminTab(id, tabEl) {
+  document.querySelectorAll('.admin-pg').forEach(p => p.classList.remove('on'));
+  document.getElementById('apg-'+id).classList.add('on');
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('on'));
+  if(tabEl) tabEl.classList.add('on');
+}
+
+// ══════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════
+function cleanDate(r) {
   if(!r) return '';
   const s = r.toString().trim(), d = new Date(s);
   if(!isNaN(d.getTime())) return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0');
-  if(s.includes('/')){ const p=s.split('/'); return p[0].padStart(2,'0')+'/'+p[1].padStart(2,'0'); }
-  const mo={jan:'01',feb:'02',mar:'03',apr:'04',mai:'05',iun:'06',iul:'07',aug:'08',sep:'09',oct:'10',nov:'11',dec:'12'};
+  if(s.includes('/')) { const p = s.split('/'); return p[0].padStart(2,'0')+'/'+p[1].padStart(2,'0'); }
+  const mo = {jan:'01',feb:'02',mar:'03',apr:'04',mai:'05',iun:'06',iul:'07',aug:'08',sep:'09',oct:'10',nov:'11',dec:'12'};
   const m = s.toLowerCase().match(/(\d+)[^a-z]*([a-z]{3})/);
   if(m) return m[1].padStart(2,'0')+'/'+(mo[m[2]]||'??');
   return s.slice(0,5);
 }
 
-function parseSD(ds){
+function parseSD(ds) {
   const d = new Date(ds+'T00:00:00');
   return { day: String(d.getDate()).padStart(2,'0'), mon: d.toLocaleDateString('en-GB',{month:'short'}).toUpperCase(), my: d.toLocaleDateString('en-GB',{month:'long',year:'numeric'}) };
 }
 
-function ewma28(all){ const v=all.slice(-WIN),lam=2/(WIN+1),seed=v.slice(0,Math.min(7,v.length)).reduce((a,b)=>a+b,0)/Math.min(7,v.length),e=[+seed.toFixed(2)]; for(let i=1;i<v.length;i++) e.push(+(lam*v[i]+(1-lam)*e[i-1]).toFixed(2)); return e; }
-function pctDev(v,e){ return v.map((x,i) => +((x-e[i])/e[i]*100).toFixed(1)); }
-function sig(p){
-  if(p>=10) return {t:'Well above',c:'cup',g:'ggg',col:'#00c896'};
-  if(p>=0)  return {t:'Normal',   c:'cg_',g:'ggg',col:'var(--gn)'};
-  if(p>=-5) return {t:'Slight dip',c:'ca',g:'gga',col:'var(--am)'};
-  if(p>=-10)return {t:'Mild supp.',c:'ca',g:'gga',col:'var(--am)'};
-  if(p>=-20)return {t:'Suppressed',c:'cr',g:'ggr',col:'var(--rd)'};
-  return          {t:'Critical', c:'cr2',g:'ggrp',col:'#cc2200'};
+function showMsg(id, text, isErr=false) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = 'amsg show' + (isErr?' err':'');
+  setTimeout(() => el.classList.remove('show'), 3000);
 }
-function hcol(p){ if(p>=10) return 'rgba(0,200,150,.75)'; if(p>=0) return 'rgba(76,217,123,.65)'; if(p>=-5) return 'rgba(245,179,51,.55)'; if(p>=-10) return 'rgba(245,179,51,.72)'; if(p>=-20) return 'rgba(255,82,82,.65)'; return 'rgba(204,34,0,.75)'; }
 
-const cOpts = (mn,mx,fmt) => ({
-  responsive:true, maintainAspectRatio:false,
-  plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'rgba(4,10,4,.97)', titleColor:'#ede8e2', bodyColor:'#9a9490', borderColor:'rgba(255,255,255,.06)', borderWidth:1, titleFont:{family:'JetBrains Mono',size:11}, bodyFont:{family:'JetBrains Mono',size:10}, padding:10, cornerRadius:8, displayColors:false }},
-  scales:{ x:{ ticks:{color:'#5a5450',font:{family:'JetBrains Mono',size:8},maxRotation:0,autoSkip:true,maxTicksLimit:6}, grid:{color:'rgba(255,255,255,0.03)'}, border:{color:'rgba(255,255,255,0.04)'} }, y:{ min:mn, max:mx, ticks:{color:'#5a5450',font:{family:'JetBrains Mono',size:8},callback:fmt||undefined}, grid:{color:'rgba(255,255,255,0.03)'}, border:{color:'rgba(255,255,255,0.04)'} }}
-});
+// ══════════════════════════════════════════════
+// HRV
+// ══════════════════════════════════════════════
+function ewma28(all) { const v=all.slice(-WIN),lam=2/(WIN+1),seed=v.slice(0,Math.min(7,v.length)).reduce((a,b)=>a+b,0)/Math.min(7,v.length),e=[+seed.toFixed(2)]; for(let i=1;i<v.length;i++) e.push(+(lam*v[i]+(1-lam)*e[i-1]).toFixed(2)); return e; }
+function pctDev(v,e) { return v.map((x,i) => +((x-e[i])/e[i]*100).toFixed(1)); }
+function sig(p) {
+  if(p>=10) return {t:'Well above',c:'cup',g:'ggg',col:'#00c896'};
+  if(p>=0)  return {t:'Normal',    c:'cgn',g:'ggg',col:'var(--gn)'};
+  if(p>=-5) return {t:'Slight dip',c:'ca', g:'gga',col:'var(--am)'};
+  if(p>=-10)return {t:'Mild supp.',c:'ca', g:'gga',col:'var(--am)'};
+  if(p>=-20)return {t:'Suppressed',c:'cr', g:'ggr',col:'var(--rd)'};
+  return          {t:'Critical',  c:'cr2',g:'ggrp',col:'#cc2200'};
+}
+function hcol(p) { if(p>=10) return 'rgba(0,200,150,.75)'; if(p>=0) return 'rgba(76,217,123,.65)'; if(p>=-5) return 'rgba(245,179,51,.55)'; if(p>=-10) return 'rgba(245,179,51,.72)'; if(p>=-20) return 'rgba(255,82,82,.65)'; return 'rgba(204,34,0,.75)'; }
+const cOpts = (mn,mx,fmt) => ({ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'rgba(4,10,4,.97)', titleColor:'#ede8e2', bodyColor:'#9a9490', borderColor:'rgba(255,255,255,.06)', borderWidth:1, titleFont:{family:'JetBrains Mono',size:11}, bodyFont:{family:'JetBrains Mono',size:10}, padding:10, cornerRadius:8, displayColors:false }}, scales:{ x:{ ticks:{color:'#5a5450',font:{family:'JetBrains Mono',size:8},maxRotation:0,autoSkip:true,maxTicksLimit:6}, grid:{color:'rgba(255,255,255,0.03)'}, border:{color:'rgba(255,255,255,0.04)'} }, y:{ min:mn, max:mx, ticks:{color:'#5a5450',font:{family:'JetBrains Mono',size:8},callback:fmt||undefined}, grid:{color:'rgba(255,255,255,0.03)'}, border:{color:'rgba(255,255,255,0.04)'} }}});
 
-// ── BUILD HRV ──
-function buildHRV(aL, aR, el, uid){
+function buildHRV(aL, aR, el, uid) {
   const labels=aL.slice(-WIN), raw=aR.slice(-WIN), ewma=ewma28(aR), pct=pctDev(raw,ewma);
   const n=raw.length, pL=pct[n-1], eL=ewma[n-1], si=sig(pL);
   const p7=pct.slice(-7), tr=+(p7[p7.length-1]-p7[0]).toFixed(1);
   const gp=Math.min(Math.max((pL+30)/50*100,3),97);
   const heat=pct.map((p,i)=>`<div class="hmcell" style="background:${hcol(p)}" title="${labels[i]}: ${raw[i]} (${p>=0?'+':''}${p}%)">${raw[i]}</div>`).join('');
-  el.innerHTML = `
+  el.innerHTML=`
     <div class="pill">EWMA · last ${n} days · λ=2/29</div>
     <div class="cg3">
       <div class="card hi"><div class="clbl">HRV Today</div><div class="cval">${raw[n-1]}</div><div class="csub">lnRMSSD ms</div></div>
@@ -557,149 +793,519 @@ function buildHRV(aL, aR, el, uid){
     <div class="hmcrd"><div class="ct">Recovery signal per day</div><div class="hmgrid">${heat}</div></div>
     <div class="sh"><div class="shb"></div><div class="sht">Data Log</div></div>
     <div class="tcrd"><div class="thd" style="grid-template-columns:50px 36px 58px 1fr"><span>Date</span><span>HRV</span><span>Dev%</span><span>Signal</span></div><div id="ht${uid}"></div></div>
-    <div class="refcrd"><div class="ct">Signal reference</div><div class="refgrid">${[['#00c896','≥+10% Well above'],['var(--gn)','0 to +10% Normal'],['var(--am)','-10% to 0% Mild'],['var(--rd)','-10% to -20% Suppressed'],['#cc2200','<-20% Critical'],['var(--t3)','EWMA λ=2/29 28-day']].map(([c,t])=>`<div class="refrow"><div class="refdot" style="background:${c}"></div><span>${t}</span></div>`).join('')}</div></div>
+    <div class="refcrd"><div class="ct">Signal reference</div><div class="refgrid">${[['#00c896','≥+10% Well above'],['var(--gn)','0 to +10% Normal'],['var(--am)','-10% to 0% Mild'],['var(--rd)','-10% to -20% Suppressed'],['#cc2200','<-20% Critical']].map(([c,t])=>`<div class="refrow"><div class="refdot" style="background:${c}"></div><span>${t}</span></div>`).join('')}</div></div>
   `;
-  setTimeout(()=>{ const el2=document.getElementById('gn'+uid); if(el2) el2.style.left=gp+'%'; }, 200);
-  document.getElementById('ldot').style.opacity='1';
-  new Chart(document.getElementById('hc1'+uid),{type:'line',data:{labels,datasets:[{label:'HRV',data:raw,borderColor:'#229e4f',backgroundColor:'rgba(26,122,60,0.07)',pointRadius:raw.map((_,i)=>i===n-1?5:2),pointBackgroundColor:raw.map((_,i)=>pct[i]>=0?'#4cd97b':pct[i]>=-10?'#f5b333':'#ff5252'),pointBorderColor:'rgba(8,6,8,.8)',pointBorderWidth:1.5,tension:.35,fill:true,borderWidth:2,order:1},{label:'EWMA',data:ewma,borderColor:'rgba(180,170,160,.35)',borderDash:[4,3],pointRadius:0,tension:.4,fill:false,borderWidth:1.5,order:2}]},options:cOpts(30,90)});
+  setTimeout(() => { const el2=document.getElementById('gn'+uid); if(el2) el2.style.left=gp+'%'; }, 200);
+  document.getElementById('ldot').style.opacity = '1';
+  new Chart(document.getElementById('hc1'+uid),{type:'line',data:{labels,datasets:[{label:'HRV',data:raw,borderColor:'#229e4f',backgroundColor:'rgba(26,122,60,0.07)',pointRadius:raw.map((_,i)=>i===n-1?5:2),pointBackgroundColor:raw.map((_,i)=>pct[i]>=0?'#4cd97b':pct[i]>=-10?'#f5b333':'#ff5252'),pointBorderColor:'rgba(4,10,6,.8)',pointBorderWidth:1.5,tension:.35,fill:true,borderWidth:2,order:1},{label:'EWMA',data:ewma,borderColor:'rgba(180,170,160,.35)',borderDash:[4,3],pointRadius:0,tension:.4,fill:false,borderWidth:1.5,order:2}]},options:cOpts(30,90)});
   new Chart(document.getElementById('hc2'+uid),{type:'bar',data:{labels,datasets:[{label:'%',data:pct,borderRadius:3,backgroundColor:pct.map(p=>p>=0?'rgba(76,217,123,.7)':p>=-10?'rgba(245,179,51,.7)':'rgba(255,82,82,.7)')}]},options:cOpts(-45,25,v=>v+'%')});
   const tbl=document.getElementById('ht'+uid);
-  for(let i=n-1;i>=0;i--){ const p=pct[i],si2=sig(p),isT=i===n-1,row=document.createElement('div'); row.className='trow'+(isT?' now':''); row.style.gridTemplateColumns='50px 36px 58px 1fr'; row.innerHTML=`<span class="tda">${labels[i]}${isT?' ▸':''}</span><span class="tva">${raw[i]}</span><span class="tpa ${si2.c}">${p>=0?'+':''}${p}%</span><span class="tsa ${si2.c}">${si2.t}</span>`; tbl.appendChild(row); }
+  for(let i=n-1;i>=0;i--) { const p=pct[i],si2=sig(p),isT=i===n-1,row=document.createElement('div'); row.className='trow'+(isT?' now':''); row.style.gridTemplateColumns='50px 36px 58px 1fr'; row.innerHTML=`<span class="tda">${labels[i]}${isT?' ▸':''}</span><span class="tva">${raw[i]}</span><span class="tpa ${si2.c}">${p>=0?'+':''}${p}%</span><span class="tsa ${si2.c}">${si2.t}</span>`; tbl.appendChild(row); }
 }
 
-// ── TRAINING LIBRARY ──
-function buildFilterChips(){
-  const types = ['All', ...new Set(SESSIONS.map(s=>s.type))];
-  const row = document.getElementById('filter-row'); row.innerHTML='';
-  types.forEach(t=>{
-    const c=document.createElement('button'); c.className='fchip'+(t==='All'?' on':''); c.textContent=t;
-    c.onclick=()=>{ activeFilter=t; document.querySelectorAll('.fchip').forEach(ch=>ch.classList.toggle('on',ch.textContent===t)); renderSessions(); };
+// ══════════════════════════════════════════════
+// TRAINING — reads from Supabase
+// ══════════════════════════════════════════════
+let allSessions = [];
+let activeFilter = 'All';
+
+async function loadSessions() {
+  try {
+    allSessions = await sb.get('sessions', '?order=date.desc');
+    buildFilterChips();
+    renderSessions();
+  } catch(e) {
+    document.getElementById('sessions-list').innerHTML = '<div class="errbox">Could not load sessions</div>';
+  }
+}
+
+function buildFilterChips() {
+  const types = ['All', ...new Set(allSessions.map(s => s.type).filter(Boolean))];
+  const row = document.getElementById('filter-row'); row.innerHTML = '';
+  types.forEach(t => {
+    const c = document.createElement('button'); c.className = 'fchip' + (t==='All'?' on':''); c.textContent = t;
+    c.onclick = () => { activeFilter = t; document.querySelectorAll('.fchip').forEach(ch => ch.classList.toggle('on', ch.textContent===t)); renderSessions(); };
     row.appendChild(c);
   });
 }
 
-function renderSessions(){
-  const q=document.getElementById('tsearch').value.toLowerCase().trim();
-  let filtered=SESSIONS.filter(s=>{
-    const tok=activeFilter==='All'||s.type===activeFilter;
-    const sok=!q||[s.title,s.tag,s.type,...s.tags].some(x=>x.toLowerCase().includes(q));
-    return tok&&sok;
-  }).sort((a,b)=>new Date(b.date)-new Date(a.date));
-  const list=document.getElementById('sessions-list');
-  document.getElementById('scount').innerHTML=`Showing <span>${filtered.length}</span> of <span>${SESSIONS.length}</span> sessions`;
-  if(!filtered.length){ list.innerHTML='<div class="no-res">No sessions found</div>'; return; }
-  const groups={};
-  filtered.forEach(s=>{ const d=parseSD(s.date); if(!groups[d.my]) groups[d.my]=[]; groups[d.my].push({...s,_d:d}); });
-  list.innerHTML='';
-  Object.entries(groups).forEach(([month,sessions])=>{
-    const mh=document.createElement('div'); mh.className='month-hd'; mh.textContent=month; list.appendChild(mh);
-    sessions.forEach(s=>{
-      const c=document.createElement('div'); c.className='scard'; c.onclick=()=>openSV(s.id,s.title);
-      c.innerHTML=`<div class="scard-inner"><div class="scard-date"><div class="scard-day">${s._d.day}</div><div class="scard-mon">${s._d.mon}</div></div><div class="scard-body"><div class="scard-tag">${s.tag}</div><div class="scard-title">${s.title}</div><div class="scard-meta"><span>${s.duration}</span><span>${s.type}</span></div></div><div class="scard-r">→</div></div><div class="scard-tags">${s.tags.map(t=>`<div class="scti">${t}</div>`).join('')}</div>`;
+function renderSessions() {
+  const q = (document.getElementById('tsearch')?.value||'').toLowerCase().trim();
+  let filtered = allSessions.filter(s => {
+    const tok = activeFilter==='All' || s.type===activeFilter;
+    const tags = Array.isArray(s.tags) ? s.tags : [];
+    const sok = !q || [s.title,s.tag,s.type,...tags].some(x => x && x.toLowerCase().includes(q));
+    return tok && sok;
+  });
+  const list = document.getElementById('sessions-list');
+  const count = document.getElementById('scount');
+  if(count) count.innerHTML = `Showing <span>${filtered.length}</span> of <span>${allSessions.length}</span> sessions`;
+  if(!filtered.length) { list.innerHTML = '<div class="no-res">No sessions found</div>'; return; }
+  const groups = {};
+  filtered.forEach(s => { const d = parseSD(s.date); if(!groups[d.my]) groups[d.my]=[]; groups[d.my].push({...s,_d:d}); });
+  list.innerHTML = '';
+  Object.entries(groups).forEach(([month, sessions]) => {
+    const mh = document.createElement('div'); mh.className = 'month-hd'; mh.textContent = month; list.appendChild(mh);
+    sessions.forEach(s => {
+      const tags = Array.isArray(s.tags) ? s.tags : [];
+      const c = document.createElement('div'); c.className = 'scard'; c.onclick = () => openSession(s);
+      c.innerHTML = `<div class="scard-inner"><div class="scard-date"><div class="scard-day">${s._d.day}</div><div class="scard-mon">${s._d.mon}</div></div><div class="scard-body"><div class="scard-tag">${s.tag||''}</div><div class="scard-title">${s.title}</div><div class="scard-meta"><span>${s.duration||''}</span><span>${s.type||''}</span></div></div><div class="scard-r">→</div></div><div class="scard-tags">${tags.map(t=>`<div class="scti">${t}</div>`).join('')}</div>`;
       list.appendChild(c);
     });
   });
 }
 
-function openSV(id,title){
-  document.getElementById('svlbl').textContent=title||'';
-  document.getElementById('svcontent').innerHTML='<div class="loader" style="padding:60px 0"><div class="spin"></div>Loading...</div>';
+function openSession(s) {
+  document.getElementById('svlbl').textContent = s.title;
+  const phases = s.phases || [];
+  const tags = Array.isArray(s.tags) ? s.tags : [];
+  let html = `
+    <div class="sv-tag">${s.tag||''}</div>
+    <div class="sv-title">${s.title}</div>
+    <div class="sv-meta">
+      <span class="sv-meta-item">📅 ${s.date}</span>
+      <span class="sv-meta-item">⏱ ${s.duration||''}</span>
+      <span class="sv-meta-item">🏷 ${s.type||''}</span>
+    </div>
+    <div class="sv-tags">${tags.map(t=>`<div class="scti">${t}</div>`).join('')}</div>
+  `;
+  phases.forEach((ph, pi) => {
+    const exercises = ph.exercises || [];
+    html += `
+      <div class="sv-phase">
+        <div class="sv-phase-hd" onclick="togglePhase(${pi})">
+          <div class="sv-phase-num">0${pi+1}</div>
+          <div class="sv-phase-info">
+            <div class="sv-phase-label">Phase ${pi+1}</div>
+            <div class="sv-phase-name">${ph.name||'Phase'}</div>
+          </div>
+          <div class="sv-phase-toggle" id="ptog${pi}">▾</div>
+        </div>
+        <div class="sv-phase-body open" id="pbody${pi}">
+          ${exercises.map(ex => `
+            <div class="sv-exercise">
+              <div class="sv-ex-hd">
+                <div class="sv-ex-dot"></div>
+                <div class="sv-ex-name">${ex.name||''}</div>
+                <div class="sv-ex-sets">${ex.sets||''}</div>
+              </div>
+              ${ex.video ? `<div class="sv-ex-video"><iframe src="https://www.youtube.com/embed/${ex.video}" allowfullscreen></iframe></div>` : ''}
+              ${ex.note ? `<div class="sv-ex-note">${ex.note}</div>` : ''}
+            </div>
+          `).join('')}
+          ${ph.note ? `<div class="sv-note"><strong>Coach note:</strong> ${ph.note}</div>` : ''}
+        </div>
+      </div>
+    `;
+  });
+  document.getElementById('svcontent').innerHTML = html;
   document.getElementById('sv').classList.add('on');
-  document.body.style.overflow='hidden';
-  fetch('sessions/'+id+'.html')
-    .then(r=>{ if(!r.ok) throw new Error(); return r.text(); })
-    .then(html=>{
-      const doc=new DOMParser().parseFromString(html,'text/html');
-      const styles=Array.from(doc.querySelectorAll('style')).map(s=>s.outerHTML).join('');
-      document.getElementById('svcontent').innerHTML=styles+(doc.body?doc.body.innerHTML:html);
-      document.getElementById('svcontent').querySelectorAll('script').forEach(s=>{ const ns=document.createElement('script'); ns.textContent=s.textContent; document.head.appendChild(ns); });
-    })
-    .catch(()=>{ document.getElementById('svcontent').innerHTML=`<div style="padding:20px"><div class="errbox">Session file not found: sessions/${id}.html</div></div>`; });
+  document.body.style.overflow = 'hidden';
 }
-function closeSV(){ document.getElementById('sv').classList.remove('on'); document.body.style.overflow=''; }
 
-// ── JOURNAL ──
-const scores={mood:0,sleep:0,energy:0,soreness:0};
-function buildScales(){
-  ['mood','sleep','energy','soreness'].forEach(k=>{
-    const w=document.getElementById('sc-'+k); w.innerHTML='';
-    for(let i=1;i<=5;i++){ const b=document.createElement('button'); b.textContent=i; b.onclick=()=>{ scores[k]=i; w.querySelectorAll('button').forEach((btn,idx)=>btn.classList.toggle('sel',idx<i)); }; w.appendChild(b); }
+function togglePhase(i) {
+  const body = document.getElementById('pbody'+i);
+  const tog = document.getElementById('ptog'+i);
+  body.classList.toggle('open');
+  tog.textContent = body.classList.contains('open') ? '▾' : '▸';
+}
+
+function closeSV() { document.getElementById('sv').classList.remove('on'); document.body.style.overflow = ''; }
+
+// ══════════════════════════════════════════════
+// JOURNAL
+// ══════════════════════════════════════════════
+const scores = {mood:0,sleep:0,energy:0,soreness:0};
+
+function buildScales() {
+  ['mood','sleep','energy','soreness'].forEach(k => {
+    const w = document.getElementById('sc-'+k); w.innerHTML = '';
+    for(let i=1;i<=5;i++) { const b=document.createElement('button'); b.textContent=i; b.onclick=()=>{ scores[k]=i; w.querySelectorAll('button').forEach((btn,idx)=>btn.classList.toggle('sel',idx<i)); }; w.appendChild(b); }
   });
 }
 
-async function submitJournal(){
-  const msg=document.getElementById('jmsg');
-  if(!scores.mood||!scores.sleep||!scores.energy||!scores.soreness){ msg.textContent='Please fill in all scores'; msg.className='jfmsg err show'; setTimeout(()=>msg.classList.remove('show'),3000); return; }
-  const entry={ date:new Date().toISOString().split('T')[0], athlete:currentProfile?.name||'', mood:scores.mood, sleep:scores.sleep, energy:scores.energy, soreness:scores.soreness, notes:document.getElementById('jnotes').value.trim() };
-  try{
-    const r=await fetch(SB_URL+'/rest/v1/journal',{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=minimal'},body:JSON.stringify(entry)});
+async function submitJournal() {
+  const msg = document.getElementById('jmsg');
+  if(!scores.mood||!scores.sleep||!scores.energy||!scores.soreness) { msg.textContent='Please fill in all scores'; msg.className='jfmsg err show'; setTimeout(()=>msg.classList.remove('show'),3000); return; }
+  const entry = { date:new Date().toISOString().split('T')[0], athlete:currentProfile?.name||'', mood:scores.mood, sleep:scores.sleep, energy:scores.energy, soreness:scores.soreness, notes:document.getElementById('jnotes').value.trim() };
+  try {
+    const r = await sb.post('journal', entry);
     if(!r.ok) throw new Error('Supabase error '+r.status);
-    msg.textContent='Saved ✓'; msg.className='jfmsg show'; setTimeout(()=>msg.classList.remove('show'),3000);
-    Object.keys(scores).forEach(k=>scores[k]=0); buildScales(); document.getElementById('jnotes').value='';
+    // Also send to Google Sheets
+    fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(entry) }).catch(()=>{});
+    msg.textContent = 'Saved ✓'; msg.className = 'jfmsg show'; setTimeout(()=>msg.classList.remove('show'),3000);
+    Object.keys(scores).forEach(k=>scores[k]=0); buildScales(); document.getElementById('jnotes').value = '';
     loadJournalEntries();
-  }catch(e){ msg.textContent='Error: '+e.message; msg.className='jfmsg err show'; setTimeout(()=>msg.classList.remove('show'),3000); }
+  } catch(e) { msg.textContent='Error: '+e.message; msg.className='jfmsg err show'; setTimeout(()=>msg.classList.remove('show'),3000); }
 }
 
-async function loadJournalEntries(){
-  const el=document.getElementById('journal-entries');
-  // Supabase connected
-  try{
-    const r=await fetch(SB_URL+'/rest/v1/journal?order=date.desc&limit=30',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
-    const data=await r.json();
-    if(!data.length){ el.innerHTML='<div class="soon"><div class="soon-t">No entries yet</div><div class="soon-s">Fill in today\'s form above</div></div>'; return null; }
-    el.innerHTML='';
-    data.forEach((d,i)=>{
-      const div=document.createElement('div'); div.className='jentry'+(i===0?' latest':'');
-      const dc=v=>v>=4?'var(--gn)':v>=3?'var(--am)':'var(--rd)';
-      div.innerHTML=`<div class="jetop"><div class="jedate">${d.date}</div><div class="jedots">${[d.mood,d.sleep,d.energy,d.soreness].map(v=>`<div class="jedot" style="background:${dc(v)}"></div>`).join('')}</div></div><div class="jescores"><div class="jescore"><div class="jeval">${d.mood}</div><div class="jelbl">Mood</div></div><div class="jescore"><div class="jeval">${d.sleep}</div><div class="jelbl">Sleep</div></div><div class="jescore"><div class="jeval">${d.energy}</div><div class="jelbl">Energy</div></div><div class="jescore"><div class="jeval">${d.soreness}</div><div class="jelbl">Soreness</div></div></div>${d.notes?`<div class="jenote">${d.notes}</div>`:''}`;
+async function loadJournalEntries() {
+  const el = document.getElementById('journal-entries');
+  try {
+    const data = await sb.get('journal', '?order=date.desc&limit=30');
+    if(!data.length) { el.innerHTML='<div class="soon"><div class="soon-t">No entries yet</div><div class="soon-s">Fill in today\'s form above</div></div>'; return null; }
+    el.innerHTML = '';
+    data.forEach((d,i) => {
+      const div = document.createElement('div'); div.className = 'jentry'+(i===0?' latest':'');
+      const dc = v => v>=4?'var(--gn)':v>=3?'var(--am)':'var(--rd)';
+      div.innerHTML = `<div class="jetop"><div class="jedate">${d.date} · ${d.athlete||''}</div><div class="jedots">${[d.mood,d.sleep,d.energy,d.soreness].map(v=>`<div class="jedot" style="background:${dc(v)}"></div>`).join('')}</div></div><div class="jescores"><div class="jescore"><div class="jeval">${d.mood}</div><div class="jelbl">Mood</div></div><div class="jescore"><div class="jeval">${d.sleep}</div><div class="jelbl">Sleep</div></div><div class="jescore"><div class="jeval">${d.energy}</div><div class="jelbl">Energy</div></div><div class="jescore"><div class="jeval">${d.soreness}</div><div class="jelbl">Soreness</div></div></div>${d.notes?`<div class="jenote">${d.notes}</div>`:''}`;
       el.appendChild(div);
     });
     return data[0]||null;
-  }catch{ el.innerHTML='<div class="errbox">Error loading entries</div>'; return null; }
+  } catch { el.innerHTML='<div class="errbox">Error loading entries</div>'; return null; }
 }
 
-function buildDash(lastRaw, pctToday, si, lastJ){
-  const latest=[...SESSIONS].sort((a,b)=>new Date(b.date)-new Date(a.date))[0]||null;
-  const gp=Math.min(Math.max((pctToday+30)/50*100,3),97);
-  const sHTML=latest?`<div class="sh"><div class="shb"></div><div class="sht">Latest Session</div></div><div class="scard" onclick="openSV('${latest.id}','${latest.title}')"><div class="scard-inner"><div class="scard-date"><div class="scard-day">${parseSD(latest.date).day}</div><div class="scard-mon">${parseSD(latest.date).mon}</div></div><div class="scard-body"><div class="scard-tag">${latest.tag}</div><div class="scard-title">${latest.title}</div><div class="scard-meta"><span>${latest.duration}</span><span>${latest.type}</span></div></div><div class="scard-r">→</div></div></div>`:'';
-  const jHTML=lastJ?`<div class="sh"><div class="shb"></div><div class="sht">Last Journal</div></div><div class="jentry latest"><div class="jetop"><div class="jedate">${lastJ.date}</div></div><div class="jescores"><div class="jescore"><div class="jeval">${lastJ.mood}</div><div class="jelbl">Mood</div></div><div class="jescore"><div class="jeval">${lastJ.sleep}</div><div class="jelbl">Sleep</div></div><div class="jescore"><div class="jeval">${lastJ.energy}</div><div class="jelbl">Energy</div></div><div class="jescore"><div class="jeval">${lastJ.soreness}</div><div class="jelbl">Soreness</div></div></div>${lastJ.notes?`<div class="jenote">${lastJ.notes}</div>`:''}</div>`:'';
-  document.getElementById('dash-body').innerHTML=`
-    <div class="sh"><div class="shb"></div><div class="sht">Today's Status · ${currentProfile?.name}</div></div>
+// ══════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════
+function buildDash(lastRaw, pctToday, si, lastJ) {
+  const latest = allSessions[0]||null;
+  const gp = Math.min(Math.max((pctToday+30)/50*100,3),97);
+  const sHTML = latest ? `<div class="sh"><div class="shb"></div><div class="sht">Latest Session</div></div><div class="scard" onclick="openSession(allSessions[0])"><div class="scard-inner"><div class="scard-date"><div class="scard-day">${parseSD(latest.date).day}</div><div class="scard-mon">${parseSD(latest.date).mon}</div></div><div class="scard-body"><div class="scard-tag">${latest.tag||''}</div><div class="scard-title">${latest.title}</div><div class="scard-meta"><span>${latest.duration||''}</span><span>${latest.type||''}</span></div></div><div class="scard-r">→</div></div></div>` : '';
+  const jHTML = lastJ ? `<div class="sh"><div class="shb"></div><div class="sht">Last Journal</div></div><div class="jentry latest"><div class="jetop"><div class="jedate">${lastJ.date}</div></div><div class="jescores"><div class="jescore"><div class="jeval">${lastJ.mood}</div><div class="jelbl">Mood</div></div><div class="jescore"><div class="jeval">${lastJ.sleep}</div><div class="jelbl">Sleep</div></div><div class="jescore"><div class="jeval">${lastJ.energy}</div><div class="jelbl">Energy</div></div><div class="jescore"><div class="jeval">${lastJ.soreness}</div><div class="jelbl">Soreness</div></div></div>${lastJ.notes?`<div class="jenote">${lastJ.notes}</div>`:''}</div>` : '';
+  document.getElementById('dash-body').innerHTML = `
+    <div class="sh"><div class="shb"></div><div class="sht">Today · ${currentProfile?.name}</div></div>
     <div class="cg2"><div class="card hi"><div class="clbl">HRV</div><div class="cval">${lastRaw}</div><div class="csub">lnRMSSD ms</div></div><div class="card"><div class="clbl">Recovery</div><div class="cval md" style="color:${si.col}">${pctToday>=0?'+':''}${pctToday}%</div><div class="csub">${si.t}</div></div></div>
     <div class="gcrd"><div class="ct" style="margin-bottom:10px">Recovery gauge</div><div class="gtrack"><div class="gneedle" id="gn-dash"></div></div><div class="gaxis"><span>−25%</span><span>−10%</span><span>0</span><span>+10%</span><span>+20%</span></div><div class="grow"><div class="gpct" style="color:${si.col}">${pctToday>=0?'+':''}${pctToday}%</div><div class="gbg ${si.g}"><div class="bdot"></div>${si.t}</div></div></div>
     ${sHTML}${jHTML}
   `;
-  setTimeout(()=>{ const el=document.getElementById('gn-dash'); if(el) el.style.left=gp+'%'; }, 200);
+  setTimeout(() => { const el=document.getElementById('gn-dash'); if(el) el.style.left=gp+'%'; }, 200);
 }
 
-// ── BOOT APP (called after login) ──
-async function bootApp(){
-  buildScales();
-  buildFilterChips();
-  renderSessions();
-  const lastJ = await loadJournalEntries();
-  // Reset tabs
-  goTab('dash');
-  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',i===0));
-  document.querySelectorAll('.bn').forEach((b,i)=>b.classList.toggle('on',i===0));
+// ══════════════════════════════════════════════
+// ADMIN — SESSIONS
+// ══════════════════════════════════════════════
+let phaseCount = 0;
 
-  fetch(API+'?sheet='+ encodeURIComponent(currentProfile.sheetTab))
-    .then(r=>{ if(!r.ok) throw new Error('API error '+r.status); return r.json(); })
-    .then(data=>{
-      if(!data||!data.length) throw new Error('No HRV data found');
+function addPhase() {
+  phaseCount++;
+  const container = document.getElementById('phases-container');
+  const div = document.createElement('div');
+  div.className = 'phase-builder';
+  div.id = `phase-${phaseCount}`;
+  div.innerHTML = `
+    <div class="pb-header">
+      <div class="pb-num">0${phaseCount}</div>
+      <input class="pb-name-input" placeholder="Phase name (e.g. Warm Up)" id="ph-name-${phaseCount}">
+      <button class="phase-remove" onclick="removePhase(${phaseCount})" title="Remove phase">✕</button>
+    </div>
+    <div class="pb-body">
+      <div id="exercises-${phaseCount}"></div>
+      <button class="add-ex-btn" onclick="addExercise(${phaseCount})">+ Add Exercise</button>
+      <div class="arow" style="margin-top:10px">
+        <label class="albl">Phase coach note (optional)</label>
+        <input class="ainput" id="ph-note-${phaseCount}" placeholder="e.g. Keep weight light, focus on activation">
+      </div>
+    </div>
+  `;
+  container.appendChild(div);
+}
+
+function removePhase(id) { document.getElementById(`phase-${id}`)?.remove(); }
+
+function addExercise(phaseId) {
+  const container = document.getElementById(`exercises-${phaseId}`);
+  const exId = Date.now();
+  const div = document.createElement('div');
+  div.className = 'ex-builder';
+  div.id = `ex-${exId}`;
+  div.innerHTML = `
+    <button class="ex-remove" onclick="document.getElementById('ex-${exId}').remove()" title="Remove">✕</button>
+    <div class="ex-builder-grid">
+      <div class="arow">
+        <label class="albl">Exercise name</label>
+        <input class="ainput ex-name" placeholder="e.g. Romanian Deadlift">
+      </div>
+      <div class="arow">
+        <label class="albl">Sets / Reps / Duration</label>
+        <input class="ainput ex-sets" placeholder="e.g. 3x10 or 30s hold">
+      </div>
+    </div>
+    <div class="arow">
+      <label class="albl">YouTube Video ID (optional)</label>
+      <input class="ainput ex-video" placeholder="e.g. dQw4w9WgXcQ (from youtube.com/watch?v=...)">
+    </div>
+    <div class="arow">
+      <label class="albl">Coach note (optional)</label>
+      <input class="ainput ex-note" placeholder="e.g. Keep back neutral throughout">
+    </div>
+  `;
+  container.appendChild(div);
+}
+
+function collectPhases() {
+  const phases = [];
+  document.querySelectorAll('.phase-builder').forEach(ph => {
+    const id = ph.id.split('-')[1];
+    const exercises = [];
+    ph.querySelectorAll('.ex-builder').forEach(ex => {
+      const name = ex.querySelector('.ex-name')?.value?.trim();
+      if(name) exercises.push({
+        name, sets: ex.querySelector('.ex-sets')?.value?.trim()||'',
+        video: ex.querySelector('.ex-video')?.value?.trim()||'',
+        note: ex.querySelector('.ex-note')?.value?.trim()||''
+      });
+    });
+    phases.push({
+      name: document.getElementById(`ph-name-${id}`)?.value?.trim()||'Phase',
+      note: document.getElementById(`ph-note-${id}`)?.value?.trim()||'',
+      exercises
+    });
+  });
+  return phases;
+}
+
+async function saveSession() {
+  const title = document.getElementById('sf-title').value.trim();
+  const date  = document.getElementById('sf-date').value;
+  if(!title||!date) { showMsg('session-msg','Title and date are required',true); return; }
+  const tagsRaw = document.getElementById('sf-tags').value;
+  const tags = tagsRaw ? tagsRaw.split(',').map(t=>t.trim()).filter(Boolean) : [];
+  const data = {
+    title, date,
+    tag:      document.getElementById('sf-tag').value.trim(),
+    duration: document.getElementById('sf-duration').value.trim(),
+    type:     document.getElementById('sf-type').value,
+    tags,
+    phases:   collectPhases()
+  };
+  try {
+    let r;
+    if(editingSessionId) {
+      r = await sb.patch('sessions', editingSessionId, data);
+    } else {
+      r = await sb.post('sessions', data);
+    }
+    if(!r.ok) throw new Error('Save failed '+r.status);
+    showMsg('session-msg', editingSessionId ? 'Session updated ✓' : 'Session saved ✓');
+    cancelSessionEdit();
+    loadAdminSessions();
+    loadSessions(); // refresh athlete view
+  } catch(e) { showMsg('session-msg','Error: '+e.message,true); }
+}
+
+function cancelSessionEdit() {
+  editingSessionId = null;
+  document.getElementById('session-form-title').textContent = 'New Session';
+  ['sf-title','sf-date','sf-tag','sf-duration','sf-tags'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('sf-type').value = 'Activation';
+  document.getElementById('phases-container').innerHTML = '';
+  phaseCount = 0;
+}
+
+async function loadAdminSessions() {
+  const list = document.getElementById('admin-sessions-list');
+  list.innerHTML = '<div class="loader"><div class="spin"></div>Loading...</div>';
+  try {
+    const sessions = await sb.get('sessions', '?order=date.desc');
+    if(!sessions.length) { list.innerHTML='<div class="soon"><div class="soon-t">No sessions yet</div><div class="soon-s">Add your first session above</div></div>'; return; }
+    list.innerHTML = '';
+    sessions.forEach(s => {
+      const div = document.createElement('div'); div.className = 'alist-item';
+      div.innerHTML = `
+        <div class="alist-info">
+          <div class="alist-name">${s.title}</div>
+          <div class="alist-sub">${s.date} · ${s.type||''} · ${s.duration||''}</div>
+        </div>
+        <div class="alist-actions">
+          <button class="abtn secondary small" onclick="editSession('${s.id}')">Edit</button>
+          <button class="abtn danger small" onclick="deleteSession('${s.id}')">Delete</button>
+        </div>
+      `;
+      list.appendChild(div);
+    });
+  } catch { list.innerHTML='<div class="errbox">Error loading sessions</div>'; }
+}
+
+async function editSession(id) {
+  const sessions = await sb.get('sessions', `?id=eq.${id}`);
+  const s = sessions[0]; if(!s) return;
+  editingSessionId = id;
+  document.getElementById('session-form-title').textContent = 'Edit Session';
+  document.getElementById('sf-title').value    = s.title||'';
+  document.getElementById('sf-date').value     = s.date||'';
+  document.getElementById('sf-tag').value      = s.tag||'';
+  document.getElementById('sf-duration').value = s.duration||'';
+  document.getElementById('sf-type').value     = s.type||'Activation';
+  document.getElementById('sf-tags').value     = Array.isArray(s.tags)?s.tags.join(', '):'';
+  // Rebuild phases
+  document.getElementById('phases-container').innerHTML = '';
+  phaseCount = 0;
+  (s.phases||[]).forEach(ph => {
+    addPhase();
+    document.getElementById(`ph-name-${phaseCount}`).value = ph.name||'';
+    document.getElementById(`ph-note-${phaseCount}`).value = ph.note||'';
+    (ph.exercises||[]).forEach(() => {
+      addExercise(phaseCount);
+    });
+    // Fill exercise values
+    const exEls = document.querySelectorAll(`#exercises-${phaseCount} .ex-builder`);
+    (ph.exercises||[]).forEach((ex, i) => {
+      if(exEls[i]) {
+        exEls[i].querySelector('.ex-name').value  = ex.name||'';
+        exEls[i].querySelector('.ex-sets').value  = ex.sets||'';
+        exEls[i].querySelector('.ex-video').value = ex.video||'';
+        exEls[i].querySelector('.ex-note').value  = ex.note||'';
+      }
+    });
+  });
+  document.getElementById('session-form').scrollIntoView({behavior:'smooth'});
+}
+
+async function deleteSession(id) {
+  if(!confirm('Delete this session? This cannot be undone.')) return;
+  await sb.delete('sessions', id);
+  loadAdminSessions();
+  loadSessions();
+}
+
+// ══════════════════════════════════════════════
+// ADMIN — ATHLETES
+// ══════════════════════════════════════════════
+async function saveAthlete() {
+  const name = document.getElementById('af-name').value.trim();
+  if(!name) { showMsg('athlete-msg','Name is required',true); return; }
+  const data = {
+    name,
+    initials: document.getElementById('af-initials').value.trim() || name[0].toUpperCase(),
+    position: document.getElementById('af-position').value.trim(),
+    password: document.getElementById('af-password').value.trim(),
+    color:    '#1a7a3c',
+    sheet_tab: document.getElementById('af-sheet').value.trim() || 'HRV',
+    online:   true
+  };
+  try {
+    let r;
+    if(editingAthleteId) {
+      r = await sb.patch('athletes', editingAthleteId, data);
+    } else {
+      r = await sb.post('athletes', data);
+    }
+    if(!r.ok) throw new Error('Save failed');
+    showMsg('athlete-msg', editingAthleteId ? 'Athlete updated ✓' : 'Athlete saved ✓');
+    cancelAthleteEdit();
+    loadAdminAthletes();
+  } catch(e) { showMsg('athlete-msg','Error: '+e.message,true); }
+}
+
+function cancelAthleteEdit() {
+  editingAthleteId = null;
+  document.getElementById('athlete-form-title').textContent = 'New Athlete';
+  ['af-name','af-initials','af-position','af-password','af-sheet'].forEach(id => document.getElementById(id).value='');
+}
+
+async function loadAdminAthletes() {
+  const list = document.getElementById('admin-athletes-list');
+  list.innerHTML = '<div class="loader"><div class="spin"></div>Loading...</div>';
+  try {
+    const athletes = await sb.get('athletes','?order=name');
+    if(!athletes.length) { list.innerHTML='<div class="soon"><div class="soon-t">No athletes yet</div></div>'; return; }
+    list.innerHTML = '';
+    athletes.forEach(a => {
+      const div = document.createElement('div'); div.className = 'alist-item';
+      div.innerHTML = `
+        <div class="pc-avatar" style="width:36px;height:36px;font-size:16px;background:linear-gradient(135deg,${a.color||'#1a7a3c'},${a.color||'#1a7a3c'}cc);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--bb);flex-shrink:0">${a.initials||a.name[0]}</div>
+        <div class="alist-info">
+          <div class="alist-name">${a.name}</div>
+          <div class="alist-sub">${a.position||''} · Sheet: ${a.sheet_tab||'HRV'}</div>
+        </div>
+        <div class="alist-actions">
+          <button class="abtn secondary small" onclick="editAthlete('${a.id}')">Edit</button>
+          <button class="abtn danger small" onclick="deleteAthlete('${a.id}')">Delete</button>
+        </div>
+      `;
+      list.appendChild(div);
+    });
+  } catch { list.innerHTML='<div class="errbox">Error loading athletes</div>'; }
+}
+
+async function editAthlete(id) {
+  const athletes = await sb.get('athletes',`?id=eq.${id}`);
+  const a = athletes[0]; if(!a) return;
+  editingAthleteId = id;
+  document.getElementById('athlete-form-title').textContent = 'Edit Athlete';
+  document.getElementById('af-name').value     = a.name||'';
+  document.getElementById('af-initials').value = a.initials||'';
+  document.getElementById('af-position').value = a.position||'';
+  document.getElementById('af-password').value = a.password||'';
+  document.getElementById('af-sheet').value    = a.sheet_tab||'HRV';
+  document.getElementById('athlete-form').scrollIntoView({behavior:'smooth'});
+}
+
+async function deleteAthlete(id) {
+  if(!confirm('Delete this athlete?')) return;
+  await sb.delete('athletes', id);
+  loadAdminAthletes();
+}
+
+// ══════════════════════════════════════════════
+// ADMIN — JOURNAL
+// ══════════════════════════════════════════════
+async function loadAdminJournal() {
+  const list = document.getElementById('admin-journal-list');
+  list.innerHTML = '<div class="loader"><div class="spin"></div>Loading...</div>';
+  try {
+    const data = await sb.get('journal','?order=date.desc&limit=100');
+    if(!data.length) { list.innerHTML='<div class="soon"><div class="soon-t">No entries yet</div></div>'; return; }
+    list.innerHTML = '';
+    data.forEach((d,i) => {
+      const div = document.createElement('div'); div.className = 'jentry'+(i===0?' latest':'');
+      const dc = v => v>=4?'var(--gn)':v>=3?'var(--am)':'var(--rd)';
+      div.innerHTML = `
+        <div class="jetop">
+          <div class="jedate">${d.date} · <strong style="color:var(--rp2)">${d.athlete||'Unknown'}</strong></div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <div class="jedots">${[d.mood,d.sleep,d.energy,d.soreness].map(v=>`<div class="jedot" style="background:${dc(v)}"></div>`).join('')}</div>
+            <button class="abtn danger small" onclick="deleteJournalEntry('${d.id}')">✕</button>
+          </div>
+        </div>
+        <div class="jescores">
+          <div class="jescore"><div class="jeval">${d.mood}</div><div class="jelbl">Mood</div></div>
+          <div class="jescore"><div class="jeval">${d.sleep}</div><div class="jelbl">Sleep</div></div>
+          <div class="jescore"><div class="jeval">${d.energy}</div><div class="jelbl">Energy</div></div>
+          <div class="jescore"><div class="jeval">${d.soreness}</div><div class="jelbl">Soreness</div></div>
+        </div>
+        ${d.notes?`<div class="jenote">${d.notes}</div>`:''}
+      `;
+      list.appendChild(div);
+    });
+  } catch { list.innerHTML='<div class="errbox">Error loading journal entries</div>'; }
+}
+
+async function deleteJournalEntry(id) {
+  if(!confirm('Delete this entry?')) return;
+  await sb.delete('journal', id);
+  loadAdminJournal();
+}
+
+// ══════════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════════
+async function bootApp() {
+  buildScales();
+  goTab('dash');
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('on',i===0));
+  document.querySelectorAll('.bn').forEach((b,i) => b.classList.toggle('on',i===0));
+  await loadSessions();
+  const lastJ = await loadJournalEntries();
+  const sheetTab = currentProfile.sheet_tab || 'HRV';
+  fetch(API+'?sheet='+encodeURIComponent(sheetTab))
+    .then(r => { if(!r.ok) throw new Error('API error '+r.status); return r.json(); })
+    .then(data => {
+      if(!data||!data.length) throw new Error('No HRV data');
       const aL=data.map(d=>cleanDate(d.date)), aR=data.map(d=>+d.value);
       const raw28=aR.slice(-WIN), ewma=ewma28(aR), pct=pctDev(raw28,ewma), n=raw28.length, si=sig(pct[n-1]);
       buildHRV(aL, aR, document.getElementById('hrv-body'), 'hrv');
       buildDash(raw28[n-1], pct[n-1], si, lastJ);
     })
-    .catch(err=>{
-      document.getElementById('hrv-body').innerHTML=`<div class="errbox">⚠ ${err.message}</div>`;
-      document.getElementById('dash-body').innerHTML=`<div class="errbox">⚠ Could not load HRV data</div>`;
+    .catch(err => {
+      document.getElementById('hrv-body').innerHTML = `<div class="errbox">⚠ ${err.message}</div>`;
+      document.getElementById('dash-body').innerHTML = `<div class="errbox">⚠ Could not load HRV data</div>`;
     });
 }
 
-// ── INIT ──
-buildProfiles();
+// Init
+loadProfiles();
 </script>
 </body>
 </html>
