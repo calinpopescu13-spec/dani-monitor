@@ -332,8 +332,8 @@ body{min-height:100dvh;overflow-x:hidden}
 // !! CONFIG — edit these !!
 // ══════════════════════════════════════════════
 const API    = 'https://script.google.com/macros/s/AKfycbx-mCY7HFbCLCccrOwGEu0zO-JZl0mzMWow5bMWDSg7agO7njMlrzsal5bb_w6iEYoU/exec';
-const SB_URL = 'YOUR_SUPABASE_URL';
-const SB_KEY = 'YOUR_SUPABASE_KEY';
+const SB_URL = 'https://tbgghnngqsbaexrypfuo.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRiZ2dobm5ncXNiYWV4cnlwZnVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNDA3OTYsImV4cCI6MjA5MTkxNjc5Nn0.hoxIiVE8MUQYkyTeztJEMbJ5KjURjQaDIqd7h2Smq-w';
 const WIN    = 28;
 
 // ══════════════════════════════════════════════
@@ -630,20 +630,19 @@ function buildScales(){
 async function submitJournal(){
   const msg=document.getElementById('jmsg');
   if(!scores.mood||!scores.sleep||!scores.energy||!scores.soreness){ msg.textContent='Please fill in all scores'; msg.className='jfmsg err show'; setTimeout(()=>msg.classList.remove('show'),3000); return; }
-  const entry={ date:new Date().toISOString().split('T')[0], athlete_id: currentProfile?.id, mood:scores.mood, sleep:scores.sleep, energy:scores.energy, soreness:scores.soreness, notes:document.getElementById('jnotes').value.trim() };
-  if(SB_URL==='YOUR_SUPABASE_URL'){ msg.textContent='Demo mode — connect Supabase to save'; msg.className='jfmsg show'; setTimeout(()=>msg.classList.remove('show'),3000); return; }
+  const entry={ date:new Date().toISOString().split('T')[0], athlete:currentProfile?.name||'', mood:scores.mood, sleep:scores.sleep, energy:scores.energy, soreness:scores.soreness, notes:document.getElementById('jnotes').value.trim() };
   try{
     const r=await fetch(SB_URL+'/rest/v1/journal',{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=minimal'},body:JSON.stringify(entry)});
-    if(!r.ok) throw new Error();
+    if(!r.ok) throw new Error('Supabase error '+r.status);
     msg.textContent='Saved ✓'; msg.className='jfmsg show'; setTimeout(()=>msg.classList.remove('show'),3000);
     Object.keys(scores).forEach(k=>scores[k]=0); buildScales(); document.getElementById('jnotes').value='';
     loadJournalEntries();
-  }catch{ msg.textContent='Error saving'; msg.className='jfmsg err show'; setTimeout(()=>msg.classList.remove('show'),3000); }
+  }catch(e){ msg.textContent='Error: '+e.message; msg.className='jfmsg err show'; setTimeout(()=>msg.classList.remove('show'),3000); }
 }
 
 async function loadJournalEntries(){
   const el=document.getElementById('journal-entries');
-  if(SB_URL==='YOUR_SUPABASE_URL'){ el.innerHTML='<div class="infobox">Connect Supabase to save journal entries.<br>See SETUP_GUIDE.md for instructions.</div>'; return null; }
+  // Supabase connected
   try{
     const r=await fetch(SB_URL+'/rest/v1/journal?order=date.desc&limit=30',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
     const data=await r.json();
