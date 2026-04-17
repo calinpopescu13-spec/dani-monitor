@@ -557,7 +557,7 @@ body{min-height:100dvh;overflow-x:hidden}
 const API        = 'https://script.google.com/macros/s/AKfycbx-mCY7HFbCLCccrOwGEu0zO-JZl0mzMWow5bMWDSg7agO7njMlrzsal5bb_w6iEYoU/exec';
 const SB_URL     = 'https://tbgghnngqsbaexrypfuo.supabase.co';
 const SB_KEY     = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRiZ2dobm5ncXNiYWV4cnlwZnVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNDA3OTYsImV4cCI6MjA5MTkxNjc5Nn0.hoxIiVE8MUQYkyTeztJEMbJ5KjURjQaDIqd7h2Smq-w';
-const ADMIN_PW   = 'Cpfb2014';  //
+const ADMIN_PW   = 'admin2026';  // ← CHANGE THIS
 const WIN        = 28;
 
 // ══════════════════════════════════════════════
@@ -890,6 +890,7 @@ function openSession(s) {
                 <div class="sv-ex-sets">${ex.sets||''}</div>
               </div>
               ${ex.video ? `<div class="sv-ex-video"><iframe src="https://www.youtube.com/embed/${ex.video}" allowfullscreen></iframe></div>` : ''}
+              ${ex.photo ? `<img src="${ex.photo}" style="width:100%;display:block;border-top:1px solid var(--b)" alt="${ex.name||'exercise'}" onerror="this.style.display='none'">` : ''}
               ${ex.note ? `<div class="sv-ex-note">${ex.note}</div>` : ''}
             </div>
           `).join('')}
@@ -932,7 +933,9 @@ async function submitJournal() {
     const r = await sb.post('journal', entry);
     if(!r.ok) throw new Error('Supabase error '+r.status);
     // Also send to Google Sheets
-    fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(entry) }).catch(()=>{});
+    fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(entry) })
+      .then(r => r.json()).then(result => { if(result.error) console.warn('Sheets sync:', result.error); else console.log('Sheets sync: ok'); })
+      .catch(e => console.warn('Sheets sync failed:', e));
     msg.textContent = 'Saved ✓'; msg.className = 'jfmsg show'; setTimeout(()=>msg.classList.remove('show'),3000);
     Object.keys(scores).forEach(k=>scores[k]=0); buildScales(); document.getElementById('jnotes').value = '';
     loadJournalEntries();
@@ -958,16 +961,73 @@ async function loadJournalEntries() {
 // ══════════════════════════════════════════════
 // DASHBOARD
 // ══════════════════════════════════════════════
-function buildDash(lastRaw, pctToday, si, lastJ) {
+function buildDash(lastRaw, pctToday, si, allHrvRaw, allHrvLabels, lastJ) {
   const latest = allSessions[0]||null;
   const gp = Math.min(Math.max((pctToday+30)/50*100,3),97);
-  const sHTML = latest ? `<div class="sh"><div class="shb"></div><div class="sht">Latest Session</div></div><div class="scard" onclick="openSession(allSessions[0])"><div class="scard-inner"><div class="scard-date"><div class="scard-day">${parseSD(latest.date).day}</div><div class="scard-mon">${parseSD(latest.date).mon}</div></div><div class="scard-body"><div class="scard-tag">${latest.tag||''}</div><div class="scard-title">${latest.title}</div><div class="scard-meta"><span>${latest.duration||''}</span><span>${latest.type||''}</span></div></div><div class="scard-r">→</div></div></div>` : '';
-  const jHTML = lastJ ? `<div class="sh"><div class="shb"></div><div class="sht">Last Journal</div></div><div class="jentry latest"><div class="jetop"><div class="jedate">${lastJ.date}</div></div><div class="jescores"><div class="jescore"><div class="jeval">${lastJ.mood}</div><div class="jelbl">Mood</div></div><div class="jescore"><div class="jeval">${lastJ.sleep}</div><div class="jelbl">Sleep</div></div><div class="jescore"><div class="jeval">${lastJ.energy}</div><div class="jelbl">Energy</div></div><div class="jescore"><div class="jeval">${lastJ.soreness}</div><div class="jelbl">Soreness</div></div></div>${lastJ.notes?`<div class="jenote">${lastJ.notes}</div>`:''}</div>` : '';
+  const today = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+  // 7-day mini sparkline data
+  const last7raw = allHrvRaw.slice(-7);
+  const last7lbl = allHrvLabels.slice(-7);
+
+  // Wellness score from last journal (average of 4 scores, out of 5)
+  const wellnessScore = lastJ ? ((lastJ.mood+lastJ.sleep+lastJ.energy+(5-lastJ.soreness+1))/4).toFixed(1) : null;
+  const wellnessColor = wellnessScore >= 3.5 ? 'var(--gn)' : wellnessScore >= 2.5 ? 'var(--am)' : 'var(--rd)';
+
+  const sHTML = latest ? `
+    <div class="sh"><div class="shb"></div><div class="sht">Latest Session</div></div>
+    <div class="scard" onclick="openSession(allSessions[0])">
+      <div class="scard-inner">
+        <div class="scard-date"><div class="scard-day">${parseSD(latest.date).day}</div><div class="scard-mon">${parseSD(latest.date).mon}</div></div>
+        <div class="scard-body"><div class="scard-tag">${latest.tag||''}</div><div class="scard-title">${latest.title}</div><div class="scard-meta"><span>${latest.duration||''}</span><span>${latest.type||''}</span></div></div>
+        <div class="scard-r">→</div>
+      </div>
+    </div>` : '';
+
+  const jHTML = lastJ ? `
+    <div class="sh"><div class="shb"></div><div class="sht">Wellness Check</div></div>
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="clbl" style="margin:0">Last entry · ${lastJ.date}</div>
+        <div style="font-family:var(--bb);font-size:22px;color:${wellnessColor}">${wellnessScore}/5</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
+        ${[['Mood',lastJ.mood],['Sleep',lastJ.sleep],['Energy',lastJ.energy],['Soreness',lastJ.soreness]].map(([lbl,val])=>{
+          const c = lbl==='Soreness' ? (val<=2?'var(--gn)':val<=3?'var(--am)':'var(--rd)') : (val>=4?'var(--gn)':val>=3?'var(--am)':'var(--rd)');
+          return `<div style="text-align:center"><div style="font-family:var(--bb);font-size:22px;color:${c}">${val}</div><div style="font-family:var(--m);font-size:7px;color:var(--t3);text-transform:uppercase;margin-top:2px">${lbl}</div></div>`;
+        }).join('')}
+      </div>
+      ${lastJ.notes?`<div style="font-family:var(--f);font-size:12px;color:var(--t2);border-top:1px solid var(--b);padding-top:8px;margin-top:8px;line-height:1.5">${lastJ.notes}</div>`:''}
+    </div>` : `
+    <div class="sh"><div class="shb"></div><div class="sht">Wellness Check</div></div>
+    <div class="card" style="margin-bottom:10px;text-align:center;padding:20px">
+      <div style="font-family:var(--m);font-size:10px;color:var(--t3)">No journal entry today</div>
+      <button onclick="goTab('journal')" style="margin-top:10px;padding:8px 16px;background:var(--rp);border:none;border-radius:8px;font-family:var(--bb);font-size:14px;letter-spacing:.08em;color:var(--wh);cursor:pointer">Log Today →</button>
+    </div>`;
+
+  const sessCountHTML = `
+    <div class="sh"><div class="shb"></div><div class="sht">This Week</div></div>
+    <div class="cg3" style="margin-bottom:10px">
+      <div class="card"><div class="clbl">Sessions</div><div class="cval md">${allSessions.filter(s=>{ const d=new Date(s.date); const now=new Date(); const diff=(now-d)/(1000*60*60*24); return diff<=7; }).length}</div><div class="csub">last 7 days</div></div>
+      <div class="card"><div class="clbl">HRV Avg</div><div class="cval md">${last7raw.length?(last7raw.reduce((a,b)=>a+b,0)/last7raw.length).toFixed(0):'-'}</div><div class="csub">7-day mean</div></div>
+      <div class="card"><div class="clbl">Trend</div><div class="cval md" style="color:${pctToday>=0?'var(--gn)':'var(--rd)'}">${pctToday>=0?'+':''}${pctToday}%</div><div class="csub">vs baseline</div></div>
+    </div>`;
+
   document.getElementById('dash-body').innerHTML = `
-    <div class="sh"><div class="shb"></div><div class="sht">Today · ${currentProfile?.name}</div></div>
-    <div class="cg2"><div class="card hi"><div class="clbl">HRV</div><div class="cval">${lastRaw}</div><div class="csub">lnRMSSD ms</div></div><div class="card"><div class="clbl">Recovery</div><div class="cval md" style="color:${si.col}">${pctToday>=0?'+':''}${pctToday}%</div><div class="csub">${si.t}</div></div></div>
-    <div class="gcrd"><div class="ct" style="margin-bottom:10px">Recovery gauge</div><div class="gtrack"><div class="gneedle" id="gn-dash"></div></div><div class="gaxis"><span>−25%</span><span>−10%</span><span>0</span><span>+10%</span><span>+20%</span></div><div class="grow"><div class="gpct" style="color:${si.col}">${pctToday>=0?'+':''}${pctToday}%</div><div class="gbg ${si.g}"><div class="bdot"></div>${si.t}</div></div></div>
-    ${sHTML}${jHTML}
+    <div style="font-family:var(--m);font-size:9px;color:var(--t3);letter-spacing:.06em;margin-bottom:12px;margin-top:4px">${today}</div>
+    <div class="sh"><div class="shb"></div><div class="sht">Recovery Status · ${currentProfile?.name}</div></div>
+    <div class="cg2" style="margin-bottom:10px">
+      <div class="card hi"><div class="clbl">HRV Today</div><div class="cval">${lastRaw}</div><div class="csub">lnRMSSD ms</div></div>
+      <div class="card"><div class="clbl">Recovery</div><div class="cval md" style="color:${si.col}">${pctToday>=0?'+':''}${pctToday}%</div><div class="csub">${si.t}</div></div>
+    </div>
+    <div class="gcrd">
+      <div class="ct" style="margin-bottom:10px">Recovery gauge · today vs 28-day EWMA</div>
+      <div class="gtrack"><div class="gneedle" id="gn-dash"></div></div>
+      <div class="gaxis"><span>−25%</span><span>−10%</span><span>0</span><span>+10%</span><span>+20%</span></div>
+      <div class="grow"><div class="gpct" style="color:${si.col}">${pctToday>=0?'+':''}${pctToday}%</div><div class="gbg ${si.g}"><div class="bdot"></div>${si.t}</div></div>
+    </div>
+    ${sessCountHTML}
+    ${jHTML}
+    ${sHTML}
   `;
   setTimeout(() => { const el=document.getElementById('gn-dash'); if(el) el.style.left=gp+'%'; }, 200);
 }
@@ -1024,6 +1084,10 @@ function addExercise(phaseId) {
     <div class="arow">
       <label class="albl">YouTube Video ID (optional)</label>
       <input class="ainput ex-video" placeholder="e.g. dQw4w9WgXcQ (from youtube.com/watch?v=...)">
+    </div>
+    <div class="arow">
+      <label class="albl">Photo URL (optional — link from Google Drive, Imgur etc)</label>
+      <input class="ainput ex-photo" placeholder="e.g. https://i.imgur.com/abc123.jpg">
     </div>
     <div class="arow">
       <label class="albl">Coach note (optional)</label>
@@ -1145,6 +1209,7 @@ async function editSession(id) {
         exEls[i].querySelector('.ex-name').value  = ex.name||'';
         exEls[i].querySelector('.ex-sets').value  = ex.sets||'';
         exEls[i].querySelector('.ex-video').value = ex.video||'';
+        exEls[i].querySelector('.ex-photo').value = ex.photo||'';
         exEls[i].querySelector('.ex-note').value  = ex.note||'';
       }
     });
@@ -1296,7 +1361,7 @@ async function bootApp() {
       const aL=data.map(d=>cleanDate(d.date)), aR=data.map(d=>+d.value);
       const raw28=aR.slice(-WIN), ewma=ewma28(aR), pct=pctDev(raw28,ewma), n=raw28.length, si=sig(pct[n-1]);
       buildHRV(aL, aR, document.getElementById('hrv-body'), 'hrv');
-      buildDash(raw28[n-1], pct[n-1], si, lastJ);
+      buildDash(raw28[n-1], pct[n-1], si, aR, aL, lastJ);
     })
     .catch(err => {
       document.getElementById('hrv-body').innerHTML = `<div class="errbox">⚠ ${err.message}</div>`;
