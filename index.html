@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>Football Performance Society</title>
+<meta property="og:title" content="Football Performance Society">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
@@ -296,6 +297,17 @@ body{min-height:100dvh;overflow-x:hidden}
 .bn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 4px 5px;border:none;background:transparent;cursor:pointer;font-family:var(--m);font-size:7px;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);transition:color .2s}
 .bn.on{color:var(--rp2)}.bn-ico{font-size:15px;line-height:1}
 .divider{height:1px;background:var(--b);margin:14px 0}
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}
+.stat-card{background:var(--sf);border:1px solid var(--b);border-radius:12px;padding:14px;text-align:center}
+.stat-label{font-family:var(--m);font-size:8px;letter-spacing:.1em;color:var(--t3);text-transform:uppercase;margin-bottom:6px}
+.stat-value{font-family:var(--bb);font-size:28px;letter-spacing:.01em;line-height:1;color:var(--wh)}
+.stat-sub{font-family:var(--m);font-size:8px;color:var(--t3);margin-top:4px}
+.goal-item{background:var(--sf);border:1px solid var(--b);border-radius:12px;padding:14px;margin-bottom:10px}
+.goal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.goal-name{font-family:var(--bb);font-size:16px;letter-spacing:.04em;color:var(--wh)}
+.goal-progress-bar{width:100%;height:6px;background:var(--sf2);border-radius:999px;overflow:hidden;margin-bottom:6px}
+.goal-progress-fill{height:100%;background:linear-gradient(90deg,var(--rp),var(--rp3));border-radius:999px;transition:width .3s}
+.goal-progress-text{display:flex;justify-content:space-between;font-family:var(--m);font-size:9px;color:var(--t3)}
 @media(max-width:360px){.cval{font-size:24px}.gpct{font-size:28px}.pg{padding:12px 12px 80px}}
 @media(min-width:600px){.bnav{display:none}.pg{padding:20px 24px 40px;max-width:720px;margin:0 auto}.admin-pg{max-width:720px;margin:0 auto}}
 </style>
@@ -372,7 +384,9 @@ body{min-height:100dvh;overflow-x:hidden}
     <button class="tab"    onclick="goTab('training',this)">Training</button>
     <button class="tab"    onclick="goTab('journal',this)">Journal</button>
   </div>
-  <div class="pg on" id="pg-dash"><div id="dash-body"><div class="loader"><div class="spin"></div>Loading...</div></div></div>
+  <div class="pg on" id="pg-dash">
+    <div id="dash-body"><div class="loader"><div class="spin"></div>Loading...</div></div>
+  </div>
   <div class="pg" id="pg-monitor">
     <div class="subtabs">
       <button class="stab on" onclick="goMon('hrv',this)">HRV</button>
@@ -520,6 +534,9 @@ body{min-height:100dvh;overflow-x:hidden}
         <span id="athlete-form-title">New Athlete</span>
         <button class="abtn secondary small" onclick="cancelAthleteEdit()">Cancel</button>
       </div>
+      
+      <!-- BASIC INFO -->
+      <div style="font-family:var(--m);font-size:9px;letter-spacing:.12em;color:var(--t3);text-transform:uppercase;margin-bottom:10px;margin-top:4px">Basic Information</div>
       <div class="agrid2">
         <div class="arow">
           <label class="albl">Name *</label>
@@ -536,15 +553,105 @@ body{min-height:100dvh;overflow-x:hidden}
           <input class="ainput" id="af-position" placeholder="Striker">
         </div>
         <div class="arow">
+          <label class="albl">Team</label>
+          <input class="ainput" id="af-team" placeholder="Rapid București">
+        </div>
+      </div>
+      <div class="agrid2">
+        <div class="arow">
           <label class="albl">Password</label>
           <input class="ainput" id="af-password" placeholder="athlete2026">
         </div>
+        <div class="arow">
+          <label class="albl">Google Sheet Tab</label>
+          <input class="ainput" id="af-sheet" placeholder="HRV">
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- SOFASCORE INTEGRATION -->
+      <div style="font-family:var(--m);font-size:9px;letter-spacing:.12em;color:var(--t3);text-transform:uppercase;margin-bottom:10px">🎯 SofaScore Integration</div>
+      <div class="arow">
+        <label class="albl">SofaScore Player ID</label>
+        <input class="ainput" id="af-sofascore-id" placeholder="1092984" type="text">
+        <div style="font-family:var(--m);font-size:8px;color:var(--t3);margin-top:4px">Find from URL: sofascore.com/player/name/{ID} (e.g., 1092984 for Dani)</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button class="abtn secondary" style="flex:1" onclick="syncSofaScoreForAthlete()" id="manual-sync-btn">🔄 Sync Now</button>
+        <button class="abtn secondary" style="flex:1" onclick="toggleAutoSync()" id="auto-sync-btn">⚙️ Auto Sync: OFF</button>
+      </div>
+      <div class="amsg" id="sofascore-sync-msg"></div>
+
+      <div class="divider"></div>
+
+      <!-- SEASON STATS -->
+      <div style="font-family:var(--m);font-size:9px;letter-spacing:.12em;color:var(--t3);text-transform:uppercase;margin-bottom:10px">Season Stats (Editable)</div>
+      <div class="agrid2">
+        <div class="arow">
+          <label class="albl">Sessions Completed</label>
+          <input class="ainput" id="af-sessions-completed" placeholder="12" type="number">
+        </div>
+        <div class="arow">
+          <label class="albl">Total Training Hours</label>
+          <input class="ainput" id="af-training-hours" placeholder="45.5" type="number" step="0.5">
+        </div>
+      </div>
+      <div class="agrid2">
+        <div class="arow">
+          <label class="albl">Average HRV</label>
+          <input class="ainput" id="af-avg-hrv" placeholder="55.2" type="number" step="0.1">
+        </div>
+        <div class="arow">
+          <label class="albl">Best HRV</label>
+          <input class="ainput" id="af-best-hrv" placeholder="72" type="number" step="0.1">
+        </div>
+      </div>
+      <div class="agrid2">
+        <div class="arow">
+          <label class="albl">Worst HRV</label>
+          <input class="ainput" id="af-worst-hrv" placeholder="38" type="number" step="0.1">
+        </div>
+        <div class="arow">
+          <label class="albl">Consistency % (0-100)</label>
+          <input class="ainput" id="af-consistency" placeholder="85" type="number" min="0" max="100">
+        </div>
       </div>
       <div class="arow">
-        <label class="albl">Google Sheet Tab (HRV data tab name)</label>
-        <input class="ainput" id="af-sheet" placeholder="HRV">
+        <label class="albl">Average Wellness Score (1-5)</label>
+        <input class="ainput" id="af-wellness-avg" placeholder="4.2" type="number" step="0.1" min="1" max="5">
       </div>
-      <button class="abtn" style="width:100%;margin-top:4px" onclick="saveAthlete()">Save Athlete</button>
+
+      <div class="divider"></div>
+
+      <!-- GOALS -->
+      <div style="font-family:var(--m);font-size:9px;letter-spacing:.12em;color:var(--t3);text-transform:uppercase;margin-bottom:10px">Season Goals (Editable)</div>
+      <div class="agrid2">
+        <div class="arow">
+          <label class="albl">Target Sessions</label>
+          <input class="ainput" id="af-goal-sessions" placeholder="25" type="number">
+        </div>
+        <div class="arow">
+          <label class="albl">Target HRV</label>
+          <input class="ainput" id="af-goal-hrv" placeholder="65" type="number" step="0.1">
+        </div>
+      </div>
+      <div class="agrid2">
+        <div class="arow">
+          <label class="albl">Target Training Hours</label>
+          <input class="ainput" id="af-goal-hours" placeholder="100" type="number" step="0.5">
+        </div>
+        <div class="arow">
+          <label class="albl">Target Consistency %</label>
+          <input class="ainput" id="af-goal-consistency" placeholder="90" type="number" min="0" max="100">
+        </div>
+      </div>
+      <div class="arow">
+        <label class="albl">Target Wellness Score</label>
+        <input class="ainput" id="af-goal-wellness" placeholder="4.5" type="number" step="0.1" min="1" max="5">
+      </div>
+
+      <button class="abtn" style="width:100%;margin-top:14px" onclick="saveAthlete()">Save Athlete</button>
       <div class="amsg" id="athlete-msg"></div>
     </div>
     <div class="sh"><div class="shb"></div><div class="sht">All Athletes</div></div>
@@ -756,6 +863,86 @@ function showMsg(id, text, isErr=false) {
   el.textContent = text;
   el.className = 'amsg show' + (isErr?' err':'');
   setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ══════════════════════════════════════════════
+// ATHLETE STATS & GOALS
+// ══════════════════════════════════════════════
+async function loadAthleteStats(athleteName) {
+  try {
+    const stats = await sb.get('athlete_stats', `?athlete_name=eq.${athleteName}`);
+    return stats.length > 0 ? stats[0] : null;
+  } catch(e) {
+    console.warn('Could not load stats:', e);
+    return null;
+  }
+}
+
+async function loadAthleteGoals(athleteName) {
+  try {
+    const goals = await sb.get('athlete_goals', `?athlete_name=eq.${athleteName}&status=eq.active`);
+    return goals || [];
+  } catch(e) {
+    console.warn('Could not load goals:', e);
+    return [];
+  }
+}
+
+function buildStatsHTML(stats) {
+  if(!stats) return '';
+  return `
+    <div class="sh"><div class="shb"></div><div class="sht">Season Stats</div></div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Minutes Played</div>
+        <div class="stat-value">${stats.minutes_played}</div>
+        <div class="stat-sub">this season</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Goals Scored</div>
+        <div class="stat-value">${stats.goals_scored}</div>
+        <div class="stat-sub">${stats.appearances} appearances</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg HRV</div>
+        <div class="stat-value">${stats.avg_hrv}</div>
+        <div class="stat-sub">lnRMSSD ms</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Assists</div>
+        <div class="stat-value">${stats.assists}</div>
+        <div class="stat-sub">game creators</div>
+      </div>
+    </div>
+  `;
+}
+
+function buildGoalsHTML(goals) {
+  if(!goals.length) return '';
+  const goalsHTML = goals.map(g => {
+    const progress = Math.min(Math.round((g.current_value / g.target_value) * 100), 100);
+    const isCompleted = progress >= 100;
+    return `
+      <div class="goal-item">
+        <div class="goal-header">
+          <div class="goal-name">${g.goal_name}</div>
+          <div style="font-family:var(--bb);font-size:18px;color:${isCompleted?'var(--gn)':'var(--rp2)'}">${progress}%</div>
+        </div>
+        <div class="goal-progress-bar">
+          <div class="goal-progress-fill" style="width:${progress}%"></div>
+        </div>
+        <div class="goal-progress-text">
+          <span>${g.current_value} / ${g.target_value} ${g.unit}</span>
+          <span>${isCompleted?'✓ Completed':'In Progress'}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  return `
+    <div class="sh"><div class="shb"></div><div class="sht">Season Goals</div></div>
+    ${goalsHTML}
+  `;
 }
 
 // ══════════════════════════════════════════════
@@ -990,17 +1177,42 @@ async function loadJournalEntries() {
     data.forEach((d,i) => {
       const div = document.createElement('div'); div.className = 'jentry'+(i===0?' latest':'');
       const dc = v => v>=4?'var(--gn)':v>=3?'var(--am)':'var(--rd)';
-      div.innerHTML = `<div class="jetop"><div class="jedate">${d.date} · ${d.athlete||''}</div><div class="jedots">${[d.mood,d.sleep,d.energy,d.soreness].map(v=>`<div class="jedot" style="background:${dc(v)}"></div>`).join('')}</div></div><div class="jescores"><div class="jescore"><div class="jeval">${d.mood}</div><div class="jelbl">Mood</div></div><div class="jescore"><div class="jeval">${d.sleep}</div><div class="jelbl">Sleep</div></div><div class="jescore"><div class="jeval">${d.energy}</div><div class="jelbl">Energy</div></div><div class="jescore"><div class="jeval">${d.soreness}</div><div class="jelbl">Soreness</div></div></div>${d.notes?`<div class="jenote">${d.notes}</div>`:''}`;
+      div.innerHTML = `
+        <div class="jetop">
+          <div class="jedate">${d.date} · ${d.athlete||''}</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div class="jedots">${[d.mood,d.sleep,d.energy,d.soreness].map(v=>`<div class="jedot" style="background:${dc(v)}"></div>`).join('')}</div>
+            <button onclick="deleteJournalEntry('${d.id}')" style="background:none;border:none;color:var(--rd);cursor:pointer;font-size:16px;padding:0;margin:0">✕</button>
+          </div>
+        </div>
+        <div class="jescores">
+          <div class="jescore"><div class="jeval">${d.mood}</div><div class="jelbl">Mood</div></div>
+          <div class="jescore"><div class="jeval">${d.sleep}</div><div class="jelbl">Sleep</div></div>
+          <div class="jescore"><div class="jeval">${d.energy}</div><div class="jelbl">Energy</div></div>
+          <div class="jescore"><div class="jeval">${d.soreness}</div><div class="jelbl">Soreness</div></div>
+        </div>
+        ${d.notes?`<div class="jenote">${d.notes}</div>`:''}
+      `;
       el.appendChild(div);
     });
     return data[0]||null;
   } catch { el.innerHTML='<div class="errbox">Error loading entries</div>'; return null; }
 }
 
+async function deleteJournalEntry(id) {
+  if(!confirm('Delete this journal entry? This cannot be undone.')) return;
+  try {
+    await sb.delete('journal', id);
+    loadJournalEntries();
+  } catch(e) {
+    alert('Error deleting entry: ' + e.message);
+  }
+}
+
 // ══════════════════════════════════════════════
 // DASHBOARD
 // ══════════════════════════════════════════════
-function buildDash(lastRaw, pctToday, si, allHrvRaw, allHrvLabels, lastJ) {
+async function buildDash(lastRaw, pctToday, si, allHrvRaw, allHrvLabels, lastJ) {
   const latest = allSessions[0]||null;
   const gp = Math.min(Math.max((pctToday+30)/50*100,3),97);
   const today = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
@@ -1051,6 +1263,25 @@ function buildDash(lastRaw, pctToday, si, allHrvRaw, allHrvLabels, lastJ) {
       <div class="card"><div class="clbl">Trend</div><div class="cval md" style="color:${pctToday>=0?'var(--gn)':'var(--rd)'}">${pctToday>=0?'+':''}${pctToday}%</div><div class="csub">vs baseline</div></div>
     </div>`;
 
+  // SofaScore Match Performance
+  const sofascoreHTML = currentProfile?.sofascore_season_goals !== undefined ? `
+    <div class="sh"><div class="shb"></div><div class="sht">⚽ Match Performance (SofaScore)</div></div>
+    <div class="cg2" style="margin-bottom:10px">
+      <div class="card"><div class="clbl">Goals (Season)</div><div class="cval md" style="color:var(--gn)">${currentProfile.sofascore_season_goals || 0}</div><div class="csub">scored</div></div>
+      <div class="card"><div class="clbl">Assists (Season)</div><div class="cval md" style="color:var(--am)">${currentProfile.sofascore_season_assists || 0}</div><div class="csub">created</div></div>
+    </div>
+    <div class="cg2" style="margin-bottom:10px">
+      <div class="card"><div class="clbl">Matches</div><div class="cval md">${currentProfile.sofascore_season_matches || 0}</div><div class="csub">played</div></div>
+      <div class="card"><div class="clbl">Avg Rating</div><div class="cval md" style="color:${(currentProfile.sofascore_avg_rating || 0) >= 7 ? 'var(--gn)' : 'var(--am)'}">${(currentProfile.sofascore_avg_rating || 0).toFixed(1)}</div><div class="csub">/10</div></div>
+    </div>
+    ${currentProfile.sofascore_last_synced ? `<div style="font-family:var(--m);font-size:8px;color:var(--t3);text-align:center;margin-bottom:10px">Last synced: ${new Date(currentProfile.sofascore_last_synced).toLocaleDateString()}</div>` : ''}
+  ` : '';
+
+
+  // Load stats and goals
+  const stats = await loadAthleteStats(currentProfile?.name || '');
+  const goals = await loadAthleteGoals(currentProfile?.name || '');
+  
   document.getElementById('dash-body').innerHTML = `
     <div style="font-family:var(--m);font-size:9px;color:var(--t3);letter-spacing:.06em;margin-bottom:12px;margin-top:4px">${today}</div>
     <div class="sh"><div class="shb"></div><div class="sht">Recovery Status · ${currentProfile?.name}</div></div>
@@ -1064,6 +1295,9 @@ function buildDash(lastRaw, pctToday, si, allHrvRaw, allHrvLabels, lastJ) {
       <div class="gaxis"><span>−25%</span><span>−10%</span><span>0</span><span>+10%</span><span>+20%</span></div>
       <div class="grow"><div class="gpct" style="color:${si.col}">${pctToday>=0?'+':''}${pctToday}%</div><div class="gbg ${si.g}"><div class="bdot"></div>${si.t}</div></div>
     </div>
+    ${buildStatsHTML(stats)}
+    ${buildGoalsHTML(goals)}
+    ${sofascoreHTML}
     ${sessCountHTML}
     ${jHTML}
     ${sHTML}
@@ -1280,10 +1514,26 @@ async function saveAthlete() {
     name,
     initials: document.getElementById('af-initials').value.trim() || name[0].toUpperCase(),
     position: document.getElementById('af-position').value.trim(),
+    team: document.getElementById('af-team').value.trim() || '',
     password: document.getElementById('af-password').value.trim(),
     color:    '#1a7a3c',
     sheet_tab: document.getElementById('af-sheet').value.trim() || 'HRV',
-    online:   true
+    sofascore_player_id: document.getElementById('af-sofascore-id').value.trim() || '',
+    online:   true,
+    // Season Stats
+    sessions_completed: parseInt(document.getElementById('af-sessions-completed').value) || 0,
+    training_hours: parseFloat(document.getElementById('af-training-hours').value) || 0,
+    avg_hrv: parseFloat(document.getElementById('af-avg-hrv').value) || 0,
+    best_hrv: parseFloat(document.getElementById('af-best-hrv').value) || 0,
+    worst_hrv: parseFloat(document.getElementById('af-worst-hrv').value) || 0,
+    consistency_pct: parseInt(document.getElementById('af-consistency').value) || 0,
+    wellness_avg: parseFloat(document.getElementById('af-wellness-avg').value) || 0,
+    // Goals
+    goal_sessions: parseInt(document.getElementById('af-goal-sessions').value) || 0,
+    goal_hrv: parseFloat(document.getElementById('af-goal-hrv').value) || 0,
+    goal_training_hours: parseFloat(document.getElementById('af-goal-hours').value) || 0,
+    goal_consistency: parseInt(document.getElementById('af-goal-consistency').value) || 0,
+    goal_wellness: parseFloat(document.getElementById('af-goal-wellness').value) || 0
   };
   try {
     let r;
@@ -1302,7 +1552,10 @@ async function saveAthlete() {
 function cancelAthleteEdit() {
   editingAthleteId = null;
   document.getElementById('athlete-form-title').textContent = 'New Athlete';
-  ['af-name','af-initials','af-position','af-password','af-sheet'].forEach(id => document.getElementById(id).value='');
+  ['af-name','af-initials','af-position','af-team','af-password','af-sheet','af-sofascore-id',
+   'af-sessions-completed','af-training-hours','af-avg-hrv','af-best-hrv','af-worst-hrv',
+   'af-consistency','af-wellness-avg','af-goal-sessions','af-goal-hrv','af-goal-hours',
+   'af-goal-consistency','af-goal-wellness'].forEach(id => document.getElementById(id).value='');
 }
 
 async function loadAdminAthletes() {
@@ -1354,11 +1607,28 @@ async function editAthlete(id) {
   const a = athletes[0]; if(!a) return;
   editingAthleteId = id;
   document.getElementById('athlete-form-title').textContent = 'Edit Athlete';
+  // Basic info
   document.getElementById('af-name').value     = a.name||'';
   document.getElementById('af-initials').value = a.initials||'';
   document.getElementById('af-position').value = a.position||'';
+  document.getElementById('af-team').value     = a.team||'';
   document.getElementById('af-password').value = a.password||'';
   document.getElementById('af-sheet').value    = a.sheet_tab||'HRV';
+  document.getElementById('af-sofascore-id').value = a.sofascore_player_id||'';
+  // Season stats
+  document.getElementById('af-sessions-completed').value = a.sessions_completed||'';
+  document.getElementById('af-training-hours').value = a.training_hours||'';
+  document.getElementById('af-avg-hrv').value = a.avg_hrv||'';
+  document.getElementById('af-best-hrv').value = a.best_hrv||'';
+  document.getElementById('af-worst-hrv').value = a.worst_hrv||'';
+  document.getElementById('af-consistency').value = a.consistency_pct||'';
+  document.getElementById('af-wellness-avg').value = a.wellness_avg||'';
+  // Goals
+  document.getElementById('af-goal-sessions').value = a.goal_sessions||'';
+  document.getElementById('af-goal-hrv').value = a.goal_hrv||'';
+  document.getElementById('af-goal-hours').value = a.goal_training_hours||'';
+  document.getElementById('af-goal-consistency').value = a.goal_consistency||'';
+  document.getElementById('af-goal-wellness').value = a.goal_wellness||'';
   document.getElementById('athlete-form').scrollIntoView({behavior:'smooth'});
 }
 
@@ -1409,6 +1679,99 @@ async function deleteJournalEntry(id) {
 }
 
 // ══════════════════════════════════════════════
+// SOFASCORE INTEGRATION
+// ══════════════════════════════════════════════
+
+async function syncSofaScoreForAthlete() {
+  if(!editingAthleteId) { showMsg('sofascore-sync-msg','No athlete selected',true); return; }
+  const playerId = document.getElementById('af-sofascore-id').value.trim();
+  if(!playerId) { showMsg('sofascore-sync-msg','Please enter SofaScore Player ID first',true); return; }
+  
+  const syncBtn = document.getElementById('manual-sync-btn');
+  syncBtn.disabled = true;
+  syncBtn.textContent = '⏳ Syncing...';
+  
+  try {
+    const data = await fetchSofaScoreData(playerId);
+    if(!data) throw new Error('No data found');
+    
+    // Update athlete record with SofaScore data
+    const updateData = {
+      sofascore_player_id: playerId,
+      sofascore_last_synced: new Date().toISOString(),
+      sofascore_season_goals: data.goals || 0,
+      sofascore_season_assists: data.assists || 0,
+      sofascore_season_matches: data.matches || 0,
+      sofascore_avg_rating: data.avgRating || 0,
+      sofascore_latest_match: JSON.stringify(data.latestMatch || {})
+    };
+    
+    const r = await sb.patch('athletes', editingAthleteId, updateData);
+    if(!r.ok) throw new Error('Save failed');
+    
+    showMsg('sofascore-sync-msg',`✓ Synced! ${data.goals} goals, ${data.assists} assists, Rating: ${data.avgRating.toFixed(1)}`);
+    loadAdminAthletes();
+  } catch(e) {
+    showMsg('sofascore-sync-msg','Error: '+e.message,true);
+  } finally {
+    syncBtn.disabled = false;
+    syncBtn.textContent = '🔄 Sync Now';
+  }
+}
+
+async function fetchSofaScoreData(playerId) {
+  try {
+    // Fetch player statistics from SofaScore API
+    const res = await fetch(`https://api.sofascore.com/api/v1/player/${playerId}/statistics/`);
+    if(!res.ok) throw new Error('SofaScore API error');
+    const stats = await res.json();
+    
+    // Fetch player info for latest match
+    const playerRes = await fetch(`https://api.sofascore.com/api/v1/player/${playerId}`);
+    const playerInfo = await playerRes.json();
+    
+    // Parse data
+    const goals = stats.statistics?.[0]?.goals || 0;
+    const assists = stats.statistics?.[0]?.assists || 0;
+    const matches = stats.statistics?.[0]?.appearances || 0;
+    const avgRating = parseFloat(stats.statistics?.[0]?.rating) || 0;
+    
+    // Get latest match info
+    const latestMatch = {
+      date: new Date().toISOString().split('T')[0],
+      goals: goals,
+      assists: assists,
+      rating: avgRating,
+      lastUpdated: new Date().toISOString()
+    };
+    
+    return {
+      goals,
+      assists,
+      matches,
+      avgRating,
+      latestMatch
+    };
+  } catch(e) {
+    console.warn('SofaScore fetch error:', e);
+    return null;
+  }
+}
+
+function toggleAutoSync() {
+  // For future: implement server-side auto-sync
+  const btn = document.getElementById('auto-sync-btn');
+  const isOn = btn.textContent.includes('ON');
+  if(isOn) {
+    btn.textContent = '⚙️ Auto Sync: OFF';
+    btn.className = 'abtn secondary';
+  } else {
+    btn.textContent = '⚙️ Auto Sync: ON';
+    btn.className = 'abtn';
+  }
+}
+
+// ══════════════════════════════════════════════
 // BOOT
 // ══════════════════════════════════════════════
 async function bootApp() {
@@ -1421,12 +1784,12 @@ async function bootApp() {
   const sheetTab = currentProfile.sheet_tab || 'HRV';
   fetch(API+'?sheet='+encodeURIComponent(sheetTab))
     .then(r => { if(!r.ok) throw new Error('API error '+r.status); return r.json(); })
-    .then(data => {
+    .then(async data => {
       if(!data||!data.length) throw new Error('No HRV data');
       const aL=data.map(d=>cleanDate(d.date)), aR=data.map(d=>+d.value);
       const raw28=aR.slice(-WIN), ewma=ewma28(aR), pct=pctDev(raw28,ewma), n=raw28.length, si=sig(pct[n-1]);
       buildHRV(aL, aR, document.getElementById('hrv-body'), 'hrv');
-      buildDash(raw28[n-1], pct[n-1], si, aR, aL, lastJ);
+      await buildDash(raw28[n-1], pct[n-1], si, aR, aL, lastJ);
     })
     .catch(err => {
       document.getElementById('hrv-body').innerHTML = `<div class="errbox">⚠ ${err.message}</div>`;
