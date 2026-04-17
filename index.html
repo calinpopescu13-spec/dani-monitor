@@ -487,6 +487,14 @@ body{min-height:100dvh;overflow-x:hidden}
         </div>
       </div>
 
+      <div class="arow">
+        <label class="albl">Assign To Athlete</label>
+        <select class="aselect" id="sf-assigned-to">
+          <option value="all">All Athletes</option>
+        </select>
+        <div style="font-family:var(--m);font-size:8px;color:var(--t3);margin-top:4px">Who should see this training session?</div>
+      </div>
+
       <div class="divider"></div>
 
       <!-- PHASES -->
@@ -554,7 +562,7 @@ body{min-height:100dvh;overflow-x:hidden}
 // ══════════════════════════════════════════════
 // CONFIG
 // ══════════════════════════════════════════════
-const API = 'https://script.google.com/macros/s/AKfycbxjYgFKKgrKxzCn3ZS28Z0VZdcqu_39wEhVcH9N8Opw2f8OFDw6LdEJz3zMnUxZ80-w/exec';
+const API        = 'https://script.google.com/macros/s/AKfycbwylLgnvlp-XJGryeJluay_GFujZfBqFgkvAcgx7OL7Jl_oAeIXzO2P-qe7HL2uJrgy/exec';
 const SB_URL     = 'https://tbgghnngqsbaexrypfuo.supabase.co';
 const SB_KEY     = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRiZ2dobm5ncXNiYWV4cnlwZnVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNDA3OTYsImV4cCI6MjA5MTkxNjc5Nn0.hoxIiVE8MUQYkyTeztJEMbJ5KjURjQaDIqd7h2Smq-w';
 const ADMIN_PW   = 'admin2026';  // ← CHANGE THIS
@@ -831,7 +839,15 @@ function buildFilterChips() {
 
 function renderSessions() {
   const q = (document.getElementById('tsearch')?.value||'').toLowerCase().trim();
+  const athleteName = currentProfile?.name || '';
+  
   let filtered = allSessions.filter(s => {
+    // Check if session is assigned to this athlete
+    const assignedTo = s.assigned_to || 'all';
+    const isAssignedToThisAthlete = assignedTo === 'all' || assignedTo === athleteName;
+    
+    if(!isAssignedToThisAthlete) return false; // Don't show if not assigned to them
+    
     const tok = activeFilter==='All' || s.type===activeFilter;
     const tags = Array.isArray(s.tags) ? s.tags : [];
     const sok = !q || [s.title,s.tag,s.type,...tags].some(x => x && x.toLowerCase().includes(q));
@@ -1148,12 +1164,14 @@ async function saveSession() {
   if(!title||!date) { showMsg('session-msg','Title and date are required',true); return; }
   const tagsRaw = document.getElementById('sf-tags').value;
   const tags = tagsRaw ? tagsRaw.split(',').map(t=>t.trim()).filter(Boolean) : [];
+  const assignedTo = document.getElementById('sf-assigned-to').value || 'all';
   const data = {
     title, date,
     tag:      document.getElementById('sf-tag').value.trim(),
     duration: document.getElementById('sf-duration').value.trim(),
     type:     document.getElementById('sf-type').value,
     tags,
+    assigned_to: assignedTo,
     phases:   collectPhases()
   };
   try {
@@ -1174,7 +1192,11 @@ async function saveSession() {
 function cancelSessionEdit() {
   editingSessionId = null;
   document.getElementById('session-form-title').textContent = 'New Session';
-  ['sf-title','sf-date','sf-tag','sf-duration','sf-tags'].forEach(id => document.getElementById(id).value='');
+  ['sf-title','sf-date','sf-tag','sf-duration','sf-tags','sf-assigned-to'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el.tagName === 'SELECT') el.value = 'all';
+    else el.value = '';
+  });
   document.getElementById('sf-type').value = 'Activation';
   document.getElementById('phases-container').innerHTML = '';
   phaseCount = 0;
@@ -1215,6 +1237,7 @@ async function editSession(id) {
   document.getElementById('sf-duration').value = s.duration||'';
   document.getElementById('sf-type').value     = s.type||'Activation';
   document.getElementById('sf-tags').value     = Array.isArray(s.tags)?s.tags.join(', '):'';
+  document.getElementById('sf-assigned-to').value = s.assigned_to||'all';
   // Rebuild phases
   document.getElementById('phases-container').innerHTML = '';
   phaseCount = 0;
@@ -1287,6 +1310,9 @@ async function loadAdminAthletes() {
   list.innerHTML = '<div class="loader"><div class="spin"></div>Loading...</div>';
   try {
     const athletes = await sb.get('athletes','?order=name');
+    // Update the athlete assignment dropdown
+    populateAthleteDropdown(athletes);
+    
     if(!athletes.length) { list.innerHTML='<div class="soon"><div class="soon-t">No athletes yet</div></div>'; return; }
     list.innerHTML = '';
     athletes.forEach(a => {
@@ -1305,6 +1331,22 @@ async function loadAdminAthletes() {
       list.appendChild(div);
     });
   } catch { list.innerHTML='<div class="errbox">Error loading athletes</div>'; }
+}
+
+function populateAthleteDropdown(athletes) {
+  const dropdown = document.getElementById('sf-assigned-to');
+  if(!dropdown) return;
+  
+  // Clear existing options except "All Athletes"
+  dropdown.innerHTML = '<option value="all">All Athletes</option>';
+  
+  // Add each athlete as an option
+  athletes.forEach(a => {
+    const option = document.createElement('option');
+    option.value = a.name;
+    option.textContent = a.name;
+    dropdown.appendChild(option);
+  });
 }
 
 async function editAthlete(id) {
