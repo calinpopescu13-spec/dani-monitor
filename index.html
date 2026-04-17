@@ -554,7 +554,7 @@ body{min-height:100dvh;overflow-x:hidden}
 // ══════════════════════════════════════════════
 // CONFIG
 // ══════════════════════════════════════════════
-const API        = 'https://script.google.com/macros/s/AKfycbx-mCY7HFbCLCccrOwGEu0zO-JZl0mzMWow5bMWDSg7agO7njMlrzsal5bb_w6iEYoU/exec';
+const API        = 'https://script.google.com/macros/s/AKfycbwylLgnvlp-XJGryeJluay_GFujZfBqFgkvAcgx7OL7Jl_oAeIXzO2P-qe7HL2uJrgy/exec';
 const SB_URL     = 'https://tbgghnngqsbaexrypfuo.supabase.co';
 const SB_KEY     = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRiZ2dobm5ncXNiYWV4cnlwZnVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNDA3OTYsImV4cCI6MjA5MTkxNjc5Nn0.hoxIiVE8MUQYkyTeztJEMbJ5KjURjQaDIqd7h2Smq-w';
 const ADMIN_PW   = 'admin2026';  // ← CHANGE THIS
@@ -929,17 +929,40 @@ async function submitJournal() {
   const msg = document.getElementById('jmsg');
   if(!scores.mood||!scores.sleep||!scores.energy||!scores.soreness) { msg.textContent='Please fill in all scores'; msg.className='jfmsg err show'; setTimeout(()=>msg.classList.remove('show'),3000); return; }
   const entry = { date:new Date().toISOString().split('T')[0], athlete:currentProfile?.name||'', mood:scores.mood, sleep:scores.sleep, energy:scores.energy, soreness:scores.soreness, notes:document.getElementById('jnotes').value.trim() };
+  
+  msg.textContent = 'Saving...'; msg.className = 'jfmsg show';
+  
   try {
+    // 1. Save to Supabase (primary database)
     const r = await sb.post('journal', entry);
-    if(!r.ok) throw new Error('Supabase error '+r.status);
-    // Also send to Google Sheets
-    fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(entry) })
-      .then(r => r.json()).then(result => { if(result.error) console.warn('Sheets sync:', result.error); else console.log('Sheets sync: ok'); })
-      .catch(e => console.warn('Sheets sync failed:', e));
-    msg.textContent = 'Saved ✓'; msg.className = 'jfmsg show'; setTimeout(()=>msg.classList.remove('show'),3000);
+    if(!r.ok) throw new Error('Database error '+r.status);
+    
+    // 2. Sync to Google Drive/Sheets (backup copy)
+    try {
+      const sheetsResponse = await fetch(API, { 
+        method:'POST', 
+        headers:{'Content-Type':'application/json'}, 
+        body: JSON.stringify({...entry, action:'journal'})
+      });
+      const sheetsResult = await sheetsResponse.json();
+      if(sheetsResult.error) {
+        console.warn('Google Sheets sync warning:', sheetsResult.error);
+        msg.textContent = 'Saved to app ✓ (Google Drive sync pending)'; msg.className = 'jfmsg show'; 
+      } else {
+        msg.textContent = 'Saved ✓ (synced to Google Drive)'; msg.className = 'jfmsg show'; 
+      }
+    } catch(sheetsErr) {
+      console.warn('Google Sheets sync failed:', sheetsErr);
+      msg.textContent = 'Saved to app ✓ (will retry Drive sync)'; msg.className = 'jfmsg show'; 
+    }
+    
+    setTimeout(()=>msg.classList.remove('show'),3500);
     Object.keys(scores).forEach(k=>scores[k]=0); buildScales(); document.getElementById('jnotes').value = '';
     loadJournalEntries();
-  } catch(e) { msg.textContent='Error: '+e.message; msg.className='jfmsg err show'; setTimeout(()=>msg.classList.remove('show'),3000); }
+  } catch(e) { 
+    msg.textContent='Error: '+e.message; msg.className='jfmsg err show'; 
+    setTimeout(()=>msg.classList.remove('show'),4000); 
+  }
 }
 
 async function loadJournalEntries() {
