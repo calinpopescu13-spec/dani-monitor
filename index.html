@@ -1286,7 +1286,10 @@ async function loadFootballData(playerId) {
   if (!playerId) return null;
   
   try {
-    const response = await fetch(`${API}?action=playerData&player=${playerId}`);
+    // Call Supabase Edge Function instead of Google Apps Script
+    const SUPABASE_EDGE_FUNCTION_URL = 'https://tbgghnngqsbaexrypfuo.supabase.co/functions/v1/football-data';
+    
+    const response = await fetch(`${SUPABASE_EDGE_FUNCTION_URL}?action=playerData&player=${playerId}`);
     const data = await response.json();
     
     if (data.error) {
