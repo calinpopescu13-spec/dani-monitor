@@ -585,6 +585,16 @@ body{min-height:100dvh;overflow-x:hidden}
 
       <div class="divider"></div>
 
+      <!-- API FOOTBALL INTEGRATION -->
+      <div style="font-family:var(--m);font-size:9px;letter-spacing:.12em;color:var(--t3);text-transform:uppercase;margin-bottom:10px">⚽ API Football Integration</div>
+      <div class="arow">
+        <label class="albl">API Football Player ID</label>
+        <input class="ainput" id="af-api-football-id" placeholder="42754" type="text">
+        <div style="font-family:var(--m);font-size:8px;color:var(--t3);margin-top:4px">Find player ID from api-sports.io (e.g., 42754 for Dani)</div>
+      </div>
+
+      <div class="divider"></div>
+
       <!-- SEASON STATS -->
       <div style="font-family:var(--m);font-size:9px;letter-spacing:.12em;color:var(--t3);text-transform:uppercase;margin-bottom:10px">Season Stats (Editable)</div>
       <div class="agrid2">
@@ -1257,10 +1267,9 @@ async function buildDash(lastRaw, pctToday, si, allHrvRaw, allHrvLabels, lastJ) 
 
   const sessCountHTML = `
     <div class="sh"><div class="shb"></div><div class="sht">This Week</div></div>
-    <div class="cg3" style="margin-bottom:10px">
+    <div class="cg2" style="margin-bottom:10px">
       <div class="card"><div class="clbl">Sessions</div><div class="cval md">${allSessions.filter(s=>{ const d=new Date(s.date); const now=new Date(); const diff=(now-d)/(1000*60*60*24); return diff<=7; }).length}</div><div class="csub">last 7 days</div></div>
-      <div class="card"><div class="clbl">HRV Avg</div><div class="cval md">${last7raw.length?(last7raw.reduce((a,b)=>a+b,0)/last7raw.length).toFixed(0):'-'}</div><div class="csub">7-day mean</div></div>
-      <div class="card"><div class="clbl">Trend</div><div class="cval md" style="color:${pctToday>=0?'var(--gn)':'var(--rd)'}">${pctToday>=0?'+':''}${pctToday}%</div><div class="csub">vs baseline</div></div>
+      <div class="card"><div class="clbl">Training Hours</div><div class="cval md">-</div><div class="csub">this week</div></div>
     </div>`;
 
   // SofaScore Match Performance
@@ -1282,19 +1291,13 @@ async function buildDash(lastRaw, pctToday, si, allHrvRaw, allHrvLabels, lastJ) 
   const stats = await loadAthleteStats(currentProfile?.name || '');
   const goals = await loadAthleteGoals(currentProfile?.name || '');
   
+  // Load API Football data
+  const footballData = await loadFootballData(currentProfile?.api_football_id);
+  const footballHTML = buildFootballDashboard(footballData);
+  
   document.getElementById('dash-body').innerHTML = `
     <div style="font-family:var(--m);font-size:9px;color:var(--t3);letter-spacing:.06em;margin-bottom:12px;margin-top:4px">${today}</div>
-    <div class="sh"><div class="shb"></div><div class="sht">Recovery Status · ${currentProfile?.name}</div></div>
-    <div class="cg2" style="margin-bottom:10px">
-      <div class="card hi"><div class="clbl">HRV Today</div><div class="cval">${lastRaw}</div><div class="csub">lnRMSSD ms</div></div>
-      <div class="card"><div class="clbl">Recovery</div><div class="cval md" style="color:${si.col}">${pctToday>=0?'+':''}${pctToday}%</div><div class="csub">${si.t}</div></div>
-    </div>
-    <div class="gcrd">
-      <div class="ct" style="margin-bottom:10px">Recovery gauge · today vs 28-day EWMA</div>
-      <div class="gtrack"><div class="gneedle" id="gn-dash"></div></div>
-      <div class="gaxis"><span>−25%</span><span>−10%</span><span>0</span><span>+10%</span><span>+20%</span></div>
-      <div class="grow"><div class="gpct" style="color:${si.col}">${pctToday>=0?'+':''}${pctToday}%</div><div class="gbg ${si.g}"><div class="bdot"></div>${si.t}</div></div>
-    </div>
+    ${footballHTML}
     ${buildStatsHTML(stats)}
     ${buildGoalsHTML(goals)}
     ${sofascoreHTML}
@@ -1302,11 +1305,138 @@ async function buildDash(lastRaw, pctToday, si, allHrvRaw, allHrvLabels, lastJ) 
     ${jHTML}
     ${sHTML}
   `;
-  setTimeout(() => { const el=document.getElementById('gn-dash'); if(el) el.style.left=gp+'%'; }, 200);
 }
 
 // ══════════════════════════════════════════════
 // ADMIN — SESSIONS
+// ══════════════════════════════════════════════
+
+// ══════════════════════════════════════════════
+// API FOOTBALL INTEGRATION
+// ══════════════════════════════════════════════
+async function loadFootballData(playerId) {
+  if (!playerId) return null;
+  
+  try {
+    const response = await fetch(`${API}?action=playerData&player=${playerId}`);
+    const data = await response.json();
+    
+    if (data.error) {
+      console.warn('Football API error:', data.error);
+      return null;
+    }
+    
+    return data;
+  } catch (err) {
+    console.warn('Football data fetch failed:', err);
+    return null;
+  }
+}
+
+function buildFootballDashboard(footballData) {
+  if (!footballData || !footballData.statistics || footballData.statistics.length === 0) {
+    return '';
+  }
+
+  const stats = footballData.statistics[0];
+  const lastMatch = footballData.lastMatch;
+  const nextMatch = footballData.nextMatch;
+  const player = footballData.player;
+
+  if (!stats) return '';
+
+  // Season stats
+  const goals = stats.goals?.total || 0;
+  const assists = stats.goals?.assists || 0;
+  const appearances = stats.games?.appearences || 0;
+  const minutes = stats.games?.minutes || 0;
+  const rating = stats.games?.rating || 0;
+
+  // Last match info
+  let lastMatchHTML = '';
+  if (lastMatch && lastMatch.fixture && lastMatch.statistics && lastMatch.statistics[0]) {
+    const fixture = lastMatch.fixture;
+    const matchStats = lastMatch.statistics[0];
+    const matchDate = new Date(fixture.date);
+    const matchDateStr = matchDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+    const matchGoals = matchStats.goals?.total || 0;
+    const matchAssists = matchStats.goals?.assists || 0;
+    const matchRating = matchStats.games?.rating || 0;
+    
+    lastMatchHTML = `
+      <div class="sh"><div class="shb"></div><div class="sht">⚽ Last Match</div></div>
+      <div class="card" style="margin-bottom:10px;border:1px solid rgba(76,217,123,.15)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div>
+            <div class="clbl" style="margin:0">${matchDateStr}</div>
+            <div style="font-family:var(--bb);font-size:14px;color:var(--t2);margin-top:2px">vs ${lastMatch.teams?.away?.name || 'Opponent'}</div>
+          </div>
+          <div style="text-align:right;font-family:var(--bb)">
+            <div style="font-size:26px;color:${matchGoals > 0 ? 'var(--gn)' : 'var(--t3)'}">${matchGoals}</div>
+            <div style="font-size:8px;color:var(--t3);text-transform:uppercase">Goals</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;border-top:1px solid var(--b);padding-top:8px;margin-top:8px">
+          <div style="text-align:center">
+            <div style="font-family:var(--bb);font-size:16px;color:var(--am)">${matchAssists}</div>
+            <div style="font-family:var(--m);font-size:7px;color:var(--t3);text-transform:uppercase;margin-top:2px">Assists</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-family:var(--bb);font-size:16px;color:${matchRating >= 7 ? 'var(--gn)' : matchRating >= 6 ? 'var(--am)' : 'var(--rd)'}">${matchRating.toFixed(1)}</div>
+            <div style="font-family:var(--m);font-size:7px;color:var(--t3);text-transform:uppercase;margin-top:2px">Rating</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-family:var(--bb);font-size:16px;color:var(--t2)">${matchStats.games?.minutes || 0}'</div>
+            <div style="font-family:var(--m);font-size:7px;color:var(--t3);text-transform:uppercase;margin-top:2px">Minutes</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Next match info
+  let nextMatchHTML = '';
+  if (nextMatch && nextMatch.fixture) {
+    const fixture = nextMatch.fixture;
+    const matchDate = new Date(fixture.date);
+    const matchDateStr = matchDate.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+    const matchTime = matchDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    const daysUntil = Math.ceil((matchDate - new Date()) / (1000 * 60 * 60 * 24));
+    
+    nextMatchHTML = `
+      <div class="sh"><div class="shb"></div><div class="sht">📅 Next Match</div></div>
+      <div class="card" style="margin-bottom:10px;border:1px solid rgba(26,122,60,.15)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div>
+            <div class="clbl" style="margin:0">${matchDateStr} · ${matchTime}</div>
+            <div style="font-family:var(--bb);font-size:14px;color:var(--rp2);margin-top:2px">vs ${nextMatch.teams?.away?.name || 'TBD'}</div>
+          </div>
+          <div style="text-align:center;font-family:var(--bb);color:var(--rp2)">
+            <div style="font-size:18px">${daysUntil === 0 ? '🎯' : daysUntil === 1 ? '⚡' : '⏱'}</div>
+            <div style="font-size:11px;color:var(--t3);margin-top:2px">${daysUntil} day${daysUntil!==1?'s':''}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Season stats cards
+  const seasonHTML = `
+    <div class="sh"><div class="shb"></div><div class="sht">⚽ Season Stats (${new Date().getFullYear()})</div></div>
+    <div class="cg2" style="margin-bottom:10px">
+      <div class="card"><div class="clbl">Goals</div><div class="cval" style="color:var(--gn)">${goals}</div><div class="csub">scored</div></div>
+      <div class="card"><div class="clbl">Assists</div><div class="cval" style="color:var(--am)">${assists}</div><div class="csub">created</div></div>
+    </div>
+    <div class="cg2" style="margin-bottom:10px">
+      <div class="card"><div class="clbl">Matches</div><div class="cval">${appearances}</div><div class="csub">appearances</div></div>
+      <div class="card"><div class="clbl">Rating</div><div class="cval" style="color:${rating >= 7 ? 'var(--gn)' : rating >= 6 ? 'var(--am)' : 'var(--rd)'}">${rating.toFixed(1)}</div><div class="csub">/10</div></div>
+    </div>
+    <div class="card"><div class="clbl">Minutes Played</div><div class="cval md">${(minutes/60).toFixed(0)}<span style="font-size:12px;font-weight:300">h</span></div><div class="csub">${minutes} total</div></div>
+  `;
+
+  return seasonHTML + lastMatchHTML + nextMatchHTML;
+}
+
 // ══════════════════════════════════════════════
 let phaseCount = 0;
 
@@ -1519,6 +1649,7 @@ async function saveAthlete() {
     color:    '#1a7a3c',
     sheet_tab: document.getElementById('af-sheet').value.trim() || 'HRV',
     sofascore_player_id: document.getElementById('af-sofascore-id').value.trim() || '',
+    api_football_id: parseInt(document.getElementById('af-api-football-id').value) || null,
     online:   true,
     // Season Stats
     sessions_completed: parseInt(document.getElementById('af-sessions-completed').value) || 0,
@@ -1552,7 +1683,7 @@ async function saveAthlete() {
 function cancelAthleteEdit() {
   editingAthleteId = null;
   document.getElementById('athlete-form-title').textContent = 'New Athlete';
-  ['af-name','af-initials','af-position','af-team','af-password','af-sheet','af-sofascore-id',
+  ['af-name','af-initials','af-position','af-team','af-password','af-sheet','af-sofascore-id','af-api-football-id',
    'af-sessions-completed','af-training-hours','af-avg-hrv','af-best-hrv','af-worst-hrv',
    'af-consistency','af-wellness-avg','af-goal-sessions','af-goal-hrv','af-goal-hours',
    'af-goal-consistency','af-goal-wellness'].forEach(id => document.getElementById(id).value='');
@@ -1615,6 +1746,7 @@ async function editAthlete(id) {
   document.getElementById('af-password').value = a.password||'';
   document.getElementById('af-sheet').value    = a.sheet_tab||'HRV';
   document.getElementById('af-sofascore-id').value = a.sofascore_player_id||'';
+  document.getElementById('af-api-football-id').value = a.api_football_id||'';
   // Season stats
   document.getElementById('af-sessions-completed').value = a.sessions_completed||'';
   document.getElementById('af-training-hours').value = a.training_hours||'';
