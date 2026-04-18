@@ -1286,18 +1286,46 @@ async function loadFootballData(playerId) {
   if (!playerId) return null;
   
   try {
-    // Call Supabase Edge Function instead of Google Apps Script
-    const SUPABASE_EDGE_FUNCTION_URL = 'https://tbgghnngqsbaexrypfuo.supabase.co/functions/v1/football-data';
-    
-    const response = await fetch(`${SUPABASE_EDGE_FUNCTION_URL}?action=playerData&player=${playerId}`);
-    const data = await response.json();
-    
-    if (data.error) {
-      console.warn('Football API error:', data.error);
-      return null;
-    }
-    
-    return data;
+    const FOOTBALL_API_KEY = '7b3c9f3e9c9a69dc3f56540f7f3fd8e3';
+    const headers = {
+      'x-apisports-key': FOOTBALL_API_KEY,
+      'x-rapidapi-host': 'v3.football.api-sports.io'
+    };
+
+    // Get player statistics
+    const statsUrl = `https://v3.football.api-sports.io/players?id=${playerId}&season=2026`;
+    const statsResponse = await fetch(statsUrl, { headers });
+    const statsData = await statsResponse.json();
+
+    // Get last match
+    const lastMatchUrl = `https://v3.football.api-sports.io/fixtures?player=${playerId}&season=2026&last=1`;
+    const lastMatchResponse = await fetch(lastMatchUrl, { headers });
+    const lastMatchData = await lastMatchResponse.json();
+
+    // Get next match
+    const nextMatchUrl = `https://v3.football.api-sports.io/fixtures?player=${playerId}&season=2026&next=1`;
+    const nextMatchResponse = await fetch(nextMatchUrl, { headers });
+    const nextMatchData = await nextMatchResponse.json();
+
+    return {
+      success: true,
+      player: statsData.response && statsData.response[0] ? {
+        id: statsData.response[0].player.id,
+        name: statsData.response[0].player.name,
+        photo: statsData.response[0].player.photo,
+        team: statsData.response[0].statistics[0]?.team || null,
+      } : null,
+      statistics: statsData.response && statsData.response[0]
+        ? statsData.response[0].statistics
+        : [],
+      lastMatch: lastMatchData.response && lastMatchData.response[0]
+        ? lastMatchData.response[0]
+        : null,
+      nextMatch: nextMatchData.response && nextMatchData.response[0]
+        ? nextMatchData.response[0]
+        : null,
+      timestamp: new Date().toISOString(),
+    };
   } catch (err) {
     console.warn('Football data fetch failed:', err);
     return null;
