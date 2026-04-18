@@ -570,21 +570,6 @@ body{min-height:100dvh;overflow-x:hidden}
 
       <div class="divider"></div>
 
-      <!-- SOFASCORE INTEGRATION -->
-      <div style="font-family:var(--m);font-size:9px;letter-spacing:.12em;color:var(--t3);text-transform:uppercase;margin-bottom:10px">🎯 SofaScore Integration</div>
-      <div class="arow">
-        <label class="albl">SofaScore Player ID</label>
-        <input class="ainput" id="af-sofascore-id" placeholder="1092984" type="text">
-        <div style="font-family:var(--m);font-size:8px;color:var(--t3);margin-top:4px">Find from URL: sofascore.com/player/name/{ID} (e.g., 1092984 for Dani)</div>
-      </div>
-      <div style="display:flex;gap:8px;margin-bottom:12px">
-        <button class="abtn secondary" style="flex:1" onclick="syncSofaScoreForAthlete()" id="manual-sync-btn">🔄 Sync Now</button>
-        <button class="abtn secondary" style="flex:1" onclick="toggleAutoSync()" id="auto-sync-btn">⚙️ Auto Sync: OFF</button>
-      </div>
-      <div class="amsg" id="sofascore-sync-msg"></div>
-
-      <div class="divider"></div>
-
       <!-- API FOOTBALL INTEGRATION -->
       <div style="font-family:var(--m);font-size:9px;letter-spacing:.12em;color:var(--t3);text-transform:uppercase;margin-bottom:10px">⚽ API Football Integration</div>
       <div class="arow">
@@ -1272,20 +1257,6 @@ async function buildDash(lastRaw, pctToday, si, allHrvRaw, allHrvLabels, lastJ) 
       <div class="card"><div class="clbl">Training Hours</div><div class="cval md">-</div><div class="csub">this week</div></div>
     </div>`;
 
-  // SofaScore Match Performance
-  const sofascoreHTML = currentProfile?.sofascore_season_goals !== undefined ? `
-    <div class="sh"><div class="shb"></div><div class="sht">⚽ Match Performance (SofaScore)</div></div>
-    <div class="cg2" style="margin-bottom:10px">
-      <div class="card"><div class="clbl">Goals (Season)</div><div class="cval md" style="color:var(--gn)">${currentProfile.sofascore_season_goals || 0}</div><div class="csub">scored</div></div>
-      <div class="card"><div class="clbl">Assists (Season)</div><div class="cval md" style="color:var(--am)">${currentProfile.sofascore_season_assists || 0}</div><div class="csub">created</div></div>
-    </div>
-    <div class="cg2" style="margin-bottom:10px">
-      <div class="card"><div class="clbl">Matches</div><div class="cval md">${currentProfile.sofascore_season_matches || 0}</div><div class="csub">played</div></div>
-      <div class="card"><div class="clbl">Avg Rating</div><div class="cval md" style="color:${(currentProfile.sofascore_avg_rating || 0) >= 7 ? 'var(--gn)' : 'var(--am)'}">${(currentProfile.sofascore_avg_rating || 0).toFixed(1)}</div><div class="csub">/10</div></div>
-    </div>
-    ${currentProfile.sofascore_last_synced ? `<div style="font-family:var(--m);font-size:8px;color:var(--t3);text-align:center;margin-bottom:10px">Last synced: ${new Date(currentProfile.sofascore_last_synced).toLocaleDateString()}</div>` : ''}
-  ` : '';
-
 
   // Load stats and goals
   const stats = await loadAthleteStats(currentProfile?.name || '');
@@ -1298,9 +1269,6 @@ async function buildDash(lastRaw, pctToday, si, allHrvRaw, allHrvLabels, lastJ) 
   document.getElementById('dash-body').innerHTML = `
     <div style="font-family:var(--m);font-size:9px;color:var(--t3);letter-spacing:.06em;margin-bottom:12px;margin-top:4px">${today}</div>
     ${footballHTML}
-    ${buildStatsHTML(stats)}
-    ${buildGoalsHTML(goals)}
-    ${sofascoreHTML}
     ${sessCountHTML}
     ${jHTML}
     ${sHTML}
