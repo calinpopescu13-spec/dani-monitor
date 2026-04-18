@@ -1682,7 +1682,7 @@ async function saveAthlete() {
 function cancelAthleteEdit() {
   editingAthleteId = null;
   document.getElementById('athlete-form-title').textContent = 'New Athlete';
-  ['af-name','af-initials','af-position','af-team','af-password','af-sheet','af-sofascore-id','af-api-football-id',
+  ['af-name','af-initials','af-position','af-team','af-password','af-sheet','af-api-football-id',
    'af-sessions-completed','af-training-hours','af-avg-hrv','af-best-hrv','af-worst-hrv',
    'af-consistency','af-wellness-avg','af-goal-sessions','af-goal-hrv','af-goal-hours',
    'af-goal-consistency','af-goal-wellness'].forEach(id => document.getElementById(id).value='');
@@ -1744,7 +1744,6 @@ async function editAthlete(id) {
   document.getElementById('af-team').value     = a.team||'';
   document.getElementById('af-password').value = a.password||'';
   document.getElementById('af-sheet').value    = a.sheet_tab||'HRV';
-  document.getElementById('af-sofascore-id').value = a.sofascore_player_id||'';
   document.getElementById('af-api-football-id').value = a.api_football_id||'';
   // Season stats
   document.getElementById('af-sessions-completed').value = a.sessions_completed||'';
