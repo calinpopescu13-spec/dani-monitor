@@ -469,6 +469,7 @@ body{min-height:100dvh;overflow-x:hidden}
     <button class="admin-tab on" onclick="goAdminTab('sessions',this)">Sessions</button>
     <button class="admin-tab"    onclick="goAdminTab('athletes',this)">Athletes</button>
     <button class="admin-tab"    onclick="goAdminTab('journal',this)">Journal</button>
+    <button class="admin-tab"    onclick="goAdminTab('hrv',this)">HRV</button>
   </div>
 
   <!-- SESSIONS ADMIN -->
@@ -676,6 +677,43 @@ body{min-height:100dvh;overflow-x:hidden}
     <div class="sh"><div class="shb"></div><div class="sht">All Journal Entries</div></div>
     <div id="admin-journal-list"><div class="loader"><div class="spin"></div>Loading...</div></div>
   </div>
+
+  <!-- HRV ADMIN -->
+  <div class="admin-pg" id="apg-hrv">
+    <div class="aform" id="hrv-form">
+      <div class="aform-title">
+        <span id="hrv-form-title">Add HRV Value</span>
+        <button class="abtn secondary small" onclick="cancelHRVEdit()">Cancel</button>
+      </div>
+      <div class="agrid2">
+        <div class="arow">
+          <label class="albl">Athlete *</label>
+          <select class="aselect" id="hrv-athlete">
+            <option value="">Select athlete...</option>
+          </select>
+        </div>
+        <div class="arow">
+          <label class="albl">Date *</label>
+          <input class="ainput" type="date" id="hrv-date">
+        </div>
+      </div>
+      <div class="agrid2">
+        <div class="arow">
+          <label class="albl">HRV Value (lnRMSSD ms) *</label>
+          <input class="ainput" type="number" id="hrv-value" placeholder="e.g. 55.2" step="0.1">
+        </div>
+        <div class="arow">
+          <label class="albl">Notes (optional)</label>
+          <input class="ainput" id="hrv-notes" placeholder="e.g. Good recovery">
+        </div>
+      </div>
+      <button class="abtn" style="width:100%" onclick="saveHRVValue()">Save HRV</button>
+      <div class="amsg" id="hrv-msg"></div>
+    </div>
+
+    <div class="sh"><div class="shb"></div><div class="sht">All HRV Data</div></div>
+    <div id="admin-hrv-list"><div class="loader"><div class="spin"></div>Loading...</div></div>
+  </div>
 </div>
 
 <script>
@@ -850,6 +888,9 @@ function goAdminTab(id, tabEl) {
   document.getElementById('apg-'+id).classList.add('on');
   document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('on'));
   if(tabEl) tabEl.classList.add('on');
+  
+  // Load data for specific tabs
+  if(id === 'hrv') loadAdminHRV();
 }
 
 // ══════════════════════════════════════════════
@@ -1751,6 +1792,151 @@ async function deleteJournalEntry(id) {
     console.error('❌ Error deleting entry:', e.message);
     alert('Error: ' + e.message);
   }
+}
+
+// ══════════════════════════════════════════════
+// ADMIN — HRV
+// ══════════════════════════════════════════════
+async function loadAdminHRV() {
+  const list = document.getElementById('admin-hrv-list');
+  list.innerHTML = '<div class="loader"><div class="spin"></div>Loading...</div>';
+  try {
+    const athletes = await sb.get('athletes', '?order=name');
+    populateAthleteDropdown(athletes);
+    
+    const data = await sb.get('hrv_data','?order=date.desc&limit=100');
+    if(!data.length) { list.innerHTML='<div class="soon"><div class="soon-t">No HRV data yet</div></div>'; return; }
+    list.innerHTML = '';
+    data.forEach((d,i) => {
+      const div = document.createElement('div'); div.className = 'jentry'+(i===0?' latest':'');
+      div.innerHTML = `
+        <div class="jetop">
+          <div class="jedate">${d.date} · <strong style="color:var(--rp2)">${d.athlete_name||'Unknown'}</strong></div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <div style="font-family:var(--bb);font-size:18px;color:var(--rp2)">${d.value}</div>
+            <button class="abtn secondary small" onclick="editHRVEntry('${d.id}')">Edit</button>
+            <button class="abtn danger small" onclick="deleteHRVEntry('${d.id}')">✕</button>
+          </div>
+        </div>
+        <div style="font-family:var(--f);font-size:13px;color:var(--t2);margin-top:8px">
+          lnRMSSD ms
+        </div>
+        ${d.notes?`<div class="jenote" style="margin-top:8px">${d.notes}</div>`:''}
+      `;
+      list.appendChild(div);
+    });
+  } catch { list.innerHTML='<div class="errbox">Error loading HRV data</div>'; }
+}
+
+async function deleteHRVEntry(id) {
+  if(!confirm('Delete this HRV entry?')) return;
+  
+  console.log('🗑️ Deleting HRV entry:', id);
+  
+  try {
+    const r = await sb.delete('hrv_data', id);
+    console.log('📤 Delete response:', r.status);
+    
+    if (!r.ok) {
+      throw new Error('Delete failed: ' + r.status);
+    }
+    
+    console.log('✅ HRV entry deleted successfully');
+    await loadAdminHRV();
+  } catch(e) {
+    console.error('❌ Error deleting HRV entry:', e.message);
+    alert('Error: ' + e.message);
+  }
+}
+
+// ══════════════════════════════════════════════
+// HRV ADMIN FUNCTIONS
+// ══════════════════════════════════════════════
+let editingHRVId = null;
+
+async function saveHRVValue() {
+  const athleteName = document.getElementById('hrv-athlete').value.trim();
+  const date = document.getElementById('hrv-date').value;
+  const value = document.getElementById('hrv-value').value.trim();
+  const notes = document.getElementById('hrv-notes').value.trim();
+  const msg = document.getElementById('hrv-msg');
+  
+  if (!athleteName || !date || !value) {
+    showMsg('hrv-msg', 'Athlete, date, and HRV value are required', true);
+    return;
+  }
+  
+  const data = {
+    athlete_name: athleteName,
+    date: date,
+    value: parseFloat(value),
+    notes: notes || null
+  };
+  
+  console.log('💾 Saving HRV:', data);
+  
+  try {
+    let r;
+    if (editingHRVId) {
+      console.log('✏️ Updating HRV:', editingHRVId);
+      r = await sb.patch('hrv_data', editingHRVId, data);
+    } else {
+      console.log('➕ Creating new HRV entry');
+      r = await sb.post('hrv_data', data);
+    }
+    
+    console.log('📤 Response status:', r.status);
+    
+    if (!r.ok) {
+      const errorText = await r.text();
+      console.error('❌ Error response:', errorText);
+      throw new Error('Save failed ' + r.status);
+    }
+    
+    showMsg('hrv-msg', editingHRVId ? 'HRV updated ✓' : 'HRV saved ✓');
+    cancelHRVEdit();
+    loadAdminHRV();
+  } catch(e) {
+    console.error('❌ Save error:', e.message);
+    showMsg('hrv-msg', 'Error: ' + e.message, true);
+  }
+}
+
+function cancelHRVEdit() {
+  editingHRVId = null;
+  document.getElementById('hrv-form-title').textContent = 'Add HRV Value';
+  document.getElementById('hrv-athlete').value = '';
+  document.getElementById('hrv-date').value = '';
+  document.getElementById('hrv-value').value = '';
+  document.getElementById('hrv-notes').value = '';
+  document.getElementById('hrv-msg').textContent = '';
+}
+
+async function editHRVEntry(id) {
+  const data = await sb.get('hrv_data', `?id=eq.${id}`);
+  const entry = data[0];
+  if (!entry) return;
+  
+  editingHRVId = id;
+  document.getElementById('hrv-form-title').textContent = 'Edit HRV Value';
+  document.getElementById('hrv-athlete').value = entry.athlete_name || '';
+  document.getElementById('hrv-date').value = entry.date || '';
+  document.getElementById('hrv-value').value = entry.value || '';
+  document.getElementById('hrv-notes').value = entry.notes || '';
+  document.getElementById('hrv-form').scrollIntoView({behavior:'smooth'});
+}
+
+async function populateAthleteDropdown(athletes) {
+  const dropdown = document.getElementById('hrv-athlete');
+  if (!dropdown) return;
+  
+  dropdown.innerHTML = '<option value="">Select athlete...</option>';
+  athletes.forEach(a => {
+    const option = document.createElement('option');
+    option.value = a.name;
+    option.textContent = a.name;
+    dropdown.appendChild(option);
+  });
 }
 
 // ══════════════════════════════════════════════
