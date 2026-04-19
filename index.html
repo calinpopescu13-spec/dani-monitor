@@ -410,8 +410,11 @@ body{min-height:100dvh;overflow-x:hidden}
     <div id="sessions-list"></div>
   </div>
   <div class="pg" id="pg-journal">
-    <div class="sh"><div class="shb"></div><div class="sht">Daily Journal</div></div>
-    <div class="jform">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div class="sh" style="margin:0"><div class="shb"></div><div class="sht">Daily Journal</div></div>
+      <button class="abtn secondary small" onclick="toggleJournalForm()" id="journal-toggle-btn">Hide Form</button>
+    </div>
+    <div class="jform" id="journal-form">
       <div class="jftitle" id="j-title">Today's Entry</div>
       <div class="jfrow"><label class="jflbl">Mood</label><div class="jfscale" id="sc-mood"></div></div>
       <div class="jfrow"><label class="jflbl">Sleep Quality</label><div class="jfscale" id="sc-sleep"></div></div>
@@ -1116,6 +1119,22 @@ function closeSV() { document.getElementById('sv').classList.remove('on'); docum
 // ══════════════════════════════════════════════
 const scores = {mood:0,sleep:0,energy:0,soreness:0};
 
+// ══════════════════════════════════════════════
+// JOURNAL TOGGLE
+// ══════════════════════════════════════════════
+function toggleJournalForm() {
+  const form = document.getElementById('journal-form');
+  const btn = document.getElementById('journal-toggle-btn');
+  
+  if (form.style.display === 'none') {
+    form.style.display = 'block';
+    btn.textContent = 'Hide Form';
+  } else {
+    form.style.display = 'none';
+    btn.textContent = 'Show Form';
+  }
+}
+
 function buildScales() {
   ['mood','sleep','energy','soreness'].forEach(k => {
     const w = document.getElementById('sc-'+k); w.innerHTML = '';
@@ -1196,10 +1215,21 @@ async function loadJournalEntries() {
 
 async function deleteJournalEntry(id) {
   if(!confirm('Delete this journal entry? This cannot be undone.')) return;
+  
+  console.log('🗑️ Deleting journal entry:', id);
+  
   try {
-    await sb.delete('journal', id);
-    loadJournalEntries();
+    const r = await sb.delete('journal', id);
+    console.log('📤 Delete response:', r.status);
+    
+    if (!r.ok) {
+      throw new Error('Delete failed: ' + r.status);
+    }
+    
+    console.log('✅ Entry deleted successfully');
+    await loadJournalEntries();
   } catch(e) {
+    console.error('❌ Error deleting entry:', e.message);
     alert('Error deleting entry: ' + e.message);
   }
 }
@@ -1208,12 +1238,8 @@ async function deleteJournalEntry(id) {
 // DASHBOARD
 // ══════════════════════════════════════════════
 async function buildDash(lastRaw, pctToday, si, allHrvRaw, allHrvLabels, lastJ) {
-  const latest = allSessions[0]||null;
-  const gp = Math.min(Math.max((pctToday+30)/50*100,3),97);
   const today = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
-  // 7-day mini sparkline data
-  const last7raw = allHrvRaw.slice(-7);
-  const last7lbl = allHrvLabels.slice(-7);
+  const latest = allSessions[0]||null;
 
   // Wellness score from last journal (average of 4 scores, out of 5)
   const wellnessScore = lastJ ? ((lastJ.mood+lastJ.sleep+lastJ.energy+(5-lastJ.soreness+1))/4).toFixed(1) : null;
@@ -1249,27 +1275,9 @@ async function buildDash(lastRaw, pctToday, si, allHrvRaw, allHrvLabels, lastJ) 
       <div style="font-family:var(--m);font-size:10px;color:var(--t3)">No journal entry today</div>
       <button onclick="goTab('journal')" style="margin-top:10px;padding:8px 16px;background:var(--rp);border:none;border-radius:8px;font-family:var(--bb);font-size:14px;letter-spacing:.08em;color:var(--wh);cursor:pointer">Log Today →</button>
     </div>`;
-
-  const sessCountHTML = `
-    <div class="sh"><div class="shb"></div><div class="sht">This Week</div></div>
-    <div class="cg2" style="margin-bottom:10px">
-      <div class="card"><div class="clbl">Sessions</div><div class="cval md">${allSessions.filter(s=>{ const d=new Date(s.date); const now=new Date(); const diff=(now-d)/(1000*60*60*24); return diff<=7; }).length}</div><div class="csub">last 7 days</div></div>
-      <div class="card"><div class="clbl">Training Hours</div><div class="cval md">-</div><div class="csub">this week</div></div>
-    </div>`;
-
-
-  // Load stats and goals
-  const stats = await loadAthleteStats(currentProfile?.name || '');
-  const goals = await loadAthleteGoals(currentProfile?.name || '');
-  
-  // Load API Football data
-  const footballData = await loadFootballData(currentProfile?.api_football_id);
-  const footballHTML = buildFootballDashboard(footballData);
   
   document.getElementById('dash-body').innerHTML = `
     <div style="font-family:var(--m);font-size:9px;color:var(--t3);letter-spacing:.06em;margin-bottom:12px;margin-top:4px">${today}</div>
-    ${footballHTML}
-    ${sessCountHTML}
     ${jHTML}
     ${sHTML}
   `;
@@ -1279,162 +1287,6 @@ async function buildDash(lastRaw, pctToday, si, allHrvRaw, allHrvLabels, lastJ) 
 // ADMIN — SESSIONS
 // ══════════════════════════════════════════════
 
-// ══════════════════════════════════════════════
-// API FOOTBALL INTEGRATION
-// ══════════════════════════════════════════════
-async function loadFootballData(playerId) {
-  if (!playerId) return null;
-  
-  try {
-    const FOOTBALL_API_KEY = '7b3c9f3e9c9a69dc3f56540f7f3fd8e3';
-    const headers = {
-      'x-apisports-key': FOOTBALL_API_KEY,
-      'x-rapidapi-host': 'v3.football.api-sports.io'
-    };
-
-    // Get player statistics
-    const statsUrl = `https://v3.football.api-sports.io/players?id=${playerId}&season=2026`;
-    const statsResponse = await fetch(statsUrl, { headers });
-    const statsData = await statsResponse.json();
-
-    // Get last match
-    const lastMatchUrl = `https://v3.football.api-sports.io/fixtures?player=${playerId}&season=2026&last=1`;
-    const lastMatchResponse = await fetch(lastMatchUrl, { headers });
-    const lastMatchData = await lastMatchResponse.json();
-
-    // Get next match
-    const nextMatchUrl = `https://v3.football.api-sports.io/fixtures?player=${playerId}&season=2026&next=1`;
-    const nextMatchResponse = await fetch(nextMatchUrl, { headers });
-    const nextMatchData = await nextMatchResponse.json();
-
-    return {
-      success: true,
-      player: statsData.response && statsData.response[0] ? {
-        id: statsData.response[0].player.id,
-        name: statsData.response[0].player.name,
-        photo: statsData.response[0].player.photo,
-        team: statsData.response[0].statistics[0]?.team || null,
-      } : null,
-      statistics: statsData.response && statsData.response[0]
-        ? statsData.response[0].statistics
-        : [],
-      lastMatch: lastMatchData.response && lastMatchData.response[0]
-        ? lastMatchData.response[0]
-        : null,
-      nextMatch: nextMatchData.response && nextMatchData.response[0]
-        ? nextMatchData.response[0]
-        : null,
-      timestamp: new Date().toISOString(),
-    };
-  } catch (err) {
-    console.warn('Football data fetch failed:', err);
-    return null;
-  }
-}
-
-function buildFootballDashboard(footballData) {
-  if (!footballData || !footballData.statistics || footballData.statistics.length === 0) {
-    return '';
-  }
-
-  const stats = footballData.statistics[0];
-  const lastMatch = footballData.lastMatch;
-  const nextMatch = footballData.nextMatch;
-  const player = footballData.player;
-
-  if (!stats) return '';
-
-  // Season stats
-  const goals = stats.goals?.total || 0;
-  const assists = stats.goals?.assists || 0;
-  const appearances = stats.games?.appearences || 0;
-  const minutes = stats.games?.minutes || 0;
-  const rating = stats.games?.rating || 0;
-
-  // Last match info
-  let lastMatchHTML = '';
-  if (lastMatch && lastMatch.fixture && lastMatch.statistics && lastMatch.statistics[0]) {
-    const fixture = lastMatch.fixture;
-    const matchStats = lastMatch.statistics[0];
-    const matchDate = new Date(fixture.date);
-    const matchDateStr = matchDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-    const matchGoals = matchStats.goals?.total || 0;
-    const matchAssists = matchStats.goals?.assists || 0;
-    const matchRating = matchStats.games?.rating || 0;
-    
-    lastMatchHTML = `
-      <div class="sh"><div class="shb"></div><div class="sht">⚽ Last Match</div></div>
-      <div class="card" style="margin-bottom:10px;border:1px solid rgba(76,217,123,.15)">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-          <div>
-            <div class="clbl" style="margin:0">${matchDateStr}</div>
-            <div style="font-family:var(--bb);font-size:14px;color:var(--t2);margin-top:2px">vs ${lastMatch.teams?.away?.name || 'Opponent'}</div>
-          </div>
-          <div style="text-align:right;font-family:var(--bb)">
-            <div style="font-size:26px;color:${matchGoals > 0 ? 'var(--gn)' : 'var(--t3)'}">${matchGoals}</div>
-            <div style="font-size:8px;color:var(--t3);text-transform:uppercase">Goals</div>
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;border-top:1px solid var(--b);padding-top:8px;margin-top:8px">
-          <div style="text-align:center">
-            <div style="font-family:var(--bb);font-size:16px;color:var(--am)">${matchAssists}</div>
-            <div style="font-family:var(--m);font-size:7px;color:var(--t3);text-transform:uppercase;margin-top:2px">Assists</div>
-          </div>
-          <div style="text-align:center">
-            <div style="font-family:var(--bb);font-size:16px;color:${matchRating >= 7 ? 'var(--gn)' : matchRating >= 6 ? 'var(--am)' : 'var(--rd)'}">${matchRating.toFixed(1)}</div>
-            <div style="font-family:var(--m);font-size:7px;color:var(--t3);text-transform:uppercase;margin-top:2px">Rating</div>
-          </div>
-          <div style="text-align:center">
-            <div style="font-family:var(--bb);font-size:16px;color:var(--t2)">${matchStats.games?.minutes || 0}'</div>
-            <div style="font-family:var(--m);font-size:7px;color:var(--t3);text-transform:uppercase;margin-top:2px">Minutes</div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  // Next match info
-  let nextMatchHTML = '';
-  if (nextMatch && nextMatch.fixture) {
-    const fixture = nextMatch.fixture;
-    const matchDate = new Date(fixture.date);
-    const matchDateStr = matchDate.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
-    const matchTime = matchDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-    const daysUntil = Math.ceil((matchDate - new Date()) / (1000 * 60 * 60 * 24));
-    
-    nextMatchHTML = `
-      <div class="sh"><div class="shb"></div><div class="sht">📅 Next Match</div></div>
-      <div class="card" style="margin-bottom:10px;border:1px solid rgba(26,122,60,.15)">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-          <div>
-            <div class="clbl" style="margin:0">${matchDateStr} · ${matchTime}</div>
-            <div style="font-family:var(--bb);font-size:14px;color:var(--rp2);margin-top:2px">vs ${nextMatch.teams?.away?.name || 'TBD'}</div>
-          </div>
-          <div style="text-align:center;font-family:var(--bb);color:var(--rp2)">
-            <div style="font-size:18px">${daysUntil === 0 ? '🎯' : daysUntil === 1 ? '⚡' : '⏱'}</div>
-            <div style="font-size:11px;color:var(--t3);margin-top:2px">${daysUntil} day${daysUntil!==1?'s':''}</div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  // Season stats cards
-  const seasonHTML = `
-    <div class="sh"><div class="shb"></div><div class="sht">⚽ Season Stats (${new Date().getFullYear()})</div></div>
-    <div class="cg2" style="margin-bottom:10px">
-      <div class="card"><div class="clbl">Goals</div><div class="cval" style="color:var(--gn)">${goals}</div><div class="csub">scored</div></div>
-      <div class="card"><div class="clbl">Assists</div><div class="cval" style="color:var(--am)">${assists}</div><div class="csub">created</div></div>
-    </div>
-    <div class="cg2" style="margin-bottom:10px">
-      <div class="card"><div class="clbl">Matches</div><div class="cval">${appearances}</div><div class="csub">appearances</div></div>
-      <div class="card"><div class="clbl">Rating</div><div class="cval" style="color:${rating >= 7 ? 'var(--gn)' : rating >= 6 ? 'var(--am)' : 'var(--rd)'}">${rating.toFixed(1)}</div><div class="csub">/10</div></div>
-    </div>
-    <div class="card"><div class="clbl">Minutes Played</div><div class="cval md">${(minutes/60).toFixed(0)}<span style="font-size:12px;font-weight:300">h</span></div><div class="csub">${minutes} total</div></div>
-  `;
-
-  return seasonHTML + lastMatchHTML + nextMatchHTML;
-}
 
 // ══════════════════════════════════════════════
 let phaseCount = 0;
@@ -1537,19 +1389,34 @@ async function saveSession() {
     assigned_to: assignedTo,
     phases:   collectPhases()
   };
+  
+  console.log('💾 Saving session:', data);
+  
   try {
     let r;
     if(editingSessionId) {
+      console.log('✏️ Updating session:', editingSessionId);
       r = await sb.patch('sessions', editingSessionId, data);
     } else {
+      console.log('➕ Creating new session');
       r = await sb.post('sessions', data);
     }
-    if(!r.ok) throw new Error('Save failed '+r.status);
+    console.log('📤 Response status:', r.status, r.ok);
+    
+    if(!r.ok) {
+      const errorText = await r.text();
+      console.error('❌ Error response:', errorText);
+      throw new Error('Save failed '+r.status);
+    }
+    
     showMsg('session-msg', editingSessionId ? 'Session updated ✓' : 'Session saved ✓');
     cancelSessionEdit();
     loadAdminSessions();
     loadSessions(); // refresh athlete view
-  } catch(e) { showMsg('session-msg','Error: '+e.message,true); }
+  } catch(e) { 
+    console.error('❌ Save error:', e.message);
+    showMsg('session-msg','Error: '+e.message,true); 
+  }
 }
 
 function cancelSessionEdit() {
@@ -1804,8 +1671,23 @@ async function loadAdminJournal() {
 
 async function deleteJournalEntry(id) {
   if(!confirm('Delete this entry?')) return;
-  await sb.delete('journal', id);
-  loadAdminJournal();
+  
+  console.log('🗑️ Deleting journal entry from admin:', id);
+  
+  try {
+    const r = await sb.delete('journal', id);
+    console.log('📤 Delete response:', r.status);
+    
+    if (!r.ok) {
+      throw new Error('Delete failed: ' + r.status);
+    }
+    
+    console.log('✅ Entry deleted successfully');
+    await loadAdminJournal();
+  } catch(e) {
+    console.error('❌ Error deleting entry:', e.message);
+    alert('Error: ' + e.message);
+  }
 }
 
 // ══════════════════════════════════════════════
