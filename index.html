@@ -395,7 +395,22 @@ body{min-height:100dvh;overflow-x:hidden}
       <button class="stab"    onclick="goMon('hsr',this)">HSR</button>
       <button class="stab"    onclick="goMon('sprint',this)">Sprint</button>
     </div>
-    <div class="spg on" id="spg-hrv"><div id="hrv-body"><div class="loader"><div class="spin"></div>Loading HRV...</div></div></div>
+    <div class="spg on" id="spg-hrv">
+      <div class="jform">
+        <div class="jftitle">Add Today's HRV</div>
+        <div class="jfrow">
+          <label class="jflbl">HRV Value (lnRMSSD ms)</label>
+          <input class="ainput" id="hrv-input" type="number" placeholder="e.g. 55.2" step="0.1">
+        </div>
+        <div class="jfrow">
+          <label class="jflbl">Notes (optional)</label>
+          <textarea class="jfta" id="hrv-notes" rows="2" placeholder="e.g. Good recovery, slept well"></textarea>
+        </div>
+        <button class="jfsub" onclick="submitHRV()">Save HRV</button>
+        <div class="jfmsg" id="hrv-msg"></div>
+      </div>
+      <div id="hrv-body"><div class="loader"><div class="spin"></div>Loading HRV...</div></div>
+    </div>
     <div class="spg" id="spg-td"><div class="soon"><div class="soon-ico">📏</div><div class="soon-t">Total Distance</div><div class="soon-s">Add TD tab to Google Sheet</div></div></div>
     <div class="spg" id="spg-hml"><div class="soon"><div class="soon-ico">⚡</div><div class="soon-t">HML</div><div class="soon-s">Add HML tab to Google Sheet</div></div></div>
     <div class="spg" id="spg-hsr"><div class="soon"><div class="soon-ico">🏃</div><div class="soon-t">HSR</div><div class="soon-s">Add HSR tab to Google Sheet</div></div></div>
@@ -958,6 +973,54 @@ function sig(p) {
 }
 function hcol(p) { if(p>=10) return 'rgba(0,200,150,.75)'; if(p>=0) return 'rgba(76,217,123,.65)'; if(p>=-5) return 'rgba(245,179,51,.55)'; if(p>=-10) return 'rgba(245,179,51,.72)'; if(p>=-20) return 'rgba(255,82,82,.65)'; return 'rgba(204,34,0,.75)'; }
 const cOpts = (mn,mx,fmt) => ({ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'rgba(4,10,4,.97)', titleColor:'#ede8e2', bodyColor:'#9a9490', borderColor:'rgba(255,255,255,.06)', borderWidth:1, titleFont:{family:'JetBrains Mono',size:11}, bodyFont:{family:'JetBrains Mono',size:10}, padding:10, cornerRadius:8, displayColors:false }}, scales:{ x:{ ticks:{color:'#5a5450',font:{family:'JetBrains Mono',size:8},maxRotation:0,autoSkip:true,maxTicksLimit:6}, grid:{color:'rgba(255,255,255,0.03)'}, border:{color:'rgba(255,255,255,0.04)'} }, y:{ min:mn, max:mx, ticks:{color:'#5a5450',font:{family:'JetBrains Mono',size:8},callback:fmt||undefined}, grid:{color:'rgba(255,255,255,0.03)'}, border:{color:'rgba(255,255,255,0.04)'} }}});
+
+// ══════════════════════════════════════════════
+// HRV INPUT
+// ══════════════════════════════════════════════
+async function submitHRV() {
+  const value = document.getElementById('hrv-input').value.trim();
+  const notes = document.getElementById('hrv-notes').value.trim();
+  const msg = document.getElementById('hrv-msg');
+  
+  if (!value || isNaN(value)) {
+    msg.textContent = 'Please enter a valid HRV value';
+    msg.className = 'jfmsg err show';
+    setTimeout(() => msg.classList.remove('show'), 3000);
+    return;
+  }
+  
+  const today = new Date().toISOString().split('T')[0];
+  const data = {
+    athlete_name: currentProfile.name,
+    date: today,
+    value: parseFloat(value),
+    notes: notes || null
+  };
+  
+  msg.textContent = 'Saving...';
+  msg.className = 'jfmsg show';
+  
+  try {
+    const r = await sb.post('hrv_data', data);
+    if (!r.ok) {
+      const errorText = await r.text();
+      console.error('HRV save error:', errorText);
+      throw new Error('Save failed');
+    }
+    
+    msg.textContent = 'HRV saved ✓';
+    msg.className = 'jfmsg show';
+    document.getElementById('hrv-input').value = '';
+    document.getElementById('hrv-notes').value = '';
+    
+    // Reload HRV chart
+    setTimeout(() => bootApp(), 1000);
+  } catch(e) {
+    console.error('HRV submit error:', e.message);
+    msg.textContent = 'Error: ' + e.message;
+    msg.className = 'jfmsg err show';
+  }
+}
 
 function buildHRV(aL, aR, el, uid) {
   const labels=aL.slice(-WIN), raw=aR.slice(-WIN), ewma=ewma28(aR), pct=pctDev(raw,ewma);
@@ -1793,20 +1856,28 @@ async function bootApp() {
   document.querySelectorAll('.bn').forEach((b,i) => b.classList.toggle('on',i===0));
   await loadSessions();
   const lastJ = await loadJournalEntries();
-  const sheetTab = currentProfile.sheet_tab || 'HRV';
-  fetch(API+'?sheet='+encodeURIComponent(sheetTab))
-    .then(r => { if(!r.ok) throw new Error('API error '+r.status); return r.json(); })
-    .then(async data => {
-      if(!data||!data.length) throw new Error('No HRV data');
-      const aL=data.map(d=>cleanDate(d.date)), aR=data.map(d=>+d.value);
-      const raw28=aR.slice(-WIN), ewma=ewma28(aR), pct=pctDev(raw28,ewma), n=raw28.length, si=sig(pct[n-1]);
-      buildHRV(aL, aR, document.getElementById('hrv-body'), 'hrv');
-      await buildDash(raw28[n-1], pct[n-1], si, aR, aL, lastJ);
-    })
-    .catch(err => {
-      document.getElementById('hrv-body').innerHTML = `<div class="errbox">⚠ ${err.message}</div>`;
-      document.getElementById('dash-body').innerHTML = `<div class="errbox">⚠ Could not load HRV data</div>`;
-    });
+  
+  // Load HRV data from Supabase instead of Google Sheets
+  try {
+    const hrvData = await sb.get('hrv_data', `?athlete_name=eq.${currentProfile.name}&order=date.asc`);
+    
+    if(!hrvData||!hrvData.length) throw new Error('No HRV data');
+    
+    const aL = hrvData.map(d => cleanDate(d.date));
+    const aR = hrvData.map(d => +d.value);
+    const raw28 = aR.slice(-WIN);
+    const ewma = ewma28(aR);
+    const pct = pctDev(raw28, ewma);
+    const n = raw28.length;
+    const si = sig(pct[n-1]);
+    
+    buildHRV(aL, aR, document.getElementById('hrv-body'), 'hrv');
+    await buildDash(raw28[n-1], pct[n-1], si, aR, aL, lastJ);
+  } catch(err) {
+    console.warn('HRV load error:', err.message);
+    document.getElementById('hrv-body').innerHTML = `<div class="errbox">⚠ ${err.message}</div>`;
+    document.getElementById('dash-body').innerHTML = `<div class="errbox">⚠ Could not load HRV data</div>`;
+  }
 }
 
 // Init
