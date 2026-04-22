@@ -10,316 +10,338 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#040a06;--sf:#08120a;--sf2:#0e1f12;--sf3:#152918;
-  --b:rgba(255,255,255,0.07);--b2:rgba(255,255,255,0.12);
+  /* surfaces */
+  --bg:#040a06;--sf:#0a150c;--sf2:#112014;--sf3:#182d1c;
+  /* borders — unified scale */
+  --b:rgba(255,255,255,0.10);--b2:rgba(255,255,255,0.16);
+  /* brand greens */
   --rp:#1a7a3c;--rp2:#229e4f;--rp3:#2db85e;
-  --rpd:rgba(26,122,60,0.14);--rpg:rgba(26,122,60,0.28);
-  --wh:#f0ece6;--tx:#ede8e2;--t2:#9a9490;--t3:#5a5450;
-  --gn:#4cd97b;--gnd:rgba(76,217,123,0.12);
-  --am:#f5b333;--amd:rgba(245,179,51,0.12);
-  --rd:#ff5252;--rdd:rgba(255,82,82,0.12);
+  --accent:#2db85e;                /* bright CTA green */
+  --accent-h:#3ed172;               /* hover */
+  --rpd:rgba(26,122,60,0.16);--rpg:rgba(45,184,94,0.22);
+  /* text — contrast fixed */
+  --wh:#f0ece6;--tx:#ede8e2;--t2:#a8a29d;--t3:#807a75;
+  /* status */
+  --gn:#4cd97b;--gnd:rgba(76,217,123,0.14);
+  --am:#f5b333;--amd:rgba(245,179,51,0.14);
+  --rd:#ff5252;--rdd:rgba(255,82,82,0.14);
+  /* radius */
+  --r1:6px;--r2:10px;--r3:16px;
+  /* fonts */
   --f:'Barlow',sans-serif;--fc:'Barlow Condensed',sans-serif;
   --bb:'Bebas Neue',sans-serif;--m:'JetBrains Mono',monospace;
 }
 html{background:var(--bg);color:var(--tx);font-family:var(--f);-webkit-font-smoothing:antialiased}
 body{min-height:100dvh;overflow-x:hidden}
-
 /* ══ SCREENS ══ */
 .screen{display:none;position:fixed;inset:0;background:var(--bg);overflow-y:auto;transition:opacity .35s,transform .35s}
 .screen.on{display:flex;flex-direction:column}
 .screen.out{opacity:0;transform:scale(1.03);pointer-events:none}
-
 /* ══ PROFILE SELECT ══ */
 #s1{align-items:center;padding:0 20px 40px}
 .fps-header{width:100%;max-width:480px;padding:48px 0 28px;text-align:center}
-.fps-shield{width:60px;height:60px;border-radius:50%;background:var(--rpd);border:1px solid rgba(26,122,60,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 0 32px rgba(26,122,60,.1)}
+.fps-shield{width:60px;height:60px;border-radius:50%;background:var(--rpd);border:1px solid rgba(45,184,94,.35);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 0 32px rgba(45,184,94,.15)}
 .fps-shield svg{width:26px;height:32px}
-.fps-eyebrow{font-family:var(--m);font-size:9px;letter-spacing:.2em;color:var(--rp2);text-transform:uppercase;margin-bottom:6px}
+.fps-eyebrow{font-family:var(--m);font-size:10px;letter-spacing:.2em;color:var(--rp3);text-transform:uppercase;margin-bottom:6px}
 .fps-name{font-family:var(--bb);font-size:26px;letter-spacing:.06em;color:var(--wh);line-height:1}
-.fps-divider{width:36px;height:2px;background:var(--rp);border-radius:1px;margin:16px auto 12px}
-.fps-prompt{font-family:var(--m);font-size:10px;color:var(--t3);letter-spacing:.08em}
+.fps-divider{width:36px;height:2px;background:var(--accent);border-radius:1px;margin:16px auto 12px}
+.fps-prompt{font-family:var(--m);font-size:11px;color:var(--t3);letter-spacing:.06em}
 .profiles-grid{width:100%;max-width:480px;display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.pc{background:var(--sf);border:1px solid var(--b);border-radius:18px;padding:22px 14px 18px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:10px;position:relative;overflow:hidden}
-.pc::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(26,122,60,.07),transparent);opacity:0;transition:opacity .2s}
-.pc:hover{border-color:rgba(26,122,60,.45);background:var(--sf2)}.pc:hover::after{opacity:1}
+.pc{background:var(--sf);border:1px solid var(--b);border-radius:var(--r3);padding:22px 14px 18px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:10px;position:relative;overflow:hidden;min-height:180px}
+.pc::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(45,184,94,.1),transparent);opacity:0;transition:opacity .2s}
+.pc:hover{border-color:rgba(45,184,94,.5);background:var(--sf2)}.pc:hover::after{opacity:1}
 .pc:active{transform:scale(.97)}
-.pc-avatar{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--bb);font-size:28px;color:var(--wh);border:2px solid rgba(26,122,60,.5);flex-shrink:0;position:relative}
+.pc-avatar{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--bb);font-size:28px;color:var(--wh);border:2px solid rgba(45,184,94,.5);flex-shrink:0;position:relative;box-shadow:0 4px 14px rgba(0,0,0,.35)}
 .pc-online{position:absolute;bottom:2px;right:2px;width:10px;height:10px;border-radius:50%;background:var(--gn);border:2px solid var(--sf);box-shadow:0 0 6px rgba(76,217,123,.6)}
 .pc-name{font-family:var(--bb);font-size:20px;letter-spacing:.04em;color:var(--wh)}
-.pc-role{font-family:var(--m);font-size:8px;letter-spacing:.1em;color:var(--t3);text-transform:uppercase}
-.pc-arrow{font-family:var(--m);font-size:9px;color:var(--rp2);letter-spacing:.04em}
-.pc-add{border:1px dashed rgba(255,255,255,.1);background:transparent}
-.pc-add:hover{border-color:rgba(26,122,60,.3);background:var(--rpd)}
-.pc-add-icon{width:44px;height:44px;border-radius:50%;border:1px dashed rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--t3)}
-.pc-add-lbl{font-family:var(--m);font-size:8px;letter-spacing:.1em;color:var(--t3);text-transform:uppercase}
+.pc-role{font-family:var(--m);font-size:10px;letter-spacing:.08em;color:var(--t2);text-transform:uppercase}
+.pc-add{border:1px dashed rgba(255,255,255,.14);background:transparent}
+.pc-add:hover{border-color:rgba(45,184,94,.45);background:var(--rpd)}
+.pc-add-icon{width:44px;height:44px;border-radius:50%;border:1px dashed rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--t2)}
+.pc-add-lbl{font-family:var(--m);font-size:10px;letter-spacing:.08em;color:var(--t2);text-transform:uppercase}
 .admin-entry{margin-top:20px;width:100%;max-width:480px;text-align:center}
-.admin-link{font-family:var(--m);font-size:9px;letter-spacing:.1em;color:var(--t3);cursor:pointer;padding:8px 16px;border:1px solid var(--b);border-radius:6px;background:transparent;transition:all .2s;text-transform:uppercase}
-.admin-link:hover{color:var(--rp2);border-color:rgba(26,122,60,.3)}
-
+.admin-link{font-family:var(--m);font-size:10px;letter-spacing:.1em;color:var(--t2);cursor:pointer;padding:10px 16px;border:1px solid var(--b);border-radius:var(--r1);background:transparent;transition:all .2s;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px}
+.admin-link:hover{color:var(--rp3);border-color:rgba(45,184,94,.4)}
 /* ══ PASSWORD ══ */
-#s2{align-items:center;justify-content:center;padding:40px 28px;position:relative}
-.pw-back{position:absolute;top:20px;left:20px;background:none;border:1px solid var(--b);border-radius:8px;padding:7px 12px;font-family:var(--m);font-size:9px;letter-spacing:.1em;color:var(--t3);cursor:pointer;text-transform:uppercase;transition:all .2s}
-.pw-back:hover{color:var(--rp2);border-color:rgba(26,122,60,.3)}
-.pw-avatar{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--bb);font-size:32px;color:var(--wh);margin:0 auto 16px;border:2px solid rgba(26,122,60,.5);box-shadow:0 0 32px rgba(26,122,60,.2)}
+#s2,#s-adminpw{align-items:center;justify-content:center;padding:40px 28px;position:relative}
+.pw-back{position:absolute;top:20px;left:20px;background:none;border:1px solid var(--b);border-radius:var(--r1);padding:9px 14px;font-family:var(--m);font-size:10px;letter-spacing:.08em;color:var(--t2);cursor:pointer;text-transform:uppercase;transition:all .2s}
+.pw-back:hover{color:var(--rp3);border-color:rgba(45,184,94,.4)}
+.pw-avatar{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--bb);font-size:32px;color:var(--wh);margin:0 auto 16px;border:2px solid rgba(45,184,94,.5);box-shadow:0 4px 24px rgba(45,184,94,.22)}
 .pw-name{font-family:var(--bb);font-size:36px;letter-spacing:.04em;color:var(--wh);text-align:center;margin-bottom:4px}
-.pw-sub{font-family:var(--m);font-size:9px;color:var(--t3);letter-spacing:.08em;text-align:center;margin-bottom:32px}
-.pw-input{width:100%;max-width:300px;background:var(--sf2);border:1px solid var(--b2);border-radius:10px;padding:14px 18px;font-family:var(--m);font-size:14px;color:var(--tx);outline:none;letter-spacing:.12em;display:block;margin-bottom:10px;transition:border-color .2s,box-shadow .2s;-webkit-text-security:disc;text-align:center}
-.pw-input:focus{border-color:var(--rp2);box-shadow:0 0 0 3px var(--rpd)}
-.pw-btn{width:100%;max-width:300px;padding:14px;background:var(--rp);border:none;border-radius:10px;font-family:var(--bb);font-size:20px;letter-spacing:.12em;color:var(--wh);cursor:pointer;transition:background .15s,transform .1s}
-.pw-btn:hover{background:var(--rp2)}.pw-btn:active{transform:scale(.98)}
-.pw-err{font-family:var(--m);font-size:10px;color:var(--rd);margin-top:10px;text-align:center;opacity:0;transition:opacity .2s;height:14px}
+.pw-sub{font-family:var(--m);font-size:10px;color:var(--t2);letter-spacing:.08em;text-align:center;margin-bottom:32px}
+.pw-input{width:100%;max-width:300px;background:var(--sf2);border:1px solid var(--b2);border-radius:var(--r2);padding:16px 18px;font-family:var(--m);font-size:14px;color:var(--tx);outline:none;letter-spacing:.12em;display:block;margin-bottom:10px;transition:border-color .2s,box-shadow .2s;-webkit-text-security:disc;text-align:center;min-height:52px}
+.pw-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(45,184,94,.18)}
+.pw-btn{width:100%;max-width:300px;padding:16px;background:var(--accent);border:none;border-radius:var(--r2);font-family:var(--bb);font-size:20px;letter-spacing:.12em;color:#062010;cursor:pointer;transition:background .15s,transform .1s;min-height:52px}
+.pw-btn:hover{background:var(--accent-h)}.pw-btn:active{transform:scale(.98)}
+.pw-err{font-family:var(--m);font-size:11px;color:var(--rd);margin-top:10px;text-align:center;opacity:0;transition:opacity .2s;height:14px}
 .pw-err.show{opacity:1}
-
 /* ══ APP ══ */
 #s3{overflow-y:auto}
 .topbar{position:sticky;top:0;z-index:50;height:52px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;background:rgba(4,10,6,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--b);flex-shrink:0}
 .tb-l{display:flex;align-items:center;gap:10px}
-.tb-stripe{width:3px;height:22px;background:var(--rp);border-radius:2px}
+.tb-stripe{width:3px;height:22px;background:var(--accent);border-radius:2px}
 .tb-title{font-family:var(--bb);font-size:16px;letter-spacing:.06em;color:var(--wh);line-height:1}
-.tb-sub{font-family:var(--m);font-size:8px;color:var(--t3);letter-spacing:.05em;margin-top:1px}
+.tb-sub{font-family:var(--m);font-size:9px;color:var(--t3);letter-spacing:.05em;margin-top:1px}
 .tb-r{display:flex;align-items:center;gap:8px}
-.tb-profile{display:flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid var(--b);border-radius:8px;cursor:pointer;transition:all .2s}
-.tb-profile:hover{border-color:rgba(26,122,60,.3);background:var(--rpd)}
-.tb-av{width:22px;height:22px;border-radius:50%;background:var(--rp);display:flex;align-items:center;justify-content:center;font-family:var(--bb);font-size:11px;color:var(--wh)}
-.tb-pname{font-family:var(--m);font-size:9px;color:var(--t3);letter-spacing:.06em}
+.tb-profile{display:flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--b);border-radius:var(--r1);cursor:pointer;transition:all .2s;min-height:36px}
+.tb-profile:hover{border-color:rgba(45,184,94,.4);background:var(--rpd)}
+.tb-av{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--rp),var(--rp3));display:flex;align-items:center;justify-content:center;font-family:var(--bb);font-size:11px;color:var(--wh)}
+.tb-pname{font-family:var(--m);font-size:10px;color:var(--t2);letter-spacing:.06em}
 .ldot{width:6px;height:6px;border-radius:50%;background:var(--gn);box-shadow:0 0 5px rgba(76,217,123,.5);opacity:0;transition:opacity .3s}
 .tabs{display:flex;overflow-x:auto;scrollbar-width:none;background:var(--sf);border-bottom:1px solid var(--b);padding:0 16px;flex-shrink:0}
 .tabs::-webkit-scrollbar{display:none}
-.tab{flex-shrink:0;padding:11px 14px 10px;font-family:var(--bb);font-size:14px;letter-spacing:.1em;color:var(--t3);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;transition:color .2s,border-color .2s}
-.tab:hover{color:var(--t2)}.tab.on{color:var(--wh);border-bottom-color:var(--rp)}
+.tab{flex-shrink:0;padding:12px 14px 10px;font-family:var(--bb);font-size:14px;letter-spacing:.1em;color:var(--t2);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;transition:color .2s,border-color .2s}
+.tab:hover{color:var(--tx)}.tab.on{color:var(--wh);border-bottom-color:var(--accent)}
 .subtabs{display:flex;gap:4px;margin-bottom:14px;overflow-x:auto;scrollbar-width:none}
 .subtabs::-webkit-scrollbar{display:none}
-.stab{flex-shrink:0;padding:7px 14px;font-family:var(--m);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);cursor:pointer;border:1px solid var(--b);border-radius:6px;background:transparent;transition:all .2s}
-.stab:hover{color:var(--t2);border-color:var(--b2)}.stab.on{color:var(--wh);background:var(--rp);border-color:var(--rp)}
-.pg{display:none;padding:16px 16px 80px;animation:pgi .2s ease}.pg.on{display:block}
+.stab{flex-shrink:0;padding:10px 14px;font-family:var(--m);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--t2);cursor:pointer;border:1px solid var(--b);border-radius:var(--r1);background:transparent;transition:all .2s}
+.stab:hover{color:var(--tx);border-color:var(--b2)}.stab.on{color:var(--wh);background:var(--rp);border-color:var(--accent);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.pg{display:none;padding:16px 16px 96px;animation:pgi .2s ease}.pg.on{display:block}
 @keyframes pgi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 .spg{display:none}.spg.on{display:block;animation:pgi .2s ease}
-.sh{display:flex;align-items:center;gap:8px;margin:16px 0 10px}
-.shb{width:3px;height:16px;background:var(--rp);border-radius:2px;flex-shrink:0}
-.sht{font-family:var(--bb);font-size:16px;letter-spacing:.1em;color:var(--t2)}
-.cg2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.sh{display:flex;align-items:center;gap:8px;margin:18px 0 10px}
+.shb{width:3px;height:16px;background:var(--accent);border-radius:2px;flex-shrink:0}
+.sht{font-family:var(--bb);font-size:16px;letter-spacing:.1em;color:var(--tx)}
+.cg2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
 .cg3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
-.card{background:var(--sf);border:1px solid var(--b);border-radius:12px;padding:12px}
-.card.hi{border-color:rgba(26,122,60,.3);background:var(--sf2)}
-.clbl{font-family:var(--m);font-size:8px;letter-spacing:.1em;color:var(--t3);text-transform:uppercase;margin-bottom:6px}
+.card{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:13px}
+.card.hi{border-color:rgba(45,184,94,.35);background:var(--sf2)}
+.clbl{font-family:var(--m);font-size:9px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase;margin-bottom:6px}
 .cval{font-family:var(--bb);font-size:28px;letter-spacing:.01em;line-height:1;color:var(--wh)}
-.cval.md{font-size:22px}.csub{font-family:var(--m);font-size:8px;color:var(--t3);margin-top:4px}
-.gcrd{background:var(--sf);border:1px solid var(--b);border-radius:12px;padding:14px;margin-bottom:10px}
-.gtrack{position:relative;height:7px;border-radius:999px;background:linear-gradient(90deg,#cc2200 0%,#ff5252 18%,#f5b333 33%,#4cd97b 48%,#4cd97b 68%,#00c896 100%);margin-bottom:5px}
-.gneedle{position:absolute;top:-5px;width:17px;height:17px;border-radius:50%;background:var(--wh);border:2.5px solid var(--bg);transform:translateX(-50%);left:50%;box-shadow:0 1px 6px rgba(0,0,0,.5);transition:left 1.1s cubic-bezier(.34,1.56,.64,1)}
-.gaxis{display:flex;justify-content:space-between;font-family:var(--m);font-size:8px;color:var(--t3);margin-bottom:10px}
-.grow{display:flex;align-items:center;justify-content:space-between}
-.gpct{font-family:var(--bb);font-size:34px;letter-spacing:-.01em;line-height:1}
-.gbg{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:6px;font-family:var(--bb);font-size:13px;letter-spacing:.06em}
-.ggg{background:var(--gnd);color:var(--gn)}.gga{background:var(--amd);color:var(--am)}.ggr{background:var(--rdd);color:var(--rd)}.ggrp{background:var(--rpd);color:var(--rp2)}
+.cval.md{font-size:22px}.csub{font-family:var(--m);font-size:9px;color:var(--t3);margin-top:4px}
+/* ══ HERO HRV CARD (dashboard) ══ */
+.hero{background:linear-gradient(135deg,var(--sf2),var(--sf));border:1px solid rgba(45,184,94,.28);border-radius:var(--r3);padding:18px;margin-bottom:12px;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;top:0;right:0;width:180px;height:180px;background:radial-gradient(circle,rgba(45,184,94,.12),transparent 70%);pointer-events:none}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;position:relative;z-index:1}
+.hero-eyebrow{font-family:var(--m);font-size:10px;letter-spacing:.14em;color:var(--rp3);text-transform:uppercase}
+.hero-sub{font-family:var(--m);font-size:10px;color:var(--t2);margin-top:3px}
+.hero-main{display:flex;align-items:baseline;gap:14px;margin-bottom:14px;position:relative;z-index:1}
+.hero-val{font-family:var(--bb);font-size:56px;line-height:.9;color:var(--wh);letter-spacing:.01em}
+.hero-unit{font-family:var(--m);font-size:11px;color:var(--t2)}
+.hero-gauge{position:relative;height:7px;border-radius:999px;background:linear-gradient(90deg,#cc2200 0%,#ff5252 18%,#f5b333 33%,#4cd97b 48%,#4cd97b 68%,#00c896 100%);margin-bottom:6px}
+.hero-needle{position:absolute;top:-5px;width:17px;height:17px;border-radius:50%;background:var(--wh);border:2.5px solid var(--bg);transform:translateX(-50%);left:50%;box-shadow:0 1px 6px rgba(0,0,0,.6);transition:left 1.1s cubic-bezier(.34,1.56,.64,1)}
+.hero-row{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1}
+.hero-pct{font-family:var(--bb);font-size:26px;letter-spacing:-.01em;line-height:1}
+.gbg{display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:var(--r1);font-family:var(--bb);font-size:13px;letter-spacing:.06em}
+.ggg{background:var(--gnd);color:var(--gn)}.gga{background:var(--amd);color:var(--am)}.ggr{background:var(--rdd);color:var(--rd)}.ggrp{background:var(--rpd);color:var(--rp3)}
 .bdot{width:5px;height:5px;border-radius:50%;background:currentColor;animation:bl 2s ease infinite}
 @keyframes bl{0%,100%{opacity:1}50%{opacity:.3}}
-.ccrd{background:var(--sf);border:1px solid var(--b);border-radius:12px;padding:13px 13px 9px;margin-bottom:10px}
+/* ══ HRV PAGE ══ */
+.gcrd{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:14px;margin-bottom:10px}
+.gtrack{position:relative;height:7px;border-radius:999px;background:linear-gradient(90deg,#cc2200 0%,#ff5252 18%,#f5b333 33%,#4cd97b 48%,#4cd97b 68%,#00c896 100%);margin-bottom:5px}
+.gneedle{position:absolute;top:-5px;width:17px;height:17px;border-radius:50%;background:var(--wh);border:2.5px solid var(--bg);transform:translateX(-50%);left:50%;box-shadow:0 1px 6px rgba(0,0,0,.5);transition:left 1.1s cubic-bezier(.34,1.56,.64,1)}
+.gaxis{display:flex;justify-content:space-between;font-family:var(--m);font-size:9px;color:var(--t3);margin-bottom:10px}
+.grow{display:flex;align-items:center;justify-content:space-between}
+.gpct{font-family:var(--bb);font-size:34px;letter-spacing:-.01em;line-height:1}
+.ccrd{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:13px 13px 9px;margin-bottom:10px}
 .chd{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.ct{font-family:var(--m);font-size:8px;color:var(--t3);letter-spacing:.1em;text-transform:uppercase}
+.ct{font-family:var(--m);font-size:9px;color:var(--t2);letter-spacing:.08em;text-transform:uppercase}
 .cleg{display:flex;gap:10px}
-.cl{display:flex;align-items:center;gap:4px;font-family:var(--m);font-size:8px;color:var(--t3)}
-.cll{width:12px;height:2px;border-radius:1px}.cld{width:12px;border-top:2px dashed;opacity:.5}
-.hmcrd{background:var(--sf);border:1px solid var(--b);border-radius:12px;padding:13px;margin-bottom:10px}
+.cl{display:flex;align-items:center;gap:4px;font-family:var(--m);font-size:9px;color:var(--t2)}
+.cll{width:12px;height:2px;border-radius:1px}.cld{width:12px;border-top:2px dashed;opacity:.6}
+.hmcrd{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:13px;margin-bottom:10px}
 .hmgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:8px}
-.hmcell{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:var(--m);font-size:7px;color:rgba(255,255,255,.7);cursor:default;transition:transform .1s}
+.hmcell{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:var(--m);font-size:9px;color:rgba(255,255,255,.82);cursor:default;transition:transform .1s}
 .hmcell:hover{transform:scale(1.15);z-index:1}
-.tcrd{background:var(--sf);border:1px solid var(--b);border-radius:12px;overflow:hidden;margin-bottom:10px}
-.thd{display:grid;padding:8px 13px;border-bottom:1px solid var(--b2);font-family:var(--m);font-size:8px;letter-spacing:.1em;color:var(--t3);text-transform:uppercase}
-.trow{display:grid;padding:7px 13px;border-bottom:1px solid var(--b);align-items:center;transition:background .1s}
+.tcrd{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);overflow:hidden;margin-bottom:10px}
+.thd{display:grid;padding:9px 13px;border-bottom:1px solid var(--b2);font-family:var(--m);font-size:9px;letter-spacing:.08em;color:var(--t2);text-transform:uppercase}
+.trow{display:grid;padding:8px 13px;border-bottom:1px solid var(--b);align-items:center;transition:background .1s}
 .trow:last-child{border-bottom:none}.trow:hover{background:rgba(255,255,255,.02)}
-.trow.now{background:rgba(26,122,60,.08);border-left:2px solid var(--rp)}
-.tda{font-family:var(--m);font-size:10px;color:var(--t3)}
+.trow.now{background:rgba(45,184,94,.08);border-left:2px solid var(--accent)}
+.tda{font-family:var(--m);font-size:11px;color:var(--t2)}
 .tva{font-family:var(--bb);font-size:15px;font-weight:400;color:var(--wh)}
-.tpa{font-family:var(--m);font-size:10px;font-weight:500}.tsa{font-family:var(--m);font-size:8px}
+.tpa{font-family:var(--m);font-size:11px;font-weight:500}.tsa{font-family:var(--m);font-size:10px}
 .cgn{color:var(--gn)}.ca{color:var(--am)}.cr{color:var(--rd)}.cr2{color:#cc2200}.cup{color:#00c896}
-.pill{display:inline-flex;align-items:center;gap:5px;background:var(--rpd);color:var(--rp2);border:1px solid rgba(26,122,60,.2);border-radius:5px;padding:3px 9px;font-family:var(--m);font-size:8px;letter-spacing:.06em;margin-bottom:10px}
-.refcrd{background:var(--sf);border:1px solid var(--b);border-radius:12px;padding:13px;margin-bottom:14px}
-.refgrid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:8px}
-.refrow{display:flex;align-items:center;gap:6px;font-family:var(--m);font-size:9px;color:var(--t3)}
-.refdot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
-
+.pill{display:inline-flex;align-items:center;gap:5px;background:var(--rpd);color:var(--rp3);border:1px solid rgba(45,184,94,.28);border-radius:var(--r1);padding:4px 9px;font-family:var(--m);font-size:10px;letter-spacing:.06em;margin-bottom:10px}
+.refcrd{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:13px;margin-bottom:14px}
+.refgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.refrow{display:flex;align-items:center;gap:6px;font-family:var(--m);font-size:10px;color:var(--t2)}
+.refdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 /* ══ TRAINING ══ */
 .train-controls{display:flex;gap:8px;margin-bottom:10px}
-.tsearch{flex:1;background:var(--sf);border:1px solid var(--b);border-radius:8px;padding:9px 12px;font-family:var(--m);font-size:11px;color:var(--tx);outline:none;transition:border-color .2s}
-.tsearch:focus{border-color:var(--rp2)}.tsearch::placeholder{color:var(--t3)}
+.tsearch{flex:1;background:var(--sf);border:1px solid var(--b);border-radius:var(--r1);padding:11px 14px;font-family:var(--m);font-size:12px;color:var(--tx);outline:none;transition:border-color .2s;min-height:40px}
+.tsearch:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(45,184,94,.14)}.tsearch::placeholder{color:var(--t3)}
 .filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.fchip{padding:5px 11px;background:transparent;border:1px solid var(--b);border-radius:999px;font-family:var(--m);font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);cursor:pointer;transition:all .2s}
-.fchip:hover{border-color:var(--b2);color:var(--t2)}.fchip.on{background:var(--rp);border-color:var(--rp);color:var(--wh)}
-.scount{font-family:var(--m);font-size:9px;color:var(--t3);margin-bottom:10px}
-.scount span{color:var(--rp2)}
-.month-hd{font-family:var(--bb);font-size:13px;letter-spacing:.12em;color:var(--t3);text-transform:uppercase;padding:8px 0 6px;border-bottom:1px solid var(--b);margin-bottom:8px;margin-top:16px}
+.fchip{padding:8px 13px;background:transparent;border:1px solid var(--b);border-radius:999px;font-family:var(--m);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--t2);cursor:pointer;transition:all .2s;min-height:32px}
+.fchip:hover{border-color:var(--b2);color:var(--tx)}
+.fchip.on{background:var(--rp);border-color:var(--accent);color:var(--wh);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+.scount{font-family:var(--m);font-size:10px;color:var(--t2);margin-bottom:10px}
+.scount span{color:var(--rp3)}
+.month-hd{font-family:var(--bb);font-size:13px;letter-spacing:.12em;color:var(--t2);text-transform:uppercase;padding:8px 0 6px;border-bottom:1px solid var(--b);margin-bottom:8px;margin-top:16px}
 .month-hd:first-child{margin-top:0}
-.scard{background:var(--sf);border:1px solid var(--b);border-radius:12px;overflow:hidden;cursor:pointer;transition:border-color .2s,background .2s;margin-bottom:8px}
-.scard:hover{border-color:rgba(26,122,60,.4);background:var(--sf2)}
+.scard{background:var(--sf2);border:1px solid var(--b);border-radius:var(--r2);overflow:hidden;cursor:pointer;transition:border-color .2s,background .2s,transform .1s;margin-bottom:8px}
+.scard:hover{border-color:rgba(45,184,94,.45);background:var(--sf3)}
+.scard:active{transform:scale(.99)}
 .scard-inner{display:flex;align-items:stretch}
 .scard-date{width:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 0;border-right:1px solid var(--b);flex-shrink:0}
 .scard-day{font-family:var(--bb);font-size:28px;line-height:1;color:var(--wh)}
-.scard-mon{font-family:var(--m);font-size:8px;letter-spacing:.08em;color:var(--t3);text-transform:uppercase;margin-top:2px}
+.scard-mon{font-family:var(--m);font-size:9px;letter-spacing:.08em;color:var(--t2);text-transform:uppercase;margin-top:2px}
 .scard-body{flex:1;padding:12px 14px}
-.scard-tag{font-family:var(--m);font-size:8px;letter-spacing:.12em;color:var(--rp2);text-transform:uppercase;margin-bottom:3px}
+.scard-tag{font-family:var(--m);font-size:9px;letter-spacing:.12em;color:var(--rp3);text-transform:uppercase;margin-bottom:3px}
 .scard-title{font-family:var(--bb);font-size:19px;letter-spacing:.04em;color:var(--wh);line-height:1.1}
-.scard-meta{font-family:var(--m);font-size:8px;color:var(--t3);margin-top:4px;display:flex;gap:10px}
-.scard-r{display:flex;align-items:center;padding:0 12px;color:var(--rp2);font-size:16px;flex-shrink:0}
+.scard-meta{font-family:var(--m);font-size:10px;color:var(--t2);margin-top:4px;display:flex;gap:10px}
+.scard-r{display:flex;align-items:center;padding:0 12px;color:var(--rp3);font-size:16px;flex-shrink:0}
 .scard-tags{display:flex;flex-wrap:wrap;gap:5px;padding:0 14px 10px}
-.scti{font-family:var(--m);font-size:7px;letter-spacing:.06em;padding:2px 8px;border:1px solid var(--b);border-radius:4px;color:var(--t3)}
-.no-res{font-family:var(--m);font-size:11px;color:var(--t3);text-align:center;padding:40px 0}
-
+.scti{font-family:var(--m);font-size:9px;letter-spacing:.04em;padding:3px 8px;border:1px solid var(--b);border-radius:var(--r1);color:var(--t2)}
+.no-res{font-family:var(--m);font-size:11px;color:var(--t2);text-align:center;padding:40px 0}
 /* ══ SESSION VIEWER ══ */
 #sv{display:none;position:fixed;inset:0;z-index:200;background:var(--bg);overflow-y:auto}
 #sv.on{display:block}
 .svtop{position:sticky;top:0;z-index:10;height:52px;padding:0 16px;display:flex;align-items:center;gap:12px;background:rgba(4,10,6,.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--b)}
-.svback{background:none;border:none;color:var(--rp2);font-family:var(--bb);font-size:16px;letter-spacing:.08em;cursor:pointer;padding:8px 0}
+.svback{background:none;border:none;color:var(--rp3);font-family:var(--bb);font-size:16px;letter-spacing:.08em;cursor:pointer;padding:8px 0}
 #svcontent{padding:20px 20px 80px}
-
-/* ══ SESSION VIEWER CONTENT ══ */
 .sv-title{font-family:var(--bb);font-size:36px;letter-spacing:.04em;color:var(--wh);margin-bottom:4px;line-height:1}
-.sv-tag{font-family:var(--m);font-size:9px;letter-spacing:.15em;color:var(--rp2);text-transform:uppercase;margin-bottom:16px}
+.sv-tag{font-family:var(--m);font-size:10px;letter-spacing:.14em;color:var(--rp3);text-transform:uppercase;margin-bottom:16px}
 .sv-meta{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--b)}
-.sv-meta-item{font-family:var(--m);font-size:10px;color:var(--t3)}
+.sv-meta-item{font-family:var(--m);font-size:11px;color:var(--t2)}
 .sv-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px}
-.sv-phase{background:var(--sf);border:1px solid var(--b);border-radius:12px;overflow:hidden;margin-bottom:12px}
+.sv-phase{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);overflow:hidden;margin-bottom:12px}
 .sv-phase-hd{display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;border-bottom:1px solid var(--b);transition:background .2s}
-.sv-phase-hd:hover{background:rgba(26,122,60,.05)}
-.sv-phase-num{font-family:var(--bb);font-size:36px;line-height:1;color:rgba(26,122,60,.3);min-width:44px}
+.sv-phase-hd:hover{background:rgba(45,184,94,.06)}
+.sv-phase-num{font-family:var(--bb);font-size:36px;line-height:1;color:rgba(45,184,94,.4);min-width:44px}
 .sv-phase-info{flex:1}
-.sv-phase-label{font-family:var(--m);font-size:8px;letter-spacing:.15em;color:var(--rp2);text-transform:uppercase;margin-bottom:2px}
+.sv-phase-label{font-family:var(--m);font-size:9px;letter-spacing:.12em;color:var(--rp3);text-transform:uppercase;margin-bottom:2px}
 .sv-phase-name{font-family:var(--bb);font-size:20px;letter-spacing:.04em;color:var(--wh)}
-.sv-phase-toggle{color:var(--rp2);font-size:18px;transition:transform .2s}
+.sv-phase-toggle{color:var(--rp3);font-size:18px;transition:transform .2s}
 .sv-phase-body{padding:14px 16px;display:none}
 .sv-phase-body.open{display:block}
-.sv-exercise{background:var(--sf2);border:1px solid var(--b);border-radius:8px;margin-bottom:10px;overflow:hidden}
+.sv-exercise{background:var(--sf2);border:1px solid var(--b);border-radius:var(--r1);margin-bottom:10px;overflow:hidden}
 .sv-ex-hd{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--b)}
-.sv-ex-dot{width:5px;height:5px;border-radius:50%;background:var(--rp2);flex-shrink:0}
+.sv-ex-dot{width:6px;height:6px;border-radius:50%;background:var(--rp3);flex-shrink:0}
 .sv-ex-name{font-family:var(--fc);font-size:15px;font-weight:600;color:var(--wh);flex:1}
-.sv-ex-sets{font-family:var(--m);font-size:10px;color:var(--t3)}
+.sv-ex-sets{font-family:var(--m);font-size:11px;color:var(--t2)}
 .sv-ex-video{position:relative;padding-bottom:56.25%;height:0;overflow:hidden}
 .sv-ex-video iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
 .sv-ex-note{padding:10px 14px;font-family:var(--f);font-size:13px;color:var(--t2);line-height:1.6;border-top:1px solid var(--b)}
-.sv-note{margin-top:12px;padding:12px 14px;border-left:2px solid var(--rp);background:var(--sf2);font-family:var(--f);font-size:13px;color:var(--t2);line-height:1.6;border-radius:0 8px 8px 0}
-
+.sv-note{margin-top:12px;padding:12px 14px;border-left:2px solid var(--accent);background:var(--sf2);font-family:var(--f);font-size:13px;color:var(--t2);line-height:1.6;border-radius:0 var(--r1) var(--r1) 0}
 /* ══ JOURNAL ══ */
-.jform{background:var(--sf);border:1px solid var(--b);border-radius:12px;padding:16px;margin-bottom:12px}
+.jform{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:16px;margin-bottom:12px}
 .jftitle{font-family:var(--bb);font-size:20px;letter-spacing:.06em;color:var(--wh);margin-bottom:14px}
 .jfrow{margin-bottom:14px}
-.jflbl{font-family:var(--m);font-size:9px;letter-spacing:.12em;color:var(--t3);text-transform:uppercase;margin-bottom:8px;display:block}
+.jflbl{font-family:var(--m);font-size:10px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase;margin-bottom:8px;display:block}
 .jfscale{display:flex;gap:6px}
-.jfscale button{flex:1;padding:10px 4px;background:var(--sf2);border:1px solid var(--b);border-radius:8px;font-family:var(--bb);font-size:16px;color:var(--t3);cursor:pointer;transition:all .15s}
-.jfscale button:hover{border-color:rgba(26,122,60,.4);color:var(--t2)}
-.jfscale button.sel{background:var(--rp);border-color:var(--rp);color:var(--wh)}
-.jfta{width:100%;background:var(--sf2);border:1px solid var(--b);border-radius:8px;padding:12px;font-family:var(--f);font-size:14px;color:var(--tx);outline:none;resize:none;transition:border-color .2s;line-height:1.6}
-.jfta:focus{border-color:var(--rp2)}
-.jfsub{width:100%;padding:14px;background:var(--rp);border:none;border-radius:10px;font-family:var(--bb);font-size:18px;letter-spacing:.1em;color:var(--wh);cursor:pointer;transition:background .15s,transform .1s;margin-top:4px}
-.jfsub:hover{background:var(--rp2)}.jfsub:active{transform:scale(.98)}
-.jfmsg{font-family:var(--m);font-size:10px;color:var(--gn);text-align:center;margin-top:8px;opacity:0;transition:opacity .3s;height:16px}
+.jfscale button{flex:1;padding:12px 4px;background:var(--sf2);border:1px solid var(--b);border-radius:var(--r1);font-family:var(--bb);font-size:16px;color:var(--t2);cursor:pointer;transition:all .15s;min-height:44px}
+.jfscale button:hover{border-color:var(--b2);color:var(--tx)}
+/* spectrum: 1=red, 2=amber, 3=yellow, 4=lime, 5=green for positive scales */
+.jfscale.pos button.sel:nth-child(1){background:#ff5252;border-color:#ff5252;color:#fff}
+.jfscale.pos button.sel:nth-child(2){background:#f5b333;border-color:#f5b333;color:#1a1100}
+.jfscale.pos button.sel:nth-child(3){background:#c8c14a;border-color:#c8c14a;color:#1a1700}
+.jfscale.pos button.sel:nth-child(4){background:#6ec95e;border-color:#6ec95e;color:#071b04}
+.jfscale.pos button.sel:nth-child(5){background:var(--accent);border-color:var(--accent);color:#062010}
+/* inverse: 1=green, 5=red (soreness — lower is better) */
+.jfscale.inv button.sel:nth-child(1){background:var(--accent);border-color:var(--accent);color:#062010}
+.jfscale.inv button.sel:nth-child(2){background:#6ec95e;border-color:#6ec95e;color:#071b04}
+.jfscale.inv button.sel:nth-child(3){background:#c8c14a;border-color:#c8c14a;color:#1a1700}
+.jfscale.inv button.sel:nth-child(4){background:#f5b333;border-color:#f5b333;color:#1a1100}
+.jfscale.inv button.sel:nth-child(5){background:#ff5252;border-color:#ff5252;color:#fff}
+.jfta{width:100%;background:var(--sf2);border:1px solid var(--b);border-radius:var(--r1);padding:12px;font-family:var(--f);font-size:14px;color:var(--tx);outline:none;resize:none;transition:border-color .2s,box-shadow .2s;line-height:1.6}
+.jfta:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(45,184,94,.14)}
+.jfsub{width:100%;padding:15px;background:var(--accent);border:none;border-radius:var(--r2);font-family:var(--bb);font-size:18px;letter-spacing:.1em;color:#062010;cursor:pointer;transition:background .15s,transform .1s;margin-top:4px;min-height:52px}
+.jfsub:hover{background:var(--accent-h)}.jfsub:active{transform:scale(.98)}
+.jfmsg{font-family:var(--m);font-size:11px;color:var(--gn);text-align:center;margin-top:8px;opacity:0;transition:opacity .3s;height:16px}
 .jfmsg.show{opacity:1}.jfmsg.err{color:var(--rd)}
-.jentry{background:var(--sf);border:1px solid var(--b);border-radius:12px;padding:13px;margin-bottom:8px}
-.jentry.latest{border-color:rgba(26,122,60,.3)}
+.jentry{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:13px;margin-bottom:8px}
+.jentry.latest{border-color:rgba(45,184,94,.35)}
 .jetop{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.jedate{font-family:var(--m);font-size:9px;color:var(--t3)}
+.jedate{font-family:var(--m);font-size:10px;color:var(--t2)}
 .jedots{display:flex;gap:3px}
 .jedot{width:8px;height:8px;border-radius:50%}
 .jescores{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}
 .jescore{text-align:center}
 .jeval{font-family:var(--bb);font-size:20px;line-height:1;color:var(--wh)}
-.jelbl{font-family:var(--m);font-size:7px;letter-spacing:.08em;color:var(--t3);text-transform:uppercase;margin-top:2px}
+.jelbl{font-family:var(--m);font-size:9px;letter-spacing:.06em;color:var(--t2);text-transform:uppercase;margin-top:3px}
 .jenote{font-family:var(--f);font-size:13px;color:var(--t2);line-height:1.6;border-top:1px solid var(--b);padding-top:8px;margin-top:4px}
-
 /* ══ ADMIN PANEL ══ */
 #s-admin{overflow-y:auto;background:var(--bg)}
 .admin-topbar{position:sticky;top:0;z-index:50;height:52px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;background:rgba(4,10,6,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--b)}
 .admin-title{font-family:var(--bb);font-size:18px;letter-spacing:.08em;color:var(--wh)}
-.admin-back{background:none;border:1px solid var(--b);border-radius:8px;padding:6px 12px;font-family:var(--m);font-size:9px;letter-spacing:.1em;color:var(--t3);cursor:pointer;text-transform:uppercase;transition:all .2s}
-.admin-back:hover{color:var(--rp2);border-color:rgba(26,122,60,.3)}
+.admin-back{background:none;border:1px solid var(--b);border-radius:var(--r1);padding:8px 14px;font-family:var(--m);font-size:10px;letter-spacing:.08em;color:var(--t2);cursor:pointer;text-transform:uppercase;transition:all .2s}
+.admin-back:hover{color:var(--rp3);border-color:rgba(45,184,94,.4)}
 .admin-tabs{display:flex;background:var(--sf);border-bottom:1px solid var(--b);padding:0 16px}
-.admin-tab{flex:1;padding:11px 8px 10px;font-family:var(--bb);font-size:13px;letter-spacing:.08em;color:var(--t3);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;transition:all .2s;text-align:center}
-.admin-tab.on{color:var(--wh);border-bottom-color:var(--rp)}
+.admin-tab{flex:1;padding:12px 8px 10px;font-family:var(--bb);font-size:13px;letter-spacing:.08em;color:var(--t2);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;transition:all .2s;text-align:center}
+.admin-tab.on{color:var(--wh);border-bottom-color:var(--accent)}
 .admin-pg{display:none;padding:16px}.admin-pg.on{display:block}
-
-/* Admin form elements */
-.aform{background:var(--sf);border:1px solid var(--b);border-radius:12px;padding:16px;margin-bottom:14px}
+.aform{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:16px;margin-bottom:14px}
 .aform-title{font-family:var(--bb);font-size:18px;letter-spacing:.06em;color:var(--wh);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
 .arow{margin-bottom:12px}
-.albl{font-family:var(--m);font-size:9px;letter-spacing:.12em;color:var(--t3);text-transform:uppercase;margin-bottom:6px;display:block}
-.ainput{width:100%;background:var(--sf2);border:1px solid var(--b);border-radius:8px;padding:10px 12px;font-family:var(--f);font-size:14px;color:var(--tx);outline:none;transition:border-color .2s}
-.ainput:focus{border-color:var(--rp2)}
+.albl{font-family:var(--m);font-size:10px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase;margin-bottom:6px;display:block}
+.ainput,.aselect,.atextarea{width:100%;background:var(--sf2);border:1px solid var(--b);border-radius:var(--r1);padding:11px 12px;font-family:var(--f);font-size:14px;color:var(--tx);outline:none;transition:border-color .2s,box-shadow .2s;min-height:40px}
+.aselect{cursor:pointer}
+.atextarea{resize:none;line-height:1.6;min-height:auto}
+.ainput:focus,.aselect:focus,.atextarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(45,184,94,.14)}
 .ainput::placeholder{color:var(--t3)}
-.aselect{width:100%;background:var(--sf2);border:1px solid var(--b);border-radius:8px;padding:10px 12px;font-family:var(--f);font-size:14px;color:var(--tx);outline:none;cursor:pointer}
-.aselect:focus{border-color:var(--rp2)}
-.atextarea{width:100%;background:var(--sf2);border:1px solid var(--b);border-radius:8px;padding:10px 12px;font-family:var(--f);font-size:14px;color:var(--tx);outline:none;resize:none;line-height:1.6}
-.atextarea:focus{border-color:var(--rp2)}
 .agrid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.abtn{padding:11px 18px;background:var(--rp);border:none;border-radius:8px;font-family:var(--bb);font-size:16px;letter-spacing:.08em;color:var(--wh);cursor:pointer;transition:background .15s}
-.abtn:hover{background:var(--rp2)}
+.abtn{padding:11px 18px;background:var(--accent);border:none;border-radius:var(--r1);font-family:var(--bb);font-size:16px;letter-spacing:.08em;color:#062010;cursor:pointer;transition:background .15s;min-height:40px}
+.abtn:hover{background:var(--accent-h)}
 .abtn.secondary{background:var(--sf2);border:1px solid var(--b);color:var(--t2)}
 .abtn.secondary:hover{border-color:var(--b2);color:var(--tx)}
-.abtn.danger{background:rgba(255,82,82,.1);border:1px solid rgba(255,82,82,.2);color:var(--rd)}
-.abtn.danger:hover{background:rgba(255,82,82,.2)}
-.abtn.small{padding:6px 12px;font-size:13px}
-.amsg{font-family:var(--m);font-size:10px;color:var(--gn);margin-top:8px;opacity:0;transition:opacity .3s;height:14px}
+.abtn.danger{background:rgba(255,82,82,.12);border:1px solid rgba(255,82,82,.26);color:var(--rd)}
+.abtn.danger:hover{background:rgba(255,82,82,.22)}
+.abtn.small{padding:7px 12px;font-size:13px;min-height:32px}
+.amsg{font-family:var(--m);font-size:11px;color:var(--gn);margin-top:8px;opacity:0;transition:opacity .3s;height:14px}
 .amsg.show{opacity:1}.amsg.err{color:var(--rd)}
-
-/* Phase builder */
-.phase-builder{border:1px solid var(--b);border-radius:10px;overflow:hidden;margin-bottom:10px}
+.phase-builder{border:1px solid var(--b);border-radius:var(--r2);overflow:hidden;margin-bottom:10px}
 .pb-header{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--sf2);border-bottom:1px solid var(--b)}
-.pb-num{font-family:var(--bb);font-size:24px;color:rgba(26,122,60,.4);min-width:32px}
+.pb-num{font-family:var(--bb);font-size:24px;color:rgba(45,184,94,.45);min-width:32px}
 .pb-name-input{flex:1;background:transparent;border:none;font-family:var(--bb);font-size:18px;color:var(--wh);outline:none;letter-spacing:.04em}
 .pb-name-input::placeholder{color:var(--t3)}
 .pb-body{padding:12px 14px}
-.ex-builder{background:var(--sf);border:1px solid var(--b);border-radius:8px;padding:12px;margin-bottom:8px;position:relative}
+.ex-builder{background:var(--sf);border:1px solid var(--b);border-radius:var(--r1);padding:12px;margin-bottom:8px;position:relative}
 .ex-builder-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
-.ex-remove{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--t3);cursor:pointer;font-size:16px;transition:color .2s}
+.ex-remove{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--t2);cursor:pointer;font-size:16px;transition:color .2s;padding:4px}
 .ex-remove:hover{color:var(--rd)}
-.add-ex-btn{width:100%;padding:8px;background:transparent;border:1px dashed rgba(26,122,60,.3);border-radius:8px;font-family:var(--m);font-size:9px;letter-spacing:.1em;color:var(--rp2);cursor:pointer;text-transform:uppercase;transition:all .2s;margin-top:4px}
-.add-ex-btn:hover{background:var(--rpd)}
-.add-phase-btn{width:100%;padding:10px;background:transparent;border:1px dashed rgba(26,122,60,.3);border-radius:10px;font-family:var(--m);font-size:9px;letter-spacing:.1em;color:var(--rp2);cursor:pointer;text-transform:uppercase;transition:all .2s;margin-bottom:12px}
-.add-phase-btn:hover{background:var(--rpd)}
-.phase-remove{background:none;border:none;color:var(--t3);cursor:pointer;font-size:13px;transition:color .2s}
+.add-ex-btn,.add-phase-btn{width:100%;padding:10px;background:transparent;border:1px dashed rgba(45,184,94,.35);border-radius:var(--r1);font-family:var(--m);font-size:10px;letter-spacing:.08em;color:var(--rp3);cursor:pointer;text-transform:uppercase;transition:all .2s;margin-top:4px}
+.add-phase-btn{margin-bottom:12px;border-radius:var(--r2)}
+.add-ex-btn:hover,.add-phase-btn:hover{background:var(--rpd)}
+.phase-remove{background:none;border:none;color:var(--t2);cursor:pointer;font-size:14px;padding:6px;transition:color .2s}
 .phase-remove:hover{color:var(--rd)}
-
-/* Admin list items */
-.alist-item{background:var(--sf);border:1px solid var(--b);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
-.alist-item:hover{border-color:rgba(26,122,60,.2)}
+.alist-item{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
+.alist-item:hover{border-color:rgba(45,184,94,.28)}
 .alist-info{flex:1}
 .alist-name{font-family:var(--bb);font-size:17px;letter-spacing:.04em;color:var(--wh)}
-.alist-sub{font-family:var(--m);font-size:9px;color:var(--t3);margin-top:2px}
+.alist-sub{font-family:var(--m);font-size:10px;color:var(--t2);margin-top:2px}
 .alist-actions{display:flex;gap:6px}
-
-/* Misc */
+/* ══ EMPTY / LOADING ══ */
 .soon{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:44px 20px;gap:8px;text-align:center}
-.soon-ico{font-size:28px;opacity:.2}.soon-t{font-family:var(--bb);font-size:18px;letter-spacing:.06em;color:var(--t2)}
-.soon-s{font-family:var(--m);font-size:10px;color:var(--t3);max-width:220px;line-height:1.7;margin-top:2px}
-.loader{display:flex;align-items:center;gap:10px;padding:44px 0;justify-content:center;font-family:var(--m);font-size:10px;color:var(--t3)}
-.spin{width:14px;height:14px;border-radius:50%;border:2px solid var(--b2);border-top-color:var(--rp2);animation:sp .7s linear infinite;flex-shrink:0}
-@keyframes sp{to{transform:rotate(360deg)}}
-.errbox{background:rgba(255,82,82,.07);border:1px solid rgba(255,82,82,.18);border-radius:10px;padding:13px;font-family:var(--m);font-size:10px;color:var(--rd);line-height:1.8}
+.soon-ico{font-size:28px;opacity:.3}.soon-t{font-family:var(--bb);font-size:18px;letter-spacing:.06em;color:var(--tx)}
+.soon-s{font-family:var(--m);font-size:11px;color:var(--t2);max-width:240px;line-height:1.7;margin-top:2px}
+/* skeleton screens */
+.sk{background:linear-gradient(90deg,var(--sf) 0%,var(--sf2) 50%,var(--sf) 100%);background-size:200% 100%;animation:sh 1.4s ease infinite;border-radius:var(--r1)}
+@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.sk-card{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:14px;margin-bottom:10px}
+.sk-line{height:14px;margin-bottom:8px}
+.sk-line.lg{height:24px;width:60%}
+.sk-line.sm{height:10px;width:40%}
+.sk-block{height:140px;border-radius:var(--r2);margin-bottom:10px}
+.errbox{background:rgba(255,82,82,.08);border:1px solid rgba(255,82,82,.22);border-radius:var(--r2);padding:13px;font-family:var(--m);font-size:11px;color:var(--rd);line-height:1.8}
+/* ══ BOTTOM NAV — SVG icons ══ */
 .bnav{position:fixed;bottom:0;left:0;right:0;z-index:50;background:rgba(4,10,6,.96);backdrop-filter:blur(20px);border-top:1px solid var(--b);display:flex;padding-bottom:max(6px,env(safe-area-inset-bottom))}
-.bn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 4px 5px;border:none;background:transparent;cursor:pointer;font-family:var(--m);font-size:7px;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);transition:color .2s}
-.bn.on{color:var(--rp2)}.bn-ico{font-size:15px;line-height:1}
+.bn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px 6px;border:none;background:transparent;cursor:pointer;font-family:var(--m);font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--t2);transition:color .2s;min-height:48px}
+.bn.on{color:var(--rp3)}
+.bn svg{width:20px;height:20px;stroke:currentColor;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .divider{height:1px;background:var(--b);margin:14px 0}
-.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}
-.stat-card{background:var(--sf);border:1px solid var(--b);border-radius:12px;padding:14px;text-align:center}
-.stat-label{font-family:var(--m);font-size:8px;letter-spacing:.1em;color:var(--t3);text-transform:uppercase;margin-bottom:6px}
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:10px}
+.stat-card{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:14px;text-align:center}
+.stat-label{font-family:var(--m);font-size:10px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase;margin-bottom:6px}
 .stat-value{font-family:var(--bb);font-size:28px;letter-spacing:.01em;line-height:1;color:var(--wh)}
-.stat-sub{font-family:var(--m);font-size:8px;color:var(--t3);margin-top:4px}
-.goal-item{background:var(--sf);border:1px solid var(--b);border-radius:12px;padding:14px;margin-bottom:10px}
+.stat-sub{font-family:var(--m);font-size:10px;color:var(--t3);margin-top:4px}
+.goal-item{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:14px;margin-bottom:10px}
 .goal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .goal-name{font-family:var(--bb);font-size:16px;letter-spacing:.04em;color:var(--wh)}
 .goal-progress-bar{width:100%;height:6px;background:var(--sf2);border-radius:999px;overflow:hidden;margin-bottom:6px}
-.goal-progress-fill{height:100%;background:linear-gradient(90deg,var(--rp),var(--rp3));border-radius:999px;transition:width .3s}
-.goal-progress-text{display:flex;justify-content:space-between;font-family:var(--m);font-size:9px;color:var(--t3)}
-@media(max-width:360px){.cval{font-size:24px}.gpct{font-size:28px}.pg{padding:12px 12px 80px}}
+.goal-progress-fill{height:100%;background:linear-gradient(90deg,var(--rp),var(--accent));border-radius:999px;transition:width .3s}
+.goal-progress-text{display:flex;justify-content:space-between;font-family:var(--m);font-size:10px;color:var(--t2)}
+@media(max-width:360px){.cval{font-size:24px}.gpct{font-size:28px}.hero-val{font-size:46px}.pg{padding:12px 12px 96px}}
 @media(min-width:600px){.bnav{display:none}.pg{padding:20px 24px 40px;max-width:720px;margin:0 auto}.admin-pg{max-width:720px;margin:0 auto}}
 </style>
 </head>
 <body>
-
 <!-- PROFILE SELECT -->
 <div class="screen on" id="s1">
   <div class="fps-header">
     <div class="fps-shield">
       <svg viewBox="0 0 40 48" fill="none">
-        <path d="M20 2L4 10V26C4 36 11.2 45 20 47C28.8 45 36 36 36 26V10L20 2Z" fill="rgba(26,122,60,0.2)" stroke="#1a7a3c" stroke-width="1.5"/>
+        <path d="M20 2L4 10V26C4 36 11.2 45 20 47C28.8 45 36 36 36 26V10L20 2Z" fill="rgba(45,184,94,0.22)" stroke="#2db85e" stroke-width="1.5"/>
         <text x="20" y="30" text-anchor="middle" font-family="Bebas Neue" font-size="13" fill="#f0ece6" letter-spacing="1">FPS</text>
       </svg>
     </div>
@@ -329,13 +351,16 @@ body{min-height:100dvh;overflow-x:hidden}
     <div class="fps-prompt">Choose your athlete profile to continue</div>
   </div>
   <div class="profiles-grid" id="profiles-grid">
-    <div class="loader"><div class="spin"></div>Loading...</div>
+    <div class="sk-card"><div class="sk sk-line lg"></div><div class="sk sk-line sm"></div></div>
+    <div class="sk-card"><div class="sk sk-line lg"></div><div class="sk sk-line sm"></div></div>
   </div>
   <div class="admin-entry">
-    <button class="admin-link" onclick="goAdmin()">⚙ Admin Panel</button>
+    <button class="admin-link" onclick="goAdmin()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Admin Panel
+    </button>
   </div>
 </div>
-
 <!-- PASSWORD -->
 <div class="screen" id="s2">
   <button class="pw-back" onclick="backToProfiles()">← Profiles</button>
@@ -343,23 +368,21 @@ body{min-height:100dvh;overflow-x:hidden}
   <div class="pw-name" id="pw-name"></div>
   <div class="pw-sub">Enter access code</div>
   <input class="pw-input" id="pw-input" type="password" placeholder="••••••••"
-    autocomplete="off" onkeydown="if(event.key==='Enter')tryLogin()">
+    autocomplete="off" aria-label="Access code" onkeydown="if(event.key==='Enter')tryLogin()">
   <button class="pw-btn" onclick="tryLogin()">Enter</button>
   <div class="pw-err" id="pw-err">Wrong password — try again</div>
 </div>
-
 <!-- ADMIN PASSWORD -->
 <div class="screen" id="s-adminpw">
   <button class="pw-back" onclick="backToProfiles()">← Profiles</button>
-  <div class="pw-avatar" style="background:linear-gradient(135deg,#1a3a7a,#224a9e)">⚙</div>
+  <div class="pw-avatar" style="background:linear-gradient(135deg,#1a3a7a,#5c80d4)">⚙</div>
   <div class="pw-name">Admin</div>
   <div class="pw-sub">Enter admin password</div>
   <input class="pw-input" id="admin-pw-input" type="password" placeholder="••••••••"
-    autocomplete="off" onkeydown="if(event.key==='Enter')tryAdminLogin()">
+    autocomplete="off" aria-label="Admin password" onkeydown="if(event.key==='Enter')tryAdminLogin()">
   <button class="pw-btn" onclick="tryAdminLogin()">Enter</button>
   <div class="pw-err" id="admin-pw-err">Wrong password</div>
 </div>
-
 <!-- ATHLETE APP -->
 <div class="screen" id="s3">
   <div class="topbar">
@@ -385,7 +408,10 @@ body{min-height:100dvh;overflow-x:hidden}
     <button class="tab"    onclick="goTab('journal',this)">Journal</button>
   </div>
   <div class="pg on" id="pg-dash">
-    <div id="dash-body"><div class="loader"><div class="spin"></div>Loading...</div></div>
+    <div id="dash-body">
+      <div class="sk-card"><div class="sk sk-line sm"></div><div class="sk sk-line lg" style="height:48px"></div><div class="sk sk-line"></div></div>
+      <div class="sk sk-block"></div>
+    </div>
   </div>
   <div class="pg" id="pg-monitor">
     <div class="subtabs">
@@ -399,17 +425,20 @@ body{min-height:100dvh;overflow-x:hidden}
       <div class="jform">
         <div class="jftitle">Add Today's HRV</div>
         <div class="jfrow">
-          <label class="jflbl">HRV Value (lnRMSSD ms)</label>
+          <label class="jflbl" for="hrv-input">HRV Value (lnRMSSD ms)</label>
           <input class="ainput" id="hrv-input" type="number" placeholder="e.g. 55.2" step="0.1">
         </div>
         <div class="jfrow">
-          <label class="jflbl">Notes (optional)</label>
+          <label class="jflbl" for="hrv-notes">Notes (optional)</label>
           <textarea class="jfta" id="hrv-notes" rows="2" placeholder="e.g. Good recovery, slept well"></textarea>
         </div>
         <button class="jfsub" onclick="submitHRV()">Save HRV</button>
         <div class="jfmsg" id="hrv-msg"></div>
       </div>
-      <div id="hrv-body"><div class="loader"><div class="spin"></div>Loading HRV...</div></div>
+      <div id="hrv-body">
+        <div class="sk-card"><div class="sk sk-line lg"></div><div class="sk sk-line"></div></div>
+        <div class="sk sk-block"></div>
+      </div>
     </div>
     <div class="spg" id="spg-td"><div class="soon"><div class="soon-ico">📏</div><div class="soon-t">Total Distance</div><div class="soon-s">Add TD tab to Google Sheet</div></div></div>
     <div class="spg" id="spg-hml"><div class="soon"><div class="soon-ico">⚡</div><div class="soon-t">HML</div><div class="soon-s">Add HML tab to Google Sheet</div></div></div>
@@ -418,7 +447,7 @@ body{min-height:100dvh;overflow-x:hidden}
   </div>
   <div class="pg" id="pg-training">
     <div class="train-controls">
-      <input class="tsearch" id="tsearch" placeholder="Search sessions..." oninput="renderSessions()">
+      <input class="tsearch" id="tsearch" placeholder="Search sessions..." aria-label="Search sessions" oninput="renderSessions()">
     </div>
     <div class="filter-row" id="filter-row"></div>
     <div class="scount" id="scount"></div>
@@ -431,38 +460,51 @@ body{min-height:100dvh;overflow-x:hidden}
     </div>
     <div class="jform" id="journal-form">
       <div class="jftitle" id="j-title">Today's Entry</div>
-      <div class="jfrow"><label class="jflbl">Mood</label><div class="jfscale" id="sc-mood"></div></div>
-      <div class="jfrow"><label class="jflbl">Sleep Quality</label><div class="jfscale" id="sc-sleep"></div></div>
-      <div class="jfrow"><label class="jflbl">Energy Level</label><div class="jfscale" id="sc-energy"></div></div>
-      <div class="jfrow"><label class="jflbl">Muscle Soreness</label><div class="jfscale" id="sc-soreness"></div></div>
-      <div class="jfrow"><label class="jflbl">Notes (optional)</label><textarea class="jfta" id="jnotes" rows="3" placeholder="How did training feel?"></textarea></div>
+      <div class="jfrow"><label class="jflbl">Mood</label><div class="jfscale pos" id="sc-mood"></div></div>
+      <div class="jfrow"><label class="jflbl">Sleep Quality</label><div class="jfscale pos" id="sc-sleep"></div></div>
+      <div class="jfrow"><label class="jflbl">Energy Level</label><div class="jfscale pos" id="sc-energy"></div></div>
+      <div class="jfrow"><label class="jflbl">Muscle Soreness (1 = none, 5 = severe)</label><div class="jfscale inv" id="sc-soreness"></div></div>
+      <div class="jfrow"><label class="jflbl" for="jnotes">Notes (optional)</label><textarea class="jfta" id="jnotes" rows="3" placeholder="How did training feel?"></textarea></div>
       <button class="jfsub" onclick="submitJournal()">Save Entry</button>
       <div class="jfmsg" id="jmsg"></div>
     </div>
     <div class="sh"><div class="shb"></div><div class="sht">Previous Entries</div></div>
-    <div id="journal-entries"><div class="loader"><div class="spin"></div>Loading...</div></div>
+    <div id="journal-entries">
+      <div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div>
+      <div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div>
+    </div>
   </div>
   <div class="bnav">
-    <button class="bn on" id="bn-dash"     onclick="goTab('dash',null,'bn-dash')"><span class="bn-ico">⊞</span>Home</button>
-    <button class="bn"    id="bn-monitor"  onclick="goTab('monitor',null,'bn-monitor')"><span class="bn-ico">📊</span>Monitor</button>
-    <button class="bn"    id="bn-training" onclick="goTab('training',null,'bn-training')"><span class="bn-ico">▶</span>Training</button>
-    <button class="bn"    id="bn-journal"  onclick="goTab('journal',null,'bn-journal')"><span class="bn-ico">✏</span>Journal</button>
+    <button class="bn on" id="bn-dash" onclick="goTab('dash',null,'bn-dash')">
+      <svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9"/><path d="M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10"/></svg>
+      Home
+    </button>
+    <button class="bn" id="bn-monitor" onclick="goTab('monitor',null,'bn-monitor')">
+      <svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>
+      Monitor
+    </button>
+    <button class="bn" id="bn-training" onclick="goTab('training',null,'bn-training')">
+      <svg viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4" fill="currentColor" stroke="none"/></svg>
+      Training
+    </button>
+    <button class="bn" id="bn-journal" onclick="goTab('journal',null,'bn-journal')">
+      <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+      Journal
+    </button>
   </div>
 </div>
-
 <!-- SESSION VIEWER -->
 <div id="sv">
   <div class="svtop">
     <button class="svback" onclick="closeSV()">← Back</button>
-    <div style="font-family:var(--m);font-size:9px;color:var(--t3)" id="svlbl"></div>
+    <div style="font-family:var(--m);font-size:10px;color:var(--t2)" id="svlbl"></div>
   </div>
   <div id="svcontent"></div>
 </div>
-
 <!-- ADMIN PANEL -->
 <div class="screen" id="s-admin">
   <div class="admin-topbar">
-    <div class="admin-title">⚙ Admin Panel</div>
+    <div class="admin-title">Admin Panel</div>
     <button class="admin-back" onclick="backToProfiles()">← Exit</button>
   </div>
   <div class="admin-tabs">
@@ -471,214 +513,115 @@ body{min-height:100dvh;overflow-x:hidden}
     <button class="admin-tab"    onclick="goAdminTab('journal',this)">Journal</button>
     <button class="admin-tab"    onclick="goAdminTab('hrv',this)">HRV</button>
   </div>
-
-  <!-- SESSIONS ADMIN -->
   <div class="admin-pg on" id="apg-sessions">
-    <!-- Add/Edit Session Form -->
     <div class="aform" id="session-form">
       <div class="aform-title">
         <span id="session-form-title">New Session</span>
         <button class="abtn secondary small" onclick="cancelSessionEdit()">Cancel</button>
       </div>
       <div class="agrid2">
-        <div class="arow">
-          <label class="albl">Title *</label>
-          <input class="ainput" id="sf-title" placeholder="Session name">
-        </div>
-        <div class="arow">
-          <label class="albl">Date *</label>
-          <input class="ainput" type="date" id="sf-date">
-        </div>
+        <div class="arow"><label class="albl">Title *</label><input class="ainput" id="sf-title" placeholder="Session name"></div>
+        <div class="arow"><label class="albl">Date *</label><input class="ainput" type="date" id="sf-date"></div>
       </div>
       <div class="agrid2">
-        <div class="arow">
-          <label class="albl">Type</label>
+        <div class="arow"><label class="albl">Type</label>
           <select class="aselect" id="sf-type">
-            <option>Activation</option>
-            <option>Gym</option>
-            <option>Speed</option>
-            <option>Recovery</option>
-            <option>Match Prep</option>
-            <option>Cardio</option>
-            <option>Strength</option>
-            <option>Field</option>
+            <option>Activation</option><option>Gym</option><option>Speed</option><option>Recovery</option>
+            <option>Match Prep</option><option>Cardio</option><option>Strength</option><option>Field</option>
           </select>
         </div>
-        <div class="arow">
-          <label class="albl">Duration</label>
-          <input class="ainput" id="sf-duration" placeholder="45 min">
-        </div>
+        <div class="arow"><label class="albl">Duration</label><input class="ainput" id="sf-duration" placeholder="45 min"></div>
       </div>
       <div class="agrid2">
-        <div class="arow">
-          <label class="albl">Tag (short label)</label>
-          <input class="ainput" id="sf-tag" placeholder="Recovery & Activation">
-        </div>
-        <div class="arow">
-          <label class="albl">Keywords (comma separated)</label>
-          <input class="ainput" id="sf-tags" placeholder="Foam Rolling, Stretching">
-        </div>
+        <div class="arow"><label class="albl">Tag (short label)</label><input class="ainput" id="sf-tag" placeholder="Recovery & Activation"></div>
+        <div class="arow"><label class="albl">Keywords (comma separated)</label><input class="ainput" id="sf-tags" placeholder="Foam Rolling, Stretching"></div>
       </div>
-
       <div class="arow">
         <label class="albl">Assign To Athlete</label>
-        <select class="aselect" id="sf-assigned-to">
-          <option value="all">All Athletes</option>
-        </select>
-        <div style="font-family:var(--m);font-size:8px;color:var(--t3);margin-top:4px">Who should see this training session?</div>
+        <select class="aselect" id="sf-assigned-to"><option value="all">All Athletes</option></select>
+        <div style="font-family:var(--m);font-size:10px;color:var(--t3);margin-top:4px">Who should see this training session?</div>
       </div>
-
       <div class="divider"></div>
-
-      <!-- PHASES -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div style="font-family:var(--m);font-size:9px;letter-spacing:.12em;color:var(--t3);text-transform:uppercase">Phases (optional)</div>
+        <div style="font-family:var(--m);font-size:10px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase">Phases (optional)</div>
       </div>
       <div id="phases-container"></div>
       <button class="add-phase-btn" onclick="addPhase()">+ Add Phase</button>
-
       <button class="abtn" style="width:100%" onclick="saveSession()">Save Session</button>
       <div class="amsg" id="session-msg"></div>
     </div>
-
-    <!-- Sessions List -->
     <div class="sh"><div class="shb"></div><div class="sht">All Sessions</div></div>
-    <div id="admin-sessions-list"><div class="loader"><div class="spin"></div>Loading...</div></div>
+    <div id="admin-sessions-list">
+      <div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div>
+      <div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div>
+    </div>
   </div>
-
-  <!-- ATHLETES ADMIN -->
   <div class="admin-pg" id="apg-athletes">
     <div class="aform" id="athlete-form">
       <div class="aform-title">
         <span id="athlete-form-title">New Athlete</span>
         <button class="abtn secondary small" onclick="cancelAthleteEdit()">Cancel</button>
       </div>
-      
-      <!-- BASIC INFO -->
-      <div style="font-family:var(--m);font-size:9px;letter-spacing:.12em;color:var(--t3);text-transform:uppercase;margin-bottom:10px;margin-top:4px">Basic Information</div>
+      <div style="font-family:var(--m);font-size:10px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase;margin-bottom:10px;margin-top:4px">Basic Information</div>
       <div class="agrid2">
-        <div class="arow">
-          <label class="albl">Name *</label>
-          <input class="ainput" id="af-name" placeholder="Dani">
-        </div>
-        <div class="arow">
-          <label class="albl">Initials</label>
-          <input class="ainput" id="af-initials" placeholder="D" maxlength="2">
-        </div>
+        <div class="arow"><label class="albl">Name *</label><input class="ainput" id="af-name" placeholder="Dani"></div>
+        <div class="arow"><label class="albl">Initials</label><input class="ainput" id="af-initials" placeholder="D" maxlength="2"></div>
       </div>
       <div class="agrid2">
-        <div class="arow">
-          <label class="albl">Position</label>
-          <input class="ainput" id="af-position" placeholder="Striker">
-        </div>
-        <div class="arow">
-          <label class="albl">Team</label>
-          <input class="ainput" id="af-team" placeholder="Rapid București">
-        </div>
+        <div class="arow"><label class="albl">Position</label><input class="ainput" id="af-position" placeholder="Striker"></div>
+        <div class="arow"><label class="albl">Team</label><input class="ainput" id="af-team" placeholder="Rapid București"></div>
       </div>
       <div class="agrid2">
-        <div class="arow">
-          <label class="albl">Password</label>
-          <input class="ainput" id="af-password" placeholder="athlete2026">
-        </div>
-        <div class="arow">
-          <label class="albl">Google Sheet Tab</label>
-          <input class="ainput" id="af-sheet" placeholder="HRV">
-        </div>
+        <div class="arow"><label class="albl">Password</label><input class="ainput" id="af-password" placeholder="athlete2026"></div>
+        <div class="arow"><label class="albl">Google Sheet Tab</label><input class="ainput" id="af-sheet" placeholder="HRV"></div>
       </div>
-
       <div class="divider"></div>
-
-      <!-- API FOOTBALL INTEGRATION -->
-      <div style="font-family:var(--m);font-size:9px;letter-spacing:.12em;color:var(--t3);text-transform:uppercase;margin-bottom:10px">⚽ API Football Integration</div>
+      <div style="font-family:var(--m);font-size:10px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase;margin-bottom:10px">⚽ API Football Integration</div>
       <div class="arow">
         <label class="albl">API Football Player ID</label>
         <input class="ainput" id="af-api-football-id" placeholder="42754" type="text">
-        <div style="font-family:var(--m);font-size:8px;color:var(--t3);margin-top:4px">Find player ID from api-sports.io (e.g., 42754 for Dani)</div>
+        <div style="font-family:var(--m);font-size:10px;color:var(--t3);margin-top:4px">Find player ID from api-sports.io (e.g., 42754 for Dani)</div>
       </div>
-
       <div class="divider"></div>
-
-      <!-- SEASON STATS -->
-      <div style="font-family:var(--m);font-size:9px;letter-spacing:.12em;color:var(--t3);text-transform:uppercase;margin-bottom:10px">Season Stats (Editable)</div>
+      <div style="font-family:var(--m);font-size:10px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase;margin-bottom:10px">Season Stats (Editable)</div>
       <div class="agrid2">
-        <div class="arow">
-          <label class="albl">Sessions Completed</label>
-          <input class="ainput" id="af-sessions-completed" placeholder="12" type="number">
-        </div>
-        <div class="arow">
-          <label class="albl">Total Training Hours</label>
-          <input class="ainput" id="af-training-hours" placeholder="45.5" type="number" step="0.5">
-        </div>
+        <div class="arow"><label class="albl">Sessions Completed</label><input class="ainput" id="af-sessions-completed" placeholder="12" type="number"></div>
+        <div class="arow"><label class="albl">Total Training Hours</label><input class="ainput" id="af-training-hours" placeholder="45.5" type="number" step="0.5"></div>
       </div>
       <div class="agrid2">
-        <div class="arow">
-          <label class="albl">Average HRV</label>
-          <input class="ainput" id="af-avg-hrv" placeholder="55.2" type="number" step="0.1">
-        </div>
-        <div class="arow">
-          <label class="albl">Best HRV</label>
-          <input class="ainput" id="af-best-hrv" placeholder="72" type="number" step="0.1">
-        </div>
+        <div class="arow"><label class="albl">Average HRV</label><input class="ainput" id="af-avg-hrv" placeholder="55.2" type="number" step="0.1"></div>
+        <div class="arow"><label class="albl">Best HRV</label><input class="ainput" id="af-best-hrv" placeholder="72" type="number" step="0.1"></div>
       </div>
       <div class="agrid2">
-        <div class="arow">
-          <label class="albl">Worst HRV</label>
-          <input class="ainput" id="af-worst-hrv" placeholder="38" type="number" step="0.1">
-        </div>
-        <div class="arow">
-          <label class="albl">Consistency % (0-100)</label>
-          <input class="ainput" id="af-consistency" placeholder="85" type="number" min="0" max="100">
-        </div>
+        <div class="arow"><label class="albl">Worst HRV</label><input class="ainput" id="af-worst-hrv" placeholder="38" type="number" step="0.1"></div>
+        <div class="arow"><label class="albl">Consistency % (0-100)</label><input class="ainput" id="af-consistency" placeholder="85" type="number" min="0" max="100"></div>
       </div>
-      <div class="arow">
-        <label class="albl">Average Wellness Score (1-5)</label>
-        <input class="ainput" id="af-wellness-avg" placeholder="4.2" type="number" step="0.1" min="1" max="5">
-      </div>
-
+      <div class="arow"><label class="albl">Average Wellness Score (1-5)</label><input class="ainput" id="af-wellness-avg" placeholder="4.2" type="number" step="0.1" min="1" max="5"></div>
       <div class="divider"></div>
-
-      <!-- GOALS -->
-      <div style="font-family:var(--m);font-size:9px;letter-spacing:.12em;color:var(--t3);text-transform:uppercase;margin-bottom:10px">Season Goals (Editable)</div>
+      <div style="font-family:var(--m);font-size:10px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase;margin-bottom:10px">Season Goals (Editable)</div>
       <div class="agrid2">
-        <div class="arow">
-          <label class="albl">Target Sessions</label>
-          <input class="ainput" id="af-goal-sessions" placeholder="25" type="number">
-        </div>
-        <div class="arow">
-          <label class="albl">Target HRV</label>
-          <input class="ainput" id="af-goal-hrv" placeholder="65" type="number" step="0.1">
-        </div>
+        <div class="arow"><label class="albl">Target Sessions</label><input class="ainput" id="af-goal-sessions" placeholder="25" type="number"></div>
+        <div class="arow"><label class="albl">Target HRV</label><input class="ainput" id="af-goal-hrv" placeholder="65" type="number" step="0.1"></div>
       </div>
       <div class="agrid2">
-        <div class="arow">
-          <label class="albl">Target Training Hours</label>
-          <input class="ainput" id="af-goal-hours" placeholder="100" type="number" step="0.5">
-        </div>
-        <div class="arow">
-          <label class="albl">Target Consistency %</label>
-          <input class="ainput" id="af-goal-consistency" placeholder="90" type="number" min="0" max="100">
-        </div>
+        <div class="arow"><label class="albl">Target Training Hours</label><input class="ainput" id="af-goal-hours" placeholder="100" type="number" step="0.5"></div>
+        <div class="arow"><label class="albl">Target Consistency %</label><input class="ainput" id="af-goal-consistency" placeholder="90" type="number" min="0" max="100"></div>
       </div>
-      <div class="arow">
-        <label class="albl">Target Wellness Score</label>
-        <input class="ainput" id="af-goal-wellness" placeholder="4.5" type="number" step="0.1" min="1" max="5">
-      </div>
-
+      <div class="arow"><label class="albl">Target Wellness Score</label><input class="ainput" id="af-goal-wellness" placeholder="4.5" type="number" step="0.1" min="1" max="5"></div>
       <button class="abtn" style="width:100%;margin-top:14px" onclick="saveAthlete()">Save Athlete</button>
       <div class="amsg" id="athlete-msg"></div>
     </div>
     <div class="sh"><div class="shb"></div><div class="sht">All Athletes</div></div>
-    <div id="admin-athletes-list"><div class="loader"><div class="spin"></div>Loading...</div></div>
+    <div id="admin-athletes-list">
+      <div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div>
+    </div>
   </div>
-
-  <!-- JOURNAL ADMIN -->
   <div class="admin-pg" id="apg-journal">
     <div class="sh"><div class="shb"></div><div class="sht">All Journal Entries</div></div>
-    <div id="admin-journal-list"><div class="loader"><div class="spin"></div>Loading...</div></div>
+    <div id="admin-journal-list">
+      <div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div>
+    </div>
   </div>
-
-  <!-- HRV ADMIN -->
   <div class="admin-pg" id="apg-hrv">
     <div class="aform" id="hrv-form">
       <div class="aform-title">
@@ -686,36 +629,22 @@ body{min-height:100dvh;overflow-x:hidden}
         <button class="abtn secondary small" onclick="cancelHRVEdit()">Cancel</button>
       </div>
       <div class="agrid2">
-        <div class="arow">
-          <label class="albl">Athlete *</label>
-          <select class="aselect" id="hrv-athlete">
-            <option value="">Select athlete...</option>
-          </select>
-        </div>
-        <div class="arow">
-          <label class="albl">Date *</label>
-          <input class="ainput" type="date" id="hrv-date">
-        </div>
+        <div class="arow"><label class="albl">Athlete *</label><select class="aselect" id="hrv-athlete"><option value="">Select athlete...</option></select></div>
+        <div class="arow"><label class="albl">Date *</label><input class="ainput" type="date" id="hrv-date"></div>
       </div>
       <div class="agrid2">
-        <div class="arow">
-          <label class="albl">HRV Value (lnRMSSD ms) *</label>
-          <input class="ainput" type="number" id="hrv-value" placeholder="e.g. 55.2" step="0.1">
-        </div>
-        <div class="arow">
-          <label class="albl">Notes (optional)</label>
-          <input class="ainput" id="hrv-notes" placeholder="e.g. Good recovery">
-        </div>
+        <div class="arow"><label class="albl">HRV Value (lnRMSSD ms) *</label><input class="ainput" type="number" id="hrv-value" placeholder="e.g. 55.2" step="0.1"></div>
+        <div class="arow"><label class="albl">Notes (optional)</label><input class="ainput" id="hrv-notes-admin" placeholder="e.g. Good recovery"></div>
       </div>
       <button class="abtn" style="width:100%" onclick="saveHRVValue()">Save HRV</button>
-      <div class="amsg" id="hrv-msg"></div>
+      <div class="amsg" id="hrv-admin-msg"></div>
     </div>
-
     <div class="sh"><div class="shb"></div><div class="sht">All HRV Data</div></div>
-    <div id="admin-hrv-list"><div class="loader"><div class="spin"></div>Loading...</div></div>
+    <div id="admin-hrv-list">
+      <div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div>
+    </div>
   </div>
 </div>
-
 <script>
 // ══════════════════════════════════════════════
 // CONFIG
@@ -723,64 +652,48 @@ body{min-height:100dvh;overflow-x:hidden}
 const API        = 'https://script.google.com/macros/s/AKfycbwylLgnvlp-XJGryeJluay_GFujZfBqFgkvAcgx7OL7Jl_oAeIXzO2P-qe7HL2uJrgy/exec';
 const SB_URL     = 'https://tbgghnngqsbaexrypfuo.supabase.co';
 const SB_KEY     = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRiZ2dobm5ncXNiYWV4cnlwZnVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNDA3OTYsImV4cCI6MjA5MTkxNjc5Nn0.hoxIiVE8MUQYkyTeztJEMbJ5KjURjQaDIqd7h2Smq-w';
-const ADMIN_PW   = 'admin2026';  // ← CHANGE THIS
+const ADMIN_PW   = 'admin2026';
 const WIN        = 28;
-
 // ══════════════════════════════════════════════
 // SUPABASE HELPERS
 // ══════════════════════════════════════════════
 const sb = {
   headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' },
-  async get(table, query='') {
-    const r = await fetch(`${SB_URL}/rest/v1/${table}${query}`, { headers: this.headers });
-    return r.json();
-  },
-  async post(table, data) {
-    const r = await fetch(`${SB_URL}/rest/v1/${table}`, { method:'POST', headers:{...this.headers,'Prefer':'return=minimal'}, body: JSON.stringify(data) });
-    return r;
-  },
-  async patch(table, id, data) {
-    const r = await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, { method:'PATCH', headers:{...this.headers,'Prefer':'return=minimal'}, body: JSON.stringify(data) });
-    return r;
-  },
-  async delete(table, id) {
-    const r = await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, { method:'DELETE', headers: this.headers });
-    return r;
-  }
+  async get(table, query='') { const r = await fetch(`${SB_URL}/rest/v1/${table}${query}`, { headers: this.headers }); return r.json(); },
+  async post(table, data) { return fetch(`${SB_URL}/rest/v1/${table}`, { method:'POST', headers:{...this.headers,'Prefer':'return=minimal'}, body: JSON.stringify(data) }); },
+  async patch(table, id, data) { return fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, { method:'PATCH', headers:{...this.headers,'Prefer':'return=minimal'}, body: JSON.stringify(data) }); },
+  async delete(table, id) { return fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, { method:'DELETE', headers: this.headers }); }
 };
-
 // ══════════════════════════════════════════════
-// SCREEN TRANSITIONS
+// STATE
 // ══════════════════════════════════════════════
 let currentProfile = null;
 let editingSessionId = null;
 let editingAthleteId = null;
-
+let editingHRVId = null;
+let allSessions = [];
+let activeFilter = 'All';
+let phaseCount = 0;
+// ══════════════════════════════════════════════
+// SCREEN TRANSITIONS
+// ══════════════════════════════════════════════
 function showScreen(id, prev) {
-  if(prev) {
-    const el = document.getElementById(prev);
-    el.classList.add('out');
-    setTimeout(() => el.classList.remove('on','out'), 380);
-  }
+  if(prev) { const el = document.getElementById(prev); el.classList.add('out'); setTimeout(() => el.classList.remove('on','out'), 380); }
   const next = document.getElementById(id);
-  next.style.opacity = '0';
-  next.classList.add('on');
+  next.style.opacity = '0'; next.classList.add('on');
   requestAnimationFrame(() => { next.style.transition = 'opacity .35s'; next.style.opacity = '1'; });
   setTimeout(() => { next.style.transition = ''; next.style.opacity = ''; }, 400);
 }
-
 function backToProfiles() {
   currentProfile = null;
   const prev = ['s2','s3','s-admin','s-adminpw'].find(id => document.getElementById(id).classList.contains('on'));
   showScreen('s1', prev);
   loadProfiles();
 }
-
 function goAdmin() {
   showScreen('s-adminpw', 's1');
   setTimeout(() => document.getElementById('admin-pw-input').focus(), 400);
 }
-
 function tryAdminLogin() {
   const val = document.getElementById('admin-pw-input').value;
   const err = document.getElementById('admin-pw-err');
@@ -788,22 +701,24 @@ function tryAdminLogin() {
     err.classList.remove('show');
     document.getElementById('admin-pw-input').value = '';
     showScreen('s-admin', 's-adminpw');
-    loadAdminSessions();
-    loadAdminAthletes();
-    loadAdminJournal();
+    loadAdminSessions(); loadAdminAthletes(); loadAdminJournal();
   } else {
     err.classList.add('show');
     document.getElementById('admin-pw-input').value = '';
     setTimeout(() => err.classList.remove('show'), 2500);
   }
 }
-
 // ══════════════════════════════════════════════
 // PROFILES
 // ══════════════════════════════════════════════
+function avatarGradient(a) {
+  const c1 = a.color || '#1a7a3c';
+  const c2 = a.color2 || '#2db85e';
+  return `linear-gradient(135deg, ${c1}, ${c2})`;
+}
 async function loadProfiles() {
   const grid = document.getElementById('profiles-grid');
-  grid.innerHTML = '<div class="loader"><div class="spin"></div>Loading...</div>';
+  grid.innerHTML = '<div class="sk-card"><div class="sk sk-line lg"></div><div class="sk sk-line sm"></div></div><div class="sk-card"><div class="sk sk-line lg"></div><div class="sk sk-line sm"></div></div>';
   try {
     const athletes = await sb.get('athletes', '?order=name&online=eq.true');
     grid.innerHTML = '';
@@ -811,39 +726,33 @@ async function loadProfiles() {
       const card = document.createElement('div');
       card.className = 'pc';
       card.innerHTML = `
-        <div class="pc-avatar" style="background:linear-gradient(135deg,${a.color||'#1a7a3c'},${a.color||'#1a7a3c'}cc)">
+        <div class="pc-avatar" style="background:${avatarGradient(a)}">
           ${a.initials||a.name[0]}
           <div class="pc-online"></div>
         </div>
         <div class="pc-name">${a.name}</div>
         <div class="pc-role">${a.position||''}</div>
-        <div class="pc-arrow">Tap to enter →</div>
       `;
       card.onclick = () => selectProfile(a);
       grid.appendChild(card);
     });
-    // Add athlete card
     const add = document.createElement('div');
     add.className = 'pc pc-add';
     add.innerHTML = `<div class="pc-add-icon">+</div><div class="pc-add-lbl">Add athlete</div>`;
     add.onclick = () => goAdmin();
     grid.appendChild(add);
-  } catch(e) {
-    grid.innerHTML = '<div class="errbox">Could not load profiles</div>';
-  }
+  } catch(e) { grid.innerHTML = '<div class="errbox">Could not load profiles</div>'; }
 }
-
 function selectProfile(profile) {
   currentProfile = profile;
   document.getElementById('pw-avatar').textContent = profile.initials || profile.name[0];
-  document.getElementById('pw-avatar').style.background = `linear-gradient(135deg,${profile.color||'#1a7a3c'},${profile.color||'#1a7a3c'}cc)`;
+  document.getElementById('pw-avatar').style.background = avatarGradient(profile);
   document.getElementById('pw-name').textContent = profile.name;
   document.getElementById('pw-input').value = '';
   document.getElementById('pw-err').classList.remove('show');
   showScreen('s2', 's1');
   setTimeout(() => document.getElementById('pw-input').focus(), 400);
 }
-
 function tryLogin() {
   const val = document.getElementById('pw-input').value;
   const err = document.getElementById('pw-err');
@@ -852,6 +761,7 @@ function tryLogin() {
     showScreen('s3', 's2');
     document.getElementById('tb-title').textContent = currentProfile.name;
     document.getElementById('tb-av').textContent = currentProfile.initials || currentProfile.name[0];
+    document.getElementById('tb-av').style.background = avatarGradient(currentProfile);
     document.getElementById('tb-pname').textContent = currentProfile.name;
     document.getElementById('j-title').textContent = `${currentProfile.name}'s Entry`;
     bootApp();
@@ -861,7 +771,6 @@ function tryLogin() {
     setTimeout(() => err.classList.remove('show'), 2500);
   }
 }
-
 // ══════════════════════════════════════════════
 // APP NAV
 // ══════════════════════════════════════════════
@@ -875,24 +784,19 @@ function goTab(id, tabEl, bnId) {
   const bn = document.getElementById(bnId||'bn-'+id);
   if(bn) bn.classList.add('on');
 }
-
 function goMon(id, tabEl) {
   document.querySelectorAll('.spg').forEach(p => p.classList.remove('on'));
   document.getElementById('spg-'+id).classList.add('on');
   document.querySelectorAll('.stab').forEach(t => t.classList.remove('on'));
   if(tabEl) tabEl.classList.add('on');
 }
-
 function goAdminTab(id, tabEl) {
   document.querySelectorAll('.admin-pg').forEach(p => p.classList.remove('on'));
   document.getElementById('apg-'+id).classList.add('on');
   document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('on'));
   if(tabEl) tabEl.classList.add('on');
-  
-  // Load data for specific tabs
   if(id === 'hrv') loadAdminHRV();
 }
-
 // ══════════════════════════════════════════════
 // UTILS
 // ══════════════════════════════════════════════
@@ -901,106 +805,20 @@ function cleanDate(r) {
   const s = r.toString().trim(), d = new Date(s);
   if(!isNaN(d.getTime())) return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0');
   if(s.includes('/')) { const p = s.split('/'); return p[0].padStart(2,'0')+'/'+p[1].padStart(2,'0'); }
-  const mo = {jan:'01',feb:'02',mar:'03',apr:'04',mai:'05',iun:'06',iul:'07',aug:'08',sep:'09',oct:'10',nov:'11',dec:'12'};
-  const m = s.toLowerCase().match(/(\d+)[^a-z]*([a-z]{3})/);
-  if(m) return m[1].padStart(2,'0')+'/'+(mo[m[2]]||'??');
   return s.slice(0,5);
 }
-
 function parseSD(ds) {
   const d = new Date(ds+'T00:00:00');
   return { day: String(d.getDate()).padStart(2,'0'), mon: d.toLocaleDateString('en-GB',{month:'short'}).toUpperCase(), my: d.toLocaleDateString('en-GB',{month:'long',year:'numeric'}) };
 }
-
 function showMsg(id, text, isErr=false) {
   const el = document.getElementById(id);
   el.textContent = text;
   el.className = 'amsg show' + (isErr?' err':'');
   setTimeout(() => el.classList.remove('show'), 3000);
 }
-
 // ══════════════════════════════════════════════
-// ATHLETE STATS & GOALS
-// ══════════════════════════════════════════════
-async function loadAthleteStats(athleteName) {
-  try {
-    const stats = await sb.get('athlete_stats', `?athlete_name=eq.${athleteName}`);
-    return stats.length > 0 ? stats[0] : null;
-  } catch(e) {
-    console.warn('Could not load stats:', e);
-    return null;
-  }
-}
-
-async function loadAthleteGoals(athleteName) {
-  try {
-    const goals = await sb.get('athlete_goals', `?athlete_name=eq.${athleteName}&status=eq.active`);
-    return goals || [];
-  } catch(e) {
-    console.warn('Could not load goals:', e);
-    return [];
-  }
-}
-
-function buildStatsHTML(stats) {
-  if(!stats) return '';
-  return `
-    <div class="sh"><div class="shb"></div><div class="sht">Season Stats</div></div>
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label">Minutes Played</div>
-        <div class="stat-value">${stats.minutes_played}</div>
-        <div class="stat-sub">this season</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Goals Scored</div>
-        <div class="stat-value">${stats.goals_scored}</div>
-        <div class="stat-sub">${stats.appearances} appearances</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Avg HRV</div>
-        <div class="stat-value">${stats.avg_hrv}</div>
-        <div class="stat-sub">lnRMSSD ms</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Assists</div>
-        <div class="stat-value">${stats.assists}</div>
-        <div class="stat-sub">game creators</div>
-      </div>
-    </div>
-  `;
-}
-
-function buildGoalsHTML(goals) {
-  if(!goals.length) return '';
-  const goalsHTML = goals.map(g => {
-    const progress = Math.min(Math.round((g.current_value / g.target_value) * 100), 100);
-    const isCompleted = progress >= 100;
-    return `
-      <div class="goal-item">
-        <div class="goal-header">
-          <div class="goal-name">${g.goal_name}</div>
-          <div style="font-family:var(--bb);font-size:18px;color:${isCompleted?'var(--gn)':'var(--rp2)'}">${progress}%</div>
-        </div>
-        <div class="goal-progress-bar">
-          <div class="goal-progress-fill" style="width:${progress}%"></div>
-        </div>
-        <div class="goal-progress-text">
-          <span>${g.current_value} / ${g.target_value} ${g.unit}</span>
-          <span>${isCompleted?'✓ Completed':'In Progress'}</span>
-        </div>
-      </div>
-    `;
-  }).join('');
-  
-  return `
-    <div class="sh"><div class="shb"></div><div class="sht">Season Goals</div></div>
-    ${goalsHTML}
-  `;
-}
-
-// ══════════════════════════════════════════════
-// HRV
+// HRV MATH
 // ══════════════════════════════════════════════
 function ewma28(all) { const v=all.slice(-WIN),lam=2/(WIN+1),seed=v.slice(0,Math.min(7,v.length)).reduce((a,b)=>a+b,0)/Math.min(7,v.length),e=[+seed.toFixed(2)]; for(let i=1;i<v.length;i++) e.push(+(lam*v[i]+(1-lam)*e[i-1]).toFixed(2)); return e; }
 function pctDev(v,e) { return v.map((x,i) => +((x-e[i])/e[i]*100).toFixed(1)); }
@@ -1012,9 +830,8 @@ function sig(p) {
   if(p>=-20)return {t:'Suppressed',c:'cr', g:'ggr',col:'var(--rd)'};
   return          {t:'Critical',  c:'cr2',g:'ggrp',col:'#cc2200'};
 }
-function hcol(p) { if(p>=10) return 'rgba(0,200,150,.75)'; if(p>=0) return 'rgba(76,217,123,.65)'; if(p>=-5) return 'rgba(245,179,51,.55)'; if(p>=-10) return 'rgba(245,179,51,.72)'; if(p>=-20) return 'rgba(255,82,82,.65)'; return 'rgba(204,34,0,.75)'; }
-const cOpts = (mn,mx,fmt) => ({ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'rgba(4,10,4,.97)', titleColor:'#ede8e2', bodyColor:'#9a9490', borderColor:'rgba(255,255,255,.06)', borderWidth:1, titleFont:{family:'JetBrains Mono',size:11}, bodyFont:{family:'JetBrains Mono',size:10}, padding:10, cornerRadius:8, displayColors:false }}, scales:{ x:{ ticks:{color:'#5a5450',font:{family:'JetBrains Mono',size:8},maxRotation:0,autoSkip:true,maxTicksLimit:6}, grid:{color:'rgba(255,255,255,0.03)'}, border:{color:'rgba(255,255,255,0.04)'} }, y:{ min:mn, max:mx, ticks:{color:'#5a5450',font:{family:'JetBrains Mono',size:8},callback:fmt||undefined}, grid:{color:'rgba(255,255,255,0.03)'}, border:{color:'rgba(255,255,255,0.04)'} }}});
-
+function hcol(p) { if(p>=10) return 'rgba(0,200,150,.78)'; if(p>=0) return 'rgba(76,217,123,.68)'; if(p>=-5) return 'rgba(245,179,51,.58)'; if(p>=-10) return 'rgba(245,179,51,.75)'; if(p>=-20) return 'rgba(255,82,82,.68)'; return 'rgba(204,34,0,.78)'; }
+const cOpts = (mn,mx,fmt) => ({ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'rgba(4,10,4,.97)', titleColor:'#ede8e2', bodyColor:'#a8a29d', borderColor:'rgba(255,255,255,.08)', borderWidth:1, titleFont:{family:'JetBrains Mono',size:11}, bodyFont:{family:'JetBrains Mono',size:10}, padding:10, cornerRadius:8, displayColors:false }}, scales:{ x:{ ticks:{color:'#807a75',font:{family:'JetBrains Mono',size:9},maxRotation:0,autoSkip:true,maxTicksLimit:6}, grid:{color:'rgba(255,255,255,0.03)'}, border:{color:'rgba(255,255,255,0.05)'} }, y:{ min:mn, max:mx, ticks:{color:'#807a75',font:{family:'JetBrains Mono',size:9},callback:fmt||undefined}, grid:{color:'rgba(255,255,255,0.03)'}, border:{color:'rgba(255,255,255,0.05)'} }}});
 // ══════════════════════════════════════════════
 // HRV INPUT
 // ══════════════════════════════════════════════
@@ -1022,47 +839,19 @@ async function submitHRV() {
   const value = document.getElementById('hrv-input').value.trim();
   const notes = document.getElementById('hrv-notes').value.trim();
   const msg = document.getElementById('hrv-msg');
-  
-  if (!value || isNaN(value)) {
-    msg.textContent = 'Please enter a valid HRV value';
-    msg.className = 'jfmsg err show';
-    setTimeout(() => msg.classList.remove('show'), 3000);
-    return;
-  }
-  
+  if (!value || isNaN(value)) { msg.textContent = 'Please enter a valid HRV value'; msg.className = 'jfmsg err show'; setTimeout(() => msg.classList.remove('show'), 3000); return; }
   const today = new Date().toISOString().split('T')[0];
-  const data = {
-    athlete_name: currentProfile.name,
-    date: today,
-    value: parseFloat(value),
-    notes: notes || null
-  };
-  
-  msg.textContent = 'Saving...';
-  msg.className = 'jfmsg show';
-  
+  const data = { athlete_name: currentProfile.name, date: today, value: parseFloat(value), notes: notes || null };
+  msg.textContent = 'Saving...'; msg.className = 'jfmsg show';
   try {
     const r = await sb.post('hrv_data', data);
-    if (!r.ok) {
-      const errorText = await r.text();
-      console.error('HRV save error:', errorText);
-      throw new Error('Save failed');
-    }
-    
-    msg.textContent = 'HRV saved ✓';
-    msg.className = 'jfmsg show';
+    if (!r.ok) throw new Error('Save failed');
+    msg.textContent = 'HRV saved ✓'; msg.className = 'jfmsg show';
     document.getElementById('hrv-input').value = '';
     document.getElementById('hrv-notes').value = '';
-    
-    // Reload HRV chart
     setTimeout(() => bootApp(), 1000);
-  } catch(e) {
-    console.error('HRV submit error:', e.message);
-    msg.textContent = 'Error: ' + e.message;
-    msg.className = 'jfmsg err show';
-  }
+  } catch(e) { msg.textContent = 'Error: ' + e.message; msg.className = 'jfmsg err show'; }
 }
-
 function buildHRV(aL, aR, el, uid) {
   const labels=aL.slice(-WIN), raw=aR.slice(-WIN), ewma=ewma28(aR), pct=pctDev(raw,ewma);
   const n=raw.length, pL=pct[n-1], eL=ewma[n-1], si=sig(pL);
@@ -1083,39 +872,32 @@ function buildHRV(aL, aR, el, uid) {
       <div class="grow"><div class="gpct" style="color:${si.col}">${pL>=0?'+':''}${pL}%</div><div class="gbg ${si.g}"><div class="bdot"></div>${si.t}</div></div>
     </div>
     <div class="sh"><div class="shb"></div><div class="sht">HRV vs EWMA</div></div>
-    <div class="ccrd"><div class="chd"><div class="ct">Last ${n} days</div><div class="cleg"><div class="cl"><div class="cll" style="background:var(--rp2)"></div>HRV</div><div class="cl"><div class="cld" style="border-color:#666"></div>EWMA</div></div></div><div style="position:relative;height:180px"><canvas id="hc1${uid}"></canvas></div></div>
+    <div class="ccrd"><div class="chd"><div class="ct">Last ${n} days</div><div class="cleg"><div class="cl"><div class="cll" style="background:var(--accent)"></div>HRV</div><div class="cl"><div class="cld" style="border-color:#a8a29d"></div>EWMA</div></div></div><div style="position:relative;height:180px"><canvas id="hc1${uid}"></canvas></div></div>
     <div class="sh"><div class="shb"></div><div class="sht">Daily % Deviation</div></div>
     <div class="ccrd"><div style="position:relative;height:130px"><canvas id="hc2${uid}"></canvas></div></div>
     <div class="sh"><div class="shb"></div><div class="sht">28-day Heatmap</div></div>
     <div class="hmcrd"><div class="ct">Recovery signal per day</div><div class="hmgrid">${heat}</div></div>
     <div class="sh"><div class="shb"></div><div class="sht">Data Log</div></div>
-    <div class="tcrd"><div class="thd" style="grid-template-columns:50px 36px 58px 1fr"><span>Date</span><span>HRV</span><span>Dev%</span><span>Signal</span></div><div id="ht${uid}"></div></div>
+    <div class="tcrd"><div class="thd" style="grid-template-columns:56px 42px 62px 1fr"><span>Date</span><span>HRV</span><span>Dev%</span><span>Signal</span></div><div id="ht${uid}"></div></div>
     <div class="refcrd"><div class="ct">Signal reference</div><div class="refgrid">${[['#00c896','≥+10% Well above'],['var(--gn)','0 to +10% Normal'],['var(--am)','-10% to 0% Mild'],['var(--rd)','-10% to -20% Suppressed'],['#cc2200','<-20% Critical']].map(([c,t])=>`<div class="refrow"><div class="refdot" style="background:${c}"></div><span>${t}</span></div>`).join('')}</div></div>
   `;
   setTimeout(() => { const el2=document.getElementById('gn'+uid); if(el2) el2.style.left=gp+'%'; }, 200);
   document.getElementById('ldot').style.opacity = '1';
-  new Chart(document.getElementById('hc1'+uid),{type:'line',data:{labels,datasets:[{label:'HRV',data:raw,borderColor:'#229e4f',backgroundColor:'rgba(26,122,60,0.07)',pointRadius:raw.map((_,i)=>i===n-1?5:2),pointBackgroundColor:raw.map((_,i)=>pct[i]>=0?'#4cd97b':pct[i]>=-10?'#f5b333':'#ff5252'),pointBorderColor:'rgba(4,10,6,.8)',pointBorderWidth:1.5,tension:.35,fill:true,borderWidth:2,order:1},{label:'EWMA',data:ewma,borderColor:'rgba(180,170,160,.35)',borderDash:[4,3],pointRadius:0,tension:.4,fill:false,borderWidth:1.5,order:2}]},options:cOpts(30,90)});
-  new Chart(document.getElementById('hc2'+uid),{type:'bar',data:{labels,datasets:[{label:'%',data:pct,borderRadius:3,backgroundColor:pct.map(p=>p>=0?'rgba(76,217,123,.7)':p>=-10?'rgba(245,179,51,.7)':'rgba(255,82,82,.7)')}]},options:cOpts(-45,25,v=>v+'%')});
+  new Chart(document.getElementById('hc1'+uid),{type:'line',data:{labels,datasets:[{label:'HRV',data:raw,borderColor:'#2db85e',backgroundColor:'rgba(45,184,94,0.1)',pointRadius:raw.map((_,i)=>i===n-1?5:2),pointBackgroundColor:raw.map((_,i)=>pct[i]>=0?'#4cd97b':pct[i]>=-10?'#f5b333':'#ff5252'),pointBorderColor:'rgba(4,10,6,.8)',pointBorderWidth:1.5,tension:.35,fill:true,borderWidth:2,order:1},{label:'EWMA',data:ewma,borderColor:'rgba(190,180,170,.4)',borderDash:[4,3],pointRadius:0,tension:.4,fill:false,borderWidth:1.5,order:2}]},options:cOpts(30,90)});
+  new Chart(document.getElementById('hc2'+uid),{type:'bar',data:{labels,datasets:[{label:'%',data:pct,borderRadius:3,backgroundColor:pct.map(p=>p>=0?'rgba(76,217,123,.75)':p>=-10?'rgba(245,179,51,.75)':'rgba(255,82,82,.75)')}]},options:cOpts(-45,25,v=>v+'%')});
   const tbl=document.getElementById('ht'+uid);
-  for(let i=n-1;i>=0;i--) { const p=pct[i],si2=sig(p),isT=i===n-1,row=document.createElement('div'); row.className='trow'+(isT?' now':''); row.style.gridTemplateColumns='50px 36px 58px 1fr'; row.innerHTML=`<span class="tda">${labels[i]}${isT?' ▸':''}</span><span class="tva">${raw[i]}</span><span class="tpa ${si2.c}">${p>=0?'+':''}${p}%</span><span class="tsa ${si2.c}">${si2.t}</span>`; tbl.appendChild(row); }
+  for(let i=n-1;i>=0;i--) { const p=pct[i],si2=sig(p),isT=i===n-1,row=document.createElement('div'); row.className='trow'+(isT?' now':''); row.style.gridTemplateColumns='56px 42px 62px 1fr'; row.innerHTML=`<span class="tda">${labels[i]}${isT?' ▸':''}</span><span class="tva">${raw[i]}</span><span class="tpa ${si2.c}">${p>=0?'+':''}${p}%</span><span class="tsa ${si2.c}">${si2.t}</span>`; tbl.appendChild(row); }
 }
-
 // ══════════════════════════════════════════════
-// TRAINING — reads from Supabase
+// TRAINING
 // ══════════════════════════════════════════════
-let allSessions = [];
-let activeFilter = 'All';
-
 async function loadSessions() {
   try {
     allSessions = await sb.get('sessions', '?order=date.desc');
     buildFilterChips();
     renderSessions();
-  } catch(e) {
-    document.getElementById('sessions-list').innerHTML = '<div class="errbox">Could not load sessions</div>';
-  }
+  } catch(e) { document.getElementById('sessions-list').innerHTML = '<div class="errbox">Could not load sessions</div>'; }
 }
-
 function buildFilterChips() {
   const types = ['All', ...new Set(allSessions.map(s => s.type).filter(Boolean))];
   const row = document.getElementById('filter-row'); row.innerHTML = '';
@@ -1125,18 +907,12 @@ function buildFilterChips() {
     row.appendChild(c);
   });
 }
-
 function renderSessions() {
   const q = (document.getElementById('tsearch')?.value||'').toLowerCase().trim();
   const athleteName = currentProfile?.name || '';
-  
   let filtered = allSessions.filter(s => {
-    // Check if session is assigned to this athlete
     const assignedTo = s.assigned_to || 'all';
-    const isAssignedToThisAthlete = assignedTo === 'all' || assignedTo === athleteName;
-    
-    if(!isAssignedToThisAthlete) return false; // Don't show if not assigned to them
-    
+    if(!(assignedTo === 'all' || assignedTo === athleteName)) return false;
     const tok = activeFilter==='All' || s.type===activeFilter;
     const tags = Array.isArray(s.tags) ? s.tags : [];
     const sok = !q || [s.title,s.tag,s.type,...tags].some(x => x && x.toLowerCase().includes(q));
@@ -1154,12 +930,11 @@ function renderSessions() {
     sessions.forEach(s => {
       const tags = Array.isArray(s.tags) ? s.tags : [];
       const c = document.createElement('div'); c.className = 'scard'; c.onclick = () => openSession(s);
-      c.innerHTML = `<div class="scard-inner"><div class="scard-date"><div class="scard-day">${s._d.day}</div><div class="scard-mon">${s._d.mon}</div></div><div class="scard-body"><div class="scard-tag">${s.tag||''}</div><div class="scard-title">${s.title}</div><div class="scard-meta"><span>${s.duration||''}</span><span>${s.type||''}</span></div></div><div class="scard-r">→</div></div><div class="scard-tags">${tags.map(t=>`<div class="scti">${t}</div>`).join('')}</div>`;
+      c.innerHTML = `<div class="scard-inner"><div class="scard-date"><div class="scard-day">${s._d.day}</div><div class="scard-mon">${s._d.mon}</div></div><div class="scard-body"><div class="scard-tag">${s.tag||''}</div><div class="scard-title">${s.title}</div><div class="scard-meta"><span>${s.duration||''}</span><span>${s.type||''}</span></div></div><div class="scard-r">→</div></div>${tags.length?`<div class="scard-tags">${tags.map(t=>`<div class="scti">${t}</div>`).join('')}</div>`:''}`;
       list.appendChild(c);
     });
   });
 }
-
 function openSession(s) {
   document.getElementById('svlbl').textContent = s.title;
   const phases = s.phases || [];
@@ -1208,84 +983,50 @@ function openSession(s) {
   document.getElementById('sv').classList.add('on');
   document.body.style.overflow = 'hidden';
 }
-
 function togglePhase(i) {
   const body = document.getElementById('pbody'+i);
   const tog = document.getElementById('ptog'+i);
   body.classList.toggle('open');
   tog.textContent = body.classList.contains('open') ? '▾' : '▸';
 }
-
 function closeSV() { document.getElementById('sv').classList.remove('on'); document.body.style.overflow = ''; }
-
 // ══════════════════════════════════════════════
 // JOURNAL
 // ══════════════════════════════════════════════
 const scores = {mood:0,sleep:0,energy:0,soreness:0};
-
-// ══════════════════════════════════════════════
-// JOURNAL TOGGLE
-// ══════════════════════════════════════════════
 function toggleJournalForm() {
   const form = document.getElementById('journal-form');
   const btn = document.getElementById('journal-toggle-btn');
-  
-  if (form.style.display === 'none') {
-    form.style.display = 'block';
-    btn.textContent = 'Hide Form';
-  } else {
-    form.style.display = 'none';
-    btn.textContent = 'Show Form';
-  }
+  if (form.style.display === 'none') { form.style.display = 'block'; btn.textContent = 'Hide Form'; }
+  else { form.style.display = 'none'; btn.textContent = 'Show Form'; }
 }
-
 function buildScales() {
   ['mood','sleep','energy','soreness'].forEach(k => {
     const w = document.getElementById('sc-'+k); w.innerHTML = '';
-    for(let i=1;i<=5;i++) { const b=document.createElement('button'); b.textContent=i; b.onclick=()=>{ scores[k]=i; w.querySelectorAll('button').forEach((btn,idx)=>btn.classList.toggle('sel',idx<i)); }; w.appendChild(b); }
+    for(let i=1;i<=5;i++) {
+      const b=document.createElement('button'); b.textContent=i;
+      b.onclick=()=>{ scores[k]=i; w.querySelectorAll('button').forEach((btn,idx)=>btn.classList.toggle('sel',idx<i)); };
+      w.appendChild(b);
+    }
   });
 }
-
 async function submitJournal() {
   const msg = document.getElementById('jmsg');
   if(!scores.mood||!scores.sleep||!scores.energy||!scores.soreness) { msg.textContent='Please fill in all scores'; msg.className='jfmsg err show'; setTimeout(()=>msg.classList.remove('show'),3000); return; }
   const entry = { date:new Date().toISOString().split('T')[0], athlete:currentProfile?.name||'', mood:scores.mood, sleep:scores.sleep, energy:scores.energy, soreness:scores.soreness, notes:document.getElementById('jnotes').value.trim() };
-  
   msg.textContent = 'Saving...'; msg.className = 'jfmsg show';
-  
   try {
-    // 1. Save to Supabase (primary database)
     const r = await sb.post('journal', entry);
     if(!r.ok) throw new Error('Database error '+r.status);
-    
-    // 2. Sync to Google Drive/Sheets (backup copy)
     try {
-      const sheetsResponse = await fetch(API, { 
-        method:'POST', 
-        headers:{'Content-Type':'application/json'}, 
-        body: JSON.stringify({...entry, action:'journal'})
-      });
-      const sheetsResult = await sheetsResponse.json();
-      if(sheetsResult.error) {
-        console.warn('Google Sheets sync warning:', sheetsResult.error);
-        msg.textContent = 'Saved to app ✓ (Google Drive sync pending)'; msg.className = 'jfmsg show'; 
-      } else {
-        msg.textContent = 'Saved ✓ (synced to Google Drive)'; msg.className = 'jfmsg show'; 
-      }
-    } catch(sheetsErr) {
-      console.warn('Google Sheets sync failed:', sheetsErr);
-      msg.textContent = 'Saved to app ✓ (will retry Drive sync)'; msg.className = 'jfmsg show'; 
-    }
-    
+      await fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({...entry, action:'journal'}) });
+      msg.textContent = 'Saved ✓ (synced to Drive)'; msg.className = 'jfmsg show';
+    } catch(sheetsErr) { msg.textContent = 'Saved to app ✓'; msg.className = 'jfmsg show'; }
     setTimeout(()=>msg.classList.remove('show'),3500);
     Object.keys(scores).forEach(k=>scores[k]=0); buildScales(); document.getElementById('jnotes').value = '';
     loadJournalEntries();
-  } catch(e) { 
-    msg.textContent='Error: '+e.message; msg.className='jfmsg err show'; 
-    setTimeout(()=>msg.classList.remove('show'),4000); 
-  }
+  } catch(e) { msg.textContent='Error: '+e.message; msg.className='jfmsg err show'; setTimeout(()=>msg.classList.remove('show'),4000); }
 }
-
 async function loadJournalEntries() {
   const el = document.getElementById('journal-entries');
   try {
@@ -1295,12 +1036,18 @@ async function loadJournalEntries() {
     data.forEach((d,i) => {
       const div = document.createElement('div'); div.className = 'jentry'+(i===0?' latest':'');
       const dc = v => v>=4?'var(--gn)':v>=3?'var(--am)':'var(--rd)';
+      const dcInv = v => v<=2?'var(--gn)':v<=3?'var(--am)':'var(--rd)';
       div.innerHTML = `
         <div class="jetop">
           <div class="jedate">${d.date} · ${d.athlete||''}</div>
           <div style="display:flex;gap:8px;align-items:center">
-            <div class="jedots">${[d.mood,d.sleep,d.energy,d.soreness].map(v=>`<div class="jedot" style="background:${dc(v)}"></div>`).join('')}</div>
-            <button onclick="deleteJournalEntry('${d.id}')" style="background:none;border:none;color:var(--rd);cursor:pointer;font-size:16px;padding:0;margin:0">✕</button>
+            <div class="jedots">
+              <div class="jedot" style="background:${dc(d.mood)}"></div>
+              <div class="jedot" style="background:${dc(d.sleep)}"></div>
+              <div class="jedot" style="background:${dc(d.energy)}"></div>
+              <div class="jedot" style="background:${dcInv(d.soreness)}"></div>
+            </div>
+            <button onclick="deleteJournalEntry('${d.id}')" style="background:none;border:none;color:var(--rd);cursor:pointer;font-size:16px;padding:4px 6px" title="Delete">✕</button>
           </div>
         </div>
         <div class="jescores">
@@ -1316,39 +1063,51 @@ async function loadJournalEntries() {
     return data[0]||null;
   } catch { el.innerHTML='<div class="errbox">Error loading entries</div>'; return null; }
 }
-
 async function deleteJournalEntry(id) {
   if(!confirm('Delete this journal entry? This cannot be undone.')) return;
-  
-  console.log('🗑️ Deleting journal entry:', id);
-  
-  try {
-    const r = await sb.delete('journal', id);
-    console.log('📤 Delete response:', r.status);
-    
-    if (!r.ok) {
-      throw new Error('Delete failed: ' + r.status);
-    }
-    
-    console.log('✅ Entry deleted successfully');
-    await loadJournalEntries();
-  } catch(e) {
-    console.error('❌ Error deleting entry:', e.message);
-    alert('Error deleting entry: ' + e.message);
-  }
+  try { const r = await sb.delete('journal', id); if (!r.ok) throw new Error('Delete failed: ' + r.status); await loadJournalEntries(); loadAdminJournal && loadAdminJournal(); }
+  catch(e) { alert('Error deleting entry: ' + e.message); }
 }
-
 // ══════════════════════════════════════════════
-// DASHBOARD
+// DASHBOARD — HRV-first layout
 // ══════════════════════════════════════════════
 async function buildDash(lastRaw, pctToday, si, allHrvRaw, allHrvLabels, lastJ) {
   const today = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
   const latest = allSessions[0]||null;
-
-  // Wellness score from last journal (average of 4 scores, out of 5)
-  const wellnessScore = lastJ ? ((lastJ.mood+lastJ.sleep+lastJ.energy+(5-lastJ.soreness+1))/4).toFixed(1) : null;
+  // Wellness: avg of mood/sleep/energy/(inverted) soreness out of 5
+  const wellnessScore = lastJ ? ((lastJ.mood+lastJ.sleep+lastJ.energy+(6-lastJ.soreness))/4).toFixed(1) : null;
   const wellnessColor = wellnessScore >= 3.5 ? 'var(--gn)' : wellnessScore >= 2.5 ? 'var(--am)' : 'var(--rd)';
-
+  // HRV hero
+  let heroHTML = '';
+  if(lastRaw != null) {
+    const gp = Math.min(Math.max((pctToday+30)/50*100,3),97);
+    const p7 = allHrvRaw.length>=7 ? allHrvRaw.slice(-7) : allHrvRaw;
+    const trend = p7.length>1 ? +(((p7[p7.length-1]-p7[0])/p7[0])*100).toFixed(1) : 0;
+    heroHTML = `
+      <div class="hero">
+        <div class="hero-top">
+          <div>
+            <div class="hero-eyebrow">Today's HRV</div>
+            <div class="hero-sub">${today}</div>
+          </div>
+          <div class="gbg ${si.g}"><div class="bdot"></div>${si.t}</div>
+        </div>
+        <div class="hero-main">
+          <div class="hero-val" style="color:${si.col}">${lastRaw}</div>
+          <div class="hero-unit">lnRMSSD ms</div>
+        </div>
+        <div class="hero-gauge"><div class="hero-needle" id="dash-needle"></div></div>
+        <div class="gaxis"><span>−25%</span><span>−10%</span><span>0</span><span>+10%</span><span>+20%</span></div>
+        <div class="hero-row">
+          <div class="hero-pct" style="color:${si.col}">${pctToday>=0?'+':''}${pctToday}%</div>
+          <div style="font-family:var(--m);font-size:11px;color:var(--t2)">
+            7d: <span style="color:${trend>2?'var(--gn)':trend<-2?'var(--rd)':'var(--t2)'};font-weight:500">${trend>=0?'+':''}${trend}%</span>
+          </div>
+        </div>
+      </div>
+    `;
+    setTimeout(() => { const n = document.getElementById('dash-needle'); if(n) n.style.left = gp+'%'; }, 250);
+  }
   const sHTML = latest ? `
     <div class="sh"><div class="shb"></div><div class="sht">Latest Session</div></div>
     <div class="scard" onclick="openSession(allSessions[0])">
@@ -1358,7 +1117,6 @@ async function buildDash(lastRaw, pctToday, si, allHrvRaw, allHrvLabels, lastJ) 
         <div class="scard-r">→</div>
       </div>
     </div>` : '';
-
   const jHTML = lastJ ? `
     <div class="sh"><div class="shb"></div><div class="sht">Wellness Check</div></div>
     <div class="card" style="margin-bottom:10px">
@@ -1367,40 +1125,28 @@ async function buildDash(lastRaw, pctToday, si, allHrvRaw, allHrvLabels, lastJ) 
         <div style="font-family:var(--bb);font-size:22px;color:${wellnessColor}">${wellnessScore}/5</div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
-        ${[['Mood',lastJ.mood],['Sleep',lastJ.sleep],['Energy',lastJ.energy],['Soreness',lastJ.soreness]].map(([lbl,val])=>{
-          const c = lbl==='Soreness' ? (val<=2?'var(--gn)':val<=3?'var(--am)':'var(--rd)') : (val>=4?'var(--gn)':val>=3?'var(--am)':'var(--rd)');
-          return `<div style="text-align:center"><div style="font-family:var(--bb);font-size:22px;color:${c}">${val}</div><div style="font-family:var(--m);font-size:7px;color:var(--t3);text-transform:uppercase;margin-top:2px">${lbl}</div></div>`;
+        ${[['Mood',lastJ.mood,false],['Sleep',lastJ.sleep,false],['Energy',lastJ.energy,false],['Soreness',lastJ.soreness,true]].map(([lbl,val,inv])=>{
+          const c = inv ? (val<=2?'var(--gn)':val<=3?'var(--am)':'var(--rd)') : (val>=4?'var(--gn)':val>=3?'var(--am)':'var(--rd)');
+          return `<div style="text-align:center"><div style="font-family:var(--bb);font-size:22px;color:${c}">${val}</div><div style="font-family:var(--m);font-size:9px;color:var(--t2);text-transform:uppercase;margin-top:3px;letter-spacing:.06em">${lbl}</div></div>`;
         }).join('')}
       </div>
-      ${lastJ.notes?`<div style="font-family:var(--f);font-size:12px;color:var(--t2);border-top:1px solid var(--b);padding-top:8px;margin-top:8px;line-height:1.5">${lastJ.notes}</div>`:''}
+      ${lastJ.notes?`<div style="font-family:var(--f);font-size:13px;color:var(--t2);border-top:1px solid var(--b);padding-top:8px;margin-top:8px;line-height:1.5">${lastJ.notes}</div>`:''}
     </div>` : `
     <div class="sh"><div class="shb"></div><div class="sht">Wellness Check</div></div>
     <div class="card" style="margin-bottom:10px;text-align:center;padding:20px">
-      <div style="font-family:var(--m);font-size:10px;color:var(--t3)">No journal entry today</div>
-      <button onclick="goTab('journal')" style="margin-top:10px;padding:8px 16px;background:var(--rp);border:none;border-radius:8px;font-family:var(--bb);font-size:14px;letter-spacing:.08em;color:var(--wh);cursor:pointer">Log Today →</button>
+      <div style="font-family:var(--m);font-size:11px;color:var(--t2)">No journal entry today</div>
+      <button onclick="goTab('journal')" style="margin-top:10px;padding:10px 18px;background:var(--accent);border:none;border-radius:var(--r1);font-family:var(--bb);font-size:14px;letter-spacing:.08em;color:#062010;cursor:pointer">Log Today →</button>
     </div>`;
-  
-  document.getElementById('dash-body').innerHTML = `
-    <div style="font-family:var(--m);font-size:9px;color:var(--t3);letter-spacing:.06em;margin-bottom:12px;margin-top:4px">${today}</div>
-    ${jHTML}
-    ${sHTML}
-  `;
+  document.getElementById('dash-body').innerHTML = heroHTML + jHTML + sHTML;
 }
-
 // ══════════════════════════════════════════════
-// ADMIN — SESSIONS
+// ADMIN — SESSIONS (phases)
 // ══════════════════════════════════════════════
-
-
-// ══════════════════════════════════════════════
-let phaseCount = 0;
-
 function addPhase() {
   phaseCount++;
   const container = document.getElementById('phases-container');
   const div = document.createElement('div');
-  div.className = 'phase-builder';
-  div.id = `phase-${phaseCount}`;
+  div.className = 'phase-builder'; div.id = `phase-${phaseCount}`;
   div.innerHTML = `
     <div class="pb-header">
       <div class="pb-num">0${phaseCount}</div>
@@ -1414,47 +1160,26 @@ function addPhase() {
         <label class="albl">Phase coach note (optional)</label>
         <input class="ainput" id="ph-note-${phaseCount}" placeholder="e.g. Keep weight light, focus on activation">
       </div>
-    </div>
-  `;
+    </div>`;
   container.appendChild(div);
 }
-
 function removePhase(id) { document.getElementById(`phase-${id}`)?.remove(); }
-
 function addExercise(phaseId) {
   const container = document.getElementById(`exercises-${phaseId}`);
   const exId = Date.now();
   const div = document.createElement('div');
-  div.className = 'ex-builder';
-  div.id = `ex-${exId}`;
+  div.className = 'ex-builder'; div.id = `ex-${exId}`;
   div.innerHTML = `
     <button class="ex-remove" onclick="document.getElementById('ex-${exId}').remove()" title="Remove">✕</button>
     <div class="ex-builder-grid">
-      <div class="arow">
-        <label class="albl">Exercise name</label>
-        <input class="ainput ex-name" placeholder="e.g. Romanian Deadlift">
-      </div>
-      <div class="arow">
-        <label class="albl">Sets / Reps / Duration</label>
-        <input class="ainput ex-sets" placeholder="e.g. 3x10 or 30s hold">
-      </div>
+      <div class="arow"><label class="albl">Exercise name</label><input class="ainput ex-name" placeholder="e.g. Romanian Deadlift"></div>
+      <div class="arow"><label class="albl">Sets / Reps / Duration</label><input class="ainput ex-sets" placeholder="e.g. 3x10 or 30s hold"></div>
     </div>
-    <div class="arow">
-      <label class="albl">YouTube Video ID (optional)</label>
-      <input class="ainput ex-video" placeholder="e.g. dQw4w9WgXcQ (from youtube.com/watch?v=...)">
-    </div>
-    <div class="arow">
-      <label class="albl">Photo URL (optional — link from Google Drive, Imgur etc)</label>
-      <input class="ainput ex-photo" placeholder="e.g. https://i.imgur.com/abc123.jpg">
-    </div>
-    <div class="arow">
-      <label class="albl">Coach note (optional)</label>
-      <input class="ainput ex-note" placeholder="e.g. Keep back neutral throughout">
-    </div>
-  `;
+    <div class="arow"><label class="albl">YouTube Video ID (optional)</label><input class="ainput ex-video" placeholder="e.g. dQw4w9WgXcQ"></div>
+    <div class="arow"><label class="albl">Photo URL (optional)</label><input class="ainput ex-photo" placeholder="https://i.imgur.com/abc123.jpg"></div>
+    <div class="arow"><label class="albl">Coach note (optional)</label><input class="ainput ex-note" placeholder="e.g. Keep back neutral throughout"></div>`;
   container.appendChild(div);
 }
-
 function collectPhases() {
   const phases = [];
   document.querySelectorAll('.phase-builder').forEach(ph => {
@@ -1465,6 +1190,7 @@ function collectPhases() {
       if(name) exercises.push({
         name, sets: ex.querySelector('.ex-sets')?.value?.trim()||'',
         video: ex.querySelector('.ex-video')?.value?.trim()||'',
+        photo: ex.querySelector('.ex-photo')?.value?.trim()||'',
         note: ex.querySelector('.ex-note')?.value?.trim()||''
       });
     });
@@ -1476,69 +1202,42 @@ function collectPhases() {
   });
   return phases;
 }
-
 async function saveSession() {
   const title = document.getElementById('sf-title').value.trim();
   const date  = document.getElementById('sf-date').value;
   if(!title||!date) { showMsg('session-msg','Title and date are required',true); return; }
   const tagsRaw = document.getElementById('sf-tags').value;
   const tags = tagsRaw ? tagsRaw.split(',').map(t=>t.trim()).filter(Boolean) : [];
-  const assignedTo = document.getElementById('sf-assigned-to').value || 'all';
   const data = {
     title, date,
-    tag:      document.getElementById('sf-tag').value.trim(),
+    tag: document.getElementById('sf-tag').value.trim(),
     duration: document.getElementById('sf-duration').value.trim(),
-    type:     document.getElementById('sf-type').value,
+    type: document.getElementById('sf-type').value,
     tags,
-    assigned_to: assignedTo,
-    phases:   collectPhases()
+    assigned_to: document.getElementById('sf-assigned-to').value || 'all',
+    phases: collectPhases()
   };
-  
-  console.log('💾 Saving session:', data);
-  
   try {
-    let r;
-    if(editingSessionId) {
-      console.log('✏️ Updating session:', editingSessionId);
-      r = await sb.patch('sessions', editingSessionId, data);
-    } else {
-      console.log('➕ Creating new session');
-      r = await sb.post('sessions', data);
-    }
-    console.log('📤 Response status:', r.status, r.ok);
-    
-    if(!r.ok) {
-      const errorText = await r.text();
-      console.error('❌ Error response:', errorText);
-      throw new Error('Save failed '+r.status);
-    }
-    
+    const r = editingSessionId ? await sb.patch('sessions', editingSessionId, data) : await sb.post('sessions', data);
+    if(!r.ok) throw new Error('Save failed '+r.status);
     showMsg('session-msg', editingSessionId ? 'Session updated ✓' : 'Session saved ✓');
     cancelSessionEdit();
     loadAdminSessions();
-    loadSessions(); // refresh athlete view
-  } catch(e) { 
-    console.error('❌ Save error:', e.message);
-    showMsg('session-msg','Error: '+e.message,true); 
-  }
+    loadSessions();
+  } catch(e) { showMsg('session-msg','Error: '+e.message,true); }
 }
-
 function cancelSessionEdit() {
   editingSessionId = null;
   document.getElementById('session-form-title').textContent = 'New Session';
-  ['sf-title','sf-date','sf-tag','sf-duration','sf-tags','sf-assigned-to'].forEach(id => {
-    const el = document.getElementById(id);
-    if(el.tagName === 'SELECT') el.value = 'all';
-    else el.value = '';
-  });
+  ['sf-title','sf-date','sf-tag','sf-duration','sf-tags'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('sf-assigned-to').value = 'all';
   document.getElementById('sf-type').value = 'Activation';
   document.getElementById('phases-container').innerHTML = '';
   phaseCount = 0;
 }
-
 async function loadAdminSessions() {
   const list = document.getElementById('admin-sessions-list');
-  list.innerHTML = '<div class="loader"><div class="spin"></div>Loading...</div>';
+  list.innerHTML = '<div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div>';
   try {
     const sessions = await sb.get('sessions', '?order=date.desc');
     if(!sessions.length) { list.innerHTML='<div class="soon"><div class="soon-t">No sessions yet</div><div class="soon-s">Add your first session above</div></div>'; return; }
@@ -1553,13 +1252,11 @@ async function loadAdminSessions() {
         <div class="alist-actions">
           <button class="abtn secondary small" onclick="editSession('${s.id}')">Edit</button>
           <button class="abtn danger small" onclick="deleteSession('${s.id}')">Delete</button>
-        </div>
-      `;
+        </div>`;
       list.appendChild(div);
     });
   } catch { list.innerHTML='<div class="errbox">Error loading sessions</div>'; }
 }
-
 async function editSession(id) {
   const sessions = await sb.get('sessions', `?id=eq.${id}`);
   const s = sessions[0]; if(!s) return;
@@ -1572,17 +1269,13 @@ async function editSession(id) {
   document.getElementById('sf-type').value     = s.type||'Activation';
   document.getElementById('sf-tags').value     = Array.isArray(s.tags)?s.tags.join(', '):'';
   document.getElementById('sf-assigned-to').value = s.assigned_to||'all';
-  // Rebuild phases
   document.getElementById('phases-container').innerHTML = '';
   phaseCount = 0;
   (s.phases||[]).forEach(ph => {
     addPhase();
     document.getElementById(`ph-name-${phaseCount}`).value = ph.name||'';
     document.getElementById(`ph-note-${phaseCount}`).value = ph.note||'';
-    (ph.exercises||[]).forEach(() => {
-      addExercise(phaseCount);
-    });
-    // Fill exercise values
+    (ph.exercises||[]).forEach(() => addExercise(phaseCount));
     const exEls = document.querySelectorAll(`#exercises-${phaseCount} .ex-builder`);
     (ph.exercises||[]).forEach((ex, i) => {
       if(exEls[i]) {
@@ -1596,14 +1289,12 @@ async function editSession(id) {
   });
   document.getElementById('session-form').scrollIntoView({behavior:'smooth'});
 }
-
 async function deleteSession(id) {
   if(!confirm('Delete this session? This cannot be undone.')) return;
   await sb.delete('sessions', id);
   loadAdminSessions();
   loadSessions();
 }
-
 // ══════════════════════════════════════════════
 // ADMIN — ATHLETES
 // ══════════════════════════════════════════════
@@ -1617,11 +1308,10 @@ async function saveAthlete() {
     team: document.getElementById('af-team').value.trim() || '',
     password: document.getElementById('af-password').value.trim(),
     color:    '#1a7a3c',
+    color2:   '#2db85e',
     sheet_tab: document.getElementById('af-sheet').value.trim() || 'HRV',
-    sofascore_player_id: document.getElementById('af-sofascore-id').value.trim() || '',
     api_football_id: parseInt(document.getElementById('af-api-football-id').value) || null,
     online:   true,
-    // Season Stats
     sessions_completed: parseInt(document.getElementById('af-sessions-completed').value) || 0,
     training_hours: parseFloat(document.getElementById('af-training-hours').value) || 0,
     avg_hrv: parseFloat(document.getElementById('af-avg-hrv').value) || 0,
@@ -1629,7 +1319,6 @@ async function saveAthlete() {
     worst_hrv: parseFloat(document.getElementById('af-worst-hrv').value) || 0,
     consistency_pct: parseInt(document.getElementById('af-consistency').value) || 0,
     wellness_avg: parseFloat(document.getElementById('af-wellness-avg').value) || 0,
-    // Goals
     goal_sessions: parseInt(document.getElementById('af-goal-sessions').value) || 0,
     goal_hrv: parseFloat(document.getElementById('af-goal-hrv').value) || 0,
     goal_training_hours: parseFloat(document.getElementById('af-goal-hours').value) || 0,
@@ -1637,19 +1326,13 @@ async function saveAthlete() {
     goal_wellness: parseFloat(document.getElementById('af-goal-wellness').value) || 0
   };
   try {
-    let r;
-    if(editingAthleteId) {
-      r = await sb.patch('athletes', editingAthleteId, data);
-    } else {
-      r = await sb.post('athletes', data);
-    }
+    const r = editingAthleteId ? await sb.patch('athletes', editingAthleteId, data) : await sb.post('athletes', data);
     if(!r.ok) throw new Error('Save failed');
     showMsg('athlete-msg', editingAthleteId ? 'Athlete updated ✓' : 'Athlete saved ✓');
     cancelAthleteEdit();
     loadAdminAthletes();
   } catch(e) { showMsg('athlete-msg','Error: '+e.message,true); }
 }
-
 function cancelAthleteEdit() {
   editingAthleteId = null;
   document.getElementById('athlete-form-title').textContent = 'New Athlete';
@@ -1658,21 +1341,19 @@ function cancelAthleteEdit() {
    'af-consistency','af-wellness-avg','af-goal-sessions','af-goal-hrv','af-goal-hours',
    'af-goal-consistency','af-goal-wellness'].forEach(id => document.getElementById(id).value='');
 }
-
 async function loadAdminAthletes() {
   const list = document.getElementById('admin-athletes-list');
-  list.innerHTML = '<div class="loader"><div class="spin"></div>Loading...</div>';
+  list.innerHTML = '<div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div>';
   try {
     const athletes = await sb.get('athletes','?order=name');
-    // Update the athlete assignment dropdown
-    populateAthleteDropdown(athletes);
-    
+    populateSessionAthleteDropdown(athletes);
+    populateHRVAthleteDropdown(athletes);
     if(!athletes.length) { list.innerHTML='<div class="soon"><div class="soon-t">No athletes yet</div></div>'; return; }
     list.innerHTML = '';
     athletes.forEach(a => {
       const div = document.createElement('div'); div.className = 'alist-item';
       div.innerHTML = `
-        <div class="pc-avatar" style="width:36px;height:36px;font-size:16px;background:linear-gradient(135deg,${a.color||'#1a7a3c'},${a.color||'#1a7a3c'}cc);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--bb);flex-shrink:0">${a.initials||a.name[0]}</div>
+        <div style="width:36px;height:36px;font-size:15px;background:${avatarGradient(a)};border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--bb);flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.25)">${a.initials||a.name[0]}</div>
         <div class="alist-info">
           <div class="alist-name">${a.name}</div>
           <div class="alist-sub">${a.position||''} · Sheet: ${a.sheet_tab||'HRV'}</div>
@@ -1680,35 +1361,28 @@ async function loadAdminAthletes() {
         <div class="alist-actions">
           <button class="abtn secondary small" onclick="editAthlete('${a.id}')">Edit</button>
           <button class="abtn danger small" onclick="deleteAthlete('${a.id}')">Delete</button>
-        </div>
-      `;
+        </div>`;
       list.appendChild(div);
     });
   } catch { list.innerHTML='<div class="errbox">Error loading athletes</div>'; }
 }
-
-function populateAthleteDropdown(athletes) {
+function populateSessionAthleteDropdown(athletes) {
   const dropdown = document.getElementById('sf-assigned-to');
   if(!dropdown) return;
-  
-  // Clear existing options except "All Athletes"
   dropdown.innerHTML = '<option value="all">All Athletes</option>';
-  
-  // Add each athlete as an option
-  athletes.forEach(a => {
-    const option = document.createElement('option');
-    option.value = a.name;
-    option.textContent = a.name;
-    dropdown.appendChild(option);
-  });
+  athletes.forEach(a => { const o = document.createElement('option'); o.value = a.name; o.textContent = a.name; dropdown.appendChild(o); });
 }
-
+function populateHRVAthleteDropdown(athletes) {
+  const dropdown = document.getElementById('hrv-athlete');
+  if (!dropdown) return;
+  dropdown.innerHTML = '<option value="">Select athlete...</option>';
+  athletes.forEach(a => { const o = document.createElement('option'); o.value = a.name; o.textContent = a.name; dropdown.appendChild(o); });
+}
 async function editAthlete(id) {
   const athletes = await sb.get('athletes',`?id=eq.${id}`);
   const a = athletes[0]; if(!a) return;
   editingAthleteId = id;
   document.getElementById('athlete-form-title').textContent = 'Edit Athlete';
-  // Basic info
   document.getElementById('af-name').value     = a.name||'';
   document.getElementById('af-initials').value = a.initials||'';
   document.getElementById('af-position').value = a.position||'';
@@ -1716,7 +1390,6 @@ async function editAthlete(id) {
   document.getElementById('af-password').value = a.password||'';
   document.getElementById('af-sheet').value    = a.sheet_tab||'HRV';
   document.getElementById('af-api-football-id').value = a.api_football_id||'';
-  // Season stats
   document.getElementById('af-sessions-completed').value = a.sessions_completed||'';
   document.getElementById('af-training-hours').value = a.training_hours||'';
   document.getElementById('af-avg-hrv').value = a.avg_hrv||'';
@@ -1724,7 +1397,6 @@ async function editAthlete(id) {
   document.getElementById('af-worst-hrv').value = a.worst_hrv||'';
   document.getElementById('af-consistency').value = a.consistency_pct||'';
   document.getElementById('af-wellness-avg').value = a.wellness_avg||'';
-  // Goals
   document.getElementById('af-goal-sessions').value = a.goal_sessions||'';
   document.getElementById('af-goal-hrv').value = a.goal_hrv||'';
   document.getElementById('af-goal-hours').value = a.goal_training_hours||'';
@@ -1732,19 +1404,17 @@ async function editAthlete(id) {
   document.getElementById('af-goal-wellness').value = a.goal_wellness||'';
   document.getElementById('athlete-form').scrollIntoView({behavior:'smooth'});
 }
-
 async function deleteAthlete(id) {
   if(!confirm('Delete this athlete?')) return;
   await sb.delete('athletes', id);
   loadAdminAthletes();
 }
-
 // ══════════════════════════════════════════════
 // ADMIN — JOURNAL
 // ══════════════════════════════════════════════
 async function loadAdminJournal() {
   const list = document.getElementById('admin-journal-list');
-  list.innerHTML = '<div class="loader"><div class="spin"></div>Loading...</div>';
+  list.innerHTML = '<div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div>';
   try {
     const data = await sb.get('journal','?order=date.desc&limit=100');
     if(!data.length) { list.innerHTML='<div class="soon"><div class="soon-t">No entries yet</div></div>'; return; }
@@ -1752,11 +1422,17 @@ async function loadAdminJournal() {
     data.forEach((d,i) => {
       const div = document.createElement('div'); div.className = 'jentry'+(i===0?' latest':'');
       const dc = v => v>=4?'var(--gn)':v>=3?'var(--am)':'var(--rd)';
+      const dcInv = v => v<=2?'var(--gn)':v<=3?'var(--am)':'var(--rd)';
       div.innerHTML = `
         <div class="jetop">
-          <div class="jedate">${d.date} · <strong style="color:var(--rp2)">${d.athlete||'Unknown'}</strong></div>
+          <div class="jedate">${d.date} · <strong style="color:var(--rp3)">${d.athlete||'Unknown'}</strong></div>
           <div style="display:flex;gap:6px;align-items:center">
-            <div class="jedots">${[d.mood,d.sleep,d.energy,d.soreness].map(v=>`<div class="jedot" style="background:${dc(v)}"></div>`).join('')}</div>
+            <div class="jedots">
+              <div class="jedot" style="background:${dc(d.mood)}"></div>
+              <div class="jedot" style="background:${dc(d.sleep)}"></div>
+              <div class="jedot" style="background:${dc(d.energy)}"></div>
+              <div class="jedot" style="background:${dcInv(d.soreness)}"></div>
+            </div>
             <button class="abtn danger small" onclick="deleteJournalEntry('${d.id}')">✕</button>
           </div>
         </div>
@@ -1766,44 +1442,20 @@ async function loadAdminJournal() {
           <div class="jescore"><div class="jeval">${d.energy}</div><div class="jelbl">Energy</div></div>
           <div class="jescore"><div class="jeval">${d.soreness}</div><div class="jelbl">Soreness</div></div>
         </div>
-        ${d.notes?`<div class="jenote">${d.notes}</div>`:''}
-      `;
+        ${d.notes?`<div class="jenote">${d.notes}</div>`:''}`;
       list.appendChild(div);
     });
   } catch { list.innerHTML='<div class="errbox">Error loading journal entries</div>'; }
 }
-
-async function deleteJournalEntry(id) {
-  if(!confirm('Delete this entry?')) return;
-  
-  console.log('🗑️ Deleting journal entry from admin:', id);
-  
-  try {
-    const r = await sb.delete('journal', id);
-    console.log('📤 Delete response:', r.status);
-    
-    if (!r.ok) {
-      throw new Error('Delete failed: ' + r.status);
-    }
-    
-    console.log('✅ Entry deleted successfully');
-    await loadAdminJournal();
-  } catch(e) {
-    console.error('❌ Error deleting entry:', e.message);
-    alert('Error: ' + e.message);
-  }
-}
-
 // ══════════════════════════════════════════════
 // ADMIN — HRV
 // ══════════════════════════════════════════════
 async function loadAdminHRV() {
   const list = document.getElementById('admin-hrv-list');
-  list.innerHTML = '<div class="loader"><div class="spin"></div>Loading...</div>';
+  list.innerHTML = '<div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div>';
   try {
     const athletes = await sb.get('athletes', '?order=name');
-    populateAthleteDropdown(athletes);
-    
+    populateHRVAthleteDropdown(athletes);
     const data = await sb.get('hrv_data','?order=date.desc&limit=100');
     if(!data.length) { list.innerHTML='<div class="soon"><div class="soon-t">No HRV data yet</div></div>'; return; }
     list.innerHTML = '';
@@ -1811,227 +1463,58 @@ async function loadAdminHRV() {
       const div = document.createElement('div'); div.className = 'jentry'+(i===0?' latest':'');
       div.innerHTML = `
         <div class="jetop">
-          <div class="jedate">${d.date} · <strong style="color:var(--rp2)">${d.athlete_name||'Unknown'}</strong></div>
+          <div class="jedate">${d.date} · <strong style="color:var(--rp3)">${d.athlete_name||'Unknown'}</strong></div>
           <div style="display:flex;gap:6px;align-items:center">
-            <div style="font-family:var(--bb);font-size:18px;color:var(--rp2)">${d.value}</div>
+            <div style="font-family:var(--bb);font-size:18px;color:var(--rp3)">${d.value}</div>
             <button class="abtn secondary small" onclick="editHRVEntry('${d.id}')">Edit</button>
             <button class="abtn danger small" onclick="deleteHRVEntry('${d.id}')">✕</button>
           </div>
         </div>
-        <div style="font-family:var(--f);font-size:13px;color:var(--t2);margin-top:8px">
-          lnRMSSD ms
-        </div>
-        ${d.notes?`<div class="jenote" style="margin-top:8px">${d.notes}</div>`:''}
-      `;
+        <div style="font-family:var(--f);font-size:13px;color:var(--t2);margin-top:8px">lnRMSSD ms</div>
+        ${d.notes?`<div class="jenote" style="margin-top:8px">${d.notes}</div>`:''}`;
       list.appendChild(div);
     });
   } catch { list.innerHTML='<div class="errbox">Error loading HRV data</div>'; }
 }
-
 async function deleteHRVEntry(id) {
   if(!confirm('Delete this HRV entry?')) return;
-  
-  console.log('🗑️ Deleting HRV entry:', id);
-  
-  try {
-    const r = await sb.delete('hrv_data', id);
-    console.log('📤 Delete response:', r.status);
-    
-    if (!r.ok) {
-      throw new Error('Delete failed: ' + r.status);
-    }
-    
-    console.log('✅ HRV entry deleted successfully');
-    await loadAdminHRV();
-  } catch(e) {
-    console.error('❌ Error deleting HRV entry:', e.message);
-    alert('Error: ' + e.message);
-  }
+  try { const r = await sb.delete('hrv_data', id); if (!r.ok) throw new Error('Delete failed'); await loadAdminHRV(); }
+  catch(e) { alert('Error: ' + e.message); }
 }
-
-// ══════════════════════════════════════════════
-// HRV ADMIN FUNCTIONS
-// ══════════════════════════════════════════════
-let editingHRVId = null;
-
 async function saveHRVValue() {
   const athleteName = document.getElementById('hrv-athlete').value.trim();
   const date = document.getElementById('hrv-date').value;
   const value = document.getElementById('hrv-value').value.trim();
-  const notes = document.getElementById('hrv-notes').value.trim();
-  const msg = document.getElementById('hrv-msg');
-  
-  if (!athleteName || !date || !value) {
-    showMsg('hrv-msg', 'Athlete, date, and HRV value are required', true);
-    return;
-  }
-  
-  const data = {
-    athlete_name: athleteName,
-    date: date,
-    value: parseFloat(value),
-    notes: notes || null
-  };
-  
-  console.log('💾 Saving HRV:', data);
-  
+  const notes = document.getElementById('hrv-notes-admin').value.trim();
+  if (!athleteName || !date || !value) { showMsg('hrv-admin-msg', 'Athlete, date, and HRV value are required', true); return; }
+  const data = { athlete_name: athleteName, date, value: parseFloat(value), notes: notes || null };
   try {
-    let r;
-    if (editingHRVId) {
-      console.log('✏️ Updating HRV:', editingHRVId);
-      r = await sb.patch('hrv_data', editingHRVId, data);
-    } else {
-      console.log('➕ Creating new HRV entry');
-      r = await sb.post('hrv_data', data);
-    }
-    
-    console.log('📤 Response status:', r.status);
-    
-    if (!r.ok) {
-      const errorText = await r.text();
-      console.error('❌ Error response:', errorText);
-      throw new Error('Save failed ' + r.status);
-    }
-    
-    showMsg('hrv-msg', editingHRVId ? 'HRV updated ✓' : 'HRV saved ✓');
+    const r = editingHRVId ? await sb.patch('hrv_data', editingHRVId, data) : await sb.post('hrv_data', data);
+    if (!r.ok) throw new Error('Save failed ' + r.status);
+    showMsg('hrv-admin-msg', editingHRVId ? 'HRV updated ✓' : 'HRV saved ✓');
     cancelHRVEdit();
     loadAdminHRV();
-  } catch(e) {
-    console.error('❌ Save error:', e.message);
-    showMsg('hrv-msg', 'Error: ' + e.message, true);
-  }
+  } catch(e) { showMsg('hrv-admin-msg', 'Error: ' + e.message, true); }
 }
-
 function cancelHRVEdit() {
   editingHRVId = null;
   document.getElementById('hrv-form-title').textContent = 'Add HRV Value';
   document.getElementById('hrv-athlete').value = '';
   document.getElementById('hrv-date').value = '';
   document.getElementById('hrv-value').value = '';
-  document.getElementById('hrv-notes').value = '';
-  document.getElementById('hrv-msg').textContent = '';
+  document.getElementById('hrv-notes-admin').value = '';
 }
-
 async function editHRVEntry(id) {
   const data = await sb.get('hrv_data', `?id=eq.${id}`);
-  const entry = data[0];
-  if (!entry) return;
-  
+  const entry = data[0]; if (!entry) return;
   editingHRVId = id;
   document.getElementById('hrv-form-title').textContent = 'Edit HRV Value';
   document.getElementById('hrv-athlete').value = entry.athlete_name || '';
   document.getElementById('hrv-date').value = entry.date || '';
   document.getElementById('hrv-value').value = entry.value || '';
-  document.getElementById('hrv-notes').value = entry.notes || '';
+  document.getElementById('hrv-notes-admin').value = entry.notes || '';
   document.getElementById('hrv-form').scrollIntoView({behavior:'smooth'});
 }
-
-async function populateAthleteDropdown(athletes) {
-  const dropdown = document.getElementById('hrv-athlete');
-  if (!dropdown) return;
-  
-  dropdown.innerHTML = '<option value="">Select athlete...</option>';
-  athletes.forEach(a => {
-    const option = document.createElement('option');
-    option.value = a.name;
-    option.textContent = a.name;
-    dropdown.appendChild(option);
-  });
-}
-
-// ══════════════════════════════════════════════
-// SOFASCORE INTEGRATION
-// ══════════════════════════════════════════════
-
-async function syncSofaScoreForAthlete() {
-  if(!editingAthleteId) { showMsg('sofascore-sync-msg','No athlete selected',true); return; }
-  const playerId = document.getElementById('af-sofascore-id').value.trim();
-  if(!playerId) { showMsg('sofascore-sync-msg','Please enter SofaScore Player ID first',true); return; }
-  
-  const syncBtn = document.getElementById('manual-sync-btn');
-  syncBtn.disabled = true;
-  syncBtn.textContent = '⏳ Syncing...';
-  
-  try {
-    const data = await fetchSofaScoreData(playerId);
-    if(!data) throw new Error('No data found');
-    
-    // Update athlete record with SofaScore data
-    const updateData = {
-      sofascore_player_id: playerId,
-      sofascore_last_synced: new Date().toISOString(),
-      sofascore_season_goals: data.goals || 0,
-      sofascore_season_assists: data.assists || 0,
-      sofascore_season_matches: data.matches || 0,
-      sofascore_avg_rating: data.avgRating || 0,
-      sofascore_latest_match: JSON.stringify(data.latestMatch || {})
-    };
-    
-    const r = await sb.patch('athletes', editingAthleteId, updateData);
-    if(!r.ok) throw new Error('Save failed');
-    
-    showMsg('sofascore-sync-msg',`✓ Synced! ${data.goals} goals, ${data.assists} assists, Rating: ${data.avgRating.toFixed(1)}`);
-    loadAdminAthletes();
-  } catch(e) {
-    showMsg('sofascore-sync-msg','Error: '+e.message,true);
-  } finally {
-    syncBtn.disabled = false;
-    syncBtn.textContent = '🔄 Sync Now';
-  }
-}
-
-async function fetchSofaScoreData(playerId) {
-  try {
-    // Fetch player statistics from SofaScore API
-    const res = await fetch(`https://api.sofascore.com/api/v1/player/${playerId}/statistics/`);
-    if(!res.ok) throw new Error('SofaScore API error');
-    const stats = await res.json();
-    
-    // Fetch player info for latest match
-    const playerRes = await fetch(`https://api.sofascore.com/api/v1/player/${playerId}`);
-    const playerInfo = await playerRes.json();
-    
-    // Parse data
-    const goals = stats.statistics?.[0]?.goals || 0;
-    const assists = stats.statistics?.[0]?.assists || 0;
-    const matches = stats.statistics?.[0]?.appearances || 0;
-    const avgRating = parseFloat(stats.statistics?.[0]?.rating) || 0;
-    
-    // Get latest match info
-    const latestMatch = {
-      date: new Date().toISOString().split('T')[0],
-      goals: goals,
-      assists: assists,
-      rating: avgRating,
-      lastUpdated: new Date().toISOString()
-    };
-    
-    return {
-      goals,
-      assists,
-      matches,
-      avgRating,
-      latestMatch
-    };
-  } catch(e) {
-    console.warn('SofaScore fetch error:', e);
-    return null;
-  }
-}
-
-function toggleAutoSync() {
-  // For future: implement server-side auto-sync
-  const btn = document.getElementById('auto-sync-btn');
-  const isOn = btn.textContent.includes('ON');
-  if(isOn) {
-    btn.textContent = '⚙️ Auto Sync: OFF';
-    btn.className = 'abtn secondary';
-  } else {
-    btn.textContent = '⚙️ Auto Sync: ON';
-    btn.className = 'abtn';
-  }
-}
-
 // ══════════════════════════════════════════════
 // BOOT
 // ══════════════════════════════════════════════
@@ -2042,13 +1525,9 @@ async function bootApp() {
   document.querySelectorAll('.bn').forEach((b,i) => b.classList.toggle('on',i===0));
   await loadSessions();
   const lastJ = await loadJournalEntries();
-  
-  // Load HRV data from Supabase instead of Google Sheets
   try {
     const hrvData = await sb.get('hrv_data', `?athlete_name=eq.${currentProfile.name}&order=date.asc`);
-    
-    if(!hrvData||!hrvData.length) throw new Error('No HRV data');
-    
+    if(!hrvData||!hrvData.length) throw new Error('No HRV data yet — add your first value from Monitoring');
     const aL = hrvData.map(d => cleanDate(d.date));
     const aR = hrvData.map(d => +d.value);
     const raw28 = aR.slice(-WIN);
@@ -2056,17 +1535,14 @@ async function bootApp() {
     const pct = pctDev(raw28, ewma);
     const n = raw28.length;
     const si = sig(pct[n-1]);
-    
     buildHRV(aL, aR, document.getElementById('hrv-body'), 'hrv');
     await buildDash(raw28[n-1], pct[n-1], si, aR, aL, lastJ);
   } catch(err) {
-    console.warn('HRV load error:', err.message);
     document.getElementById('hrv-body').innerHTML = `<div class="errbox">⚠ ${err.message}</div>`;
-    document.getElementById('dash-body').innerHTML = `<div class="errbox">⚠ Could not load HRV data</div>`;
+    // Dashboard without HRV
+    await buildDash(null, null, null, [], [], lastJ);
   }
 }
-
-// Init
 loadProfiles();
 </script>
 </body>
