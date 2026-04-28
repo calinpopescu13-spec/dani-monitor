@@ -562,7 +562,6 @@ body{min-height:100dvh;overflow-x:hidden}
         <span id="athlete-form-title">New Athlete</span>
         <button class="abtn secondary small" onclick="cancelAthleteEdit()">Cancel</button>
       </div>
-      <div style="font-family:var(--m);font-size:10px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase;margin-bottom:10px;margin-top:4px">Basic Information</div>
       <div class="agrid2">
         <div class="arow"><label class="albl">Name *</label><input class="ainput" id="af-name" placeholder="Dani"></div>
         <div class="arow"><label class="albl">Initials</label><input class="ainput" id="af-initials" placeholder="D" maxlength="2"></div>
@@ -575,39 +574,6 @@ body{min-height:100dvh;overflow-x:hidden}
         <div class="arow"><label class="albl">Password</label><input class="ainput" id="af-password" placeholder="athlete2026"></div>
         <div class="arow"><label class="albl">Google Sheet Tab</label><input class="ainput" id="af-sheet" placeholder="HRV"></div>
       </div>
-      <div class="divider"></div>
-      <div style="font-family:var(--m);font-size:10px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase;margin-bottom:10px">⚽ API Football Integration</div>
-      <div class="arow">
-        <label class="albl">API Football Player ID</label>
-        <input class="ainput" id="af-api-football-id" placeholder="42754" type="text">
-        <div style="font-family:var(--m);font-size:10px;color:var(--t3);margin-top:4px">Find player ID from api-sports.io (e.g., 42754 for Dani)</div>
-      </div>
-      <div class="divider"></div>
-      <div style="font-family:var(--m);font-size:10px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase;margin-bottom:10px">Season Stats (Editable)</div>
-      <div class="agrid2">
-        <div class="arow"><label class="albl">Sessions Completed</label><input class="ainput" id="af-sessions-completed" placeholder="12" type="number"></div>
-        <div class="arow"><label class="albl">Total Training Hours</label><input class="ainput" id="af-training-hours" placeholder="45.5" type="number" step="0.5"></div>
-      </div>
-      <div class="agrid2">
-        <div class="arow"><label class="albl">Average HRV</label><input class="ainput" id="af-avg-hrv" placeholder="55.2" type="number" step="0.1"></div>
-        <div class="arow"><label class="albl">Best HRV</label><input class="ainput" id="af-best-hrv" placeholder="72" type="number" step="0.1"></div>
-      </div>
-      <div class="agrid2">
-        <div class="arow"><label class="albl">Worst HRV</label><input class="ainput" id="af-worst-hrv" placeholder="38" type="number" step="0.1"></div>
-        <div class="arow"><label class="albl">Consistency % (0-100)</label><input class="ainput" id="af-consistency" placeholder="85" type="number" min="0" max="100"></div>
-      </div>
-      <div class="arow"><label class="albl">Average Wellness Score (1-5)</label><input class="ainput" id="af-wellness-avg" placeholder="4.2" type="number" step="0.1" min="1" max="5"></div>
-      <div class="divider"></div>
-      <div style="font-family:var(--m);font-size:10px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase;margin-bottom:10px">Season Goals (Editable)</div>
-      <div class="agrid2">
-        <div class="arow"><label class="albl">Target Sessions</label><input class="ainput" id="af-goal-sessions" placeholder="25" type="number"></div>
-        <div class="arow"><label class="albl">Target HRV</label><input class="ainput" id="af-goal-hrv" placeholder="65" type="number" step="0.1"></div>
-      </div>
-      <div class="agrid2">
-        <div class="arow"><label class="albl">Target Training Hours</label><input class="ainput" id="af-goal-hours" placeholder="100" type="number" step="0.5"></div>
-        <div class="arow"><label class="albl">Target Consistency %</label><input class="ainput" id="af-goal-consistency" placeholder="90" type="number" min="0" max="100"></div>
-      </div>
-      <div class="arow"><label class="albl">Target Wellness Score</label><input class="ainput" id="af-goal-wellness" placeholder="4.5" type="number" step="0.1" min="1" max="5"></div>
       <button class="abtn" style="width:100%;margin-top:14px" onclick="saveAthlete()">Save Athlete</button>
       <div class="amsg" id="athlete-msg"></div>
     </div>
@@ -1305,25 +1271,12 @@ async function saveAthlete() {
     name,
     initials: document.getElementById('af-initials').value.trim() || name[0].toUpperCase(),
     position: document.getElementById('af-position').value.trim(),
-    team: document.getElementById('af-team').value.trim() || '',
+    team:     document.getElementById('af-team').value.trim() || '',
     password: document.getElementById('af-password').value.trim(),
     color:    '#1a7a3c',
     color2:   '#2db85e',
     sheet_tab: document.getElementById('af-sheet').value.trim() || 'HRV',
-    api_football_id: parseInt(document.getElementById('af-api-football-id').value) || null,
-    online:   true,
-    sessions_completed: parseInt(document.getElementById('af-sessions-completed').value) || 0,
-    training_hours: parseFloat(document.getElementById('af-training-hours').value) || 0,
-    avg_hrv: parseFloat(document.getElementById('af-avg-hrv').value) || 0,
-    best_hrv: parseFloat(document.getElementById('af-best-hrv').value) || 0,
-    worst_hrv: parseFloat(document.getElementById('af-worst-hrv').value) || 0,
-    consistency_pct: parseInt(document.getElementById('af-consistency').value) || 0,
-    wellness_avg: parseFloat(document.getElementById('af-wellness-avg').value) || 0,
-    goal_sessions: parseInt(document.getElementById('af-goal-sessions').value) || 0,
-    goal_hrv: parseFloat(document.getElementById('af-goal-hrv').value) || 0,
-    goal_training_hours: parseFloat(document.getElementById('af-goal-hours').value) || 0,
-    goal_consistency: parseInt(document.getElementById('af-goal-consistency').value) || 0,
-    goal_wellness: parseFloat(document.getElementById('af-goal-wellness').value) || 0
+    online:   true
   };
   try {
     const r = editingAthleteId ? await sb.patch('athletes', editingAthleteId, data) : await sb.post('athletes', data);
@@ -1336,10 +1289,8 @@ async function saveAthlete() {
 function cancelAthleteEdit() {
   editingAthleteId = null;
   document.getElementById('athlete-form-title').textContent = 'New Athlete';
-  ['af-name','af-initials','af-position','af-team','af-password','af-sheet','af-api-football-id',
-   'af-sessions-completed','af-training-hours','af-avg-hrv','af-best-hrv','af-worst-hrv',
-   'af-consistency','af-wellness-avg','af-goal-sessions','af-goal-hrv','af-goal-hours',
-   'af-goal-consistency','af-goal-wellness'].forEach(id => document.getElementById(id).value='');
+  ['af-name','af-initials','af-position','af-team','af-password','af-sheet']
+    .forEach(id => document.getElementById(id).value = '');
 }
 async function loadAdminAthletes() {
   const list = document.getElementById('admin-athletes-list');
@@ -1389,19 +1340,6 @@ async function editAthlete(id) {
   document.getElementById('af-team').value     = a.team||'';
   document.getElementById('af-password').value = a.password||'';
   document.getElementById('af-sheet').value    = a.sheet_tab||'HRV';
-  document.getElementById('af-api-football-id').value = a.api_football_id||'';
-  document.getElementById('af-sessions-completed').value = a.sessions_completed||'';
-  document.getElementById('af-training-hours').value = a.training_hours||'';
-  document.getElementById('af-avg-hrv').value = a.avg_hrv||'';
-  document.getElementById('af-best-hrv').value = a.best_hrv||'';
-  document.getElementById('af-worst-hrv').value = a.worst_hrv||'';
-  document.getElementById('af-consistency').value = a.consistency_pct||'';
-  document.getElementById('af-wellness-avg').value = a.wellness_avg||'';
-  document.getElementById('af-goal-sessions').value = a.goal_sessions||'';
-  document.getElementById('af-goal-hrv').value = a.goal_hrv||'';
-  document.getElementById('af-goal-hours').value = a.goal_training_hours||'';
-  document.getElementById('af-goal-consistency').value = a.goal_consistency||'';
-  document.getElementById('af-goal-wellness').value = a.goal_wellness||'';
   document.getElementById('athlete-form').scrollIntoView({behavior:'smooth'});
 }
 async function deleteAthlete(id) {
