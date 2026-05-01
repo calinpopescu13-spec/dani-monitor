@@ -571,10 +571,7 @@ body{min-height:100dvh;overflow-x:hidden}
         <div class="arow"><label class="albl">Position</label><input class="ainput" id="af-position" placeholder="Striker"></div>
         <div class="arow"><label class="albl">Team</label><input class="ainput" id="af-team" placeholder="Rapid București"></div>
       </div>
-      <div class="agrid2">
-        <div class="arow"><label class="albl">Password</label><input class="ainput" id="af-password" placeholder="athlete2026"></div>
-        <div class="arow"><label class="albl">Google Sheet Tab</label><input class="ainput" id="af-sheet" placeholder="HRV"></div>
-      </div>
+      <div class="arow"><label class="albl">Password</label><input class="ainput" id="af-password" placeholder="athlete2026"></div>
       <button class="abtn" style="width:100%;margin-top:14px" onclick="saveAthlete()">Save Athlete</button>
       <div class="amsg" id="athlete-msg"></div>
     </div>
@@ -1277,7 +1274,6 @@ async function saveAthlete() {
     password: document.getElementById('af-password').value.trim(),
     color:    '#1a7a3c',
     color2:   '#2db85e',
-    sheet_tab: document.getElementById('af-sheet').value.trim() || 'HRV',
     online:   true
   };
   try {
@@ -1295,7 +1291,7 @@ async function saveAthlete() {
 function cancelAthleteEdit() {
   editingAthleteId = null;
   document.getElementById('athlete-form-title').textContent = 'New Athlete';
-  ['af-name','af-initials','af-position','af-team','af-password','af-sheet']
+  ['af-name','af-initials','af-position','af-team','af-password']
     .forEach(id => document.getElementById(id).value='');
 }
 async function loadAdminAthletes() {
@@ -1313,7 +1309,7 @@ async function loadAdminAthletes() {
         <div style="width:36px;height:36px;font-size:15px;background:${avatarGradient(a)};border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--bb);flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.25)">${a.initials||a.name[0]}</div>
         <div class="alist-info">
           <div class="alist-name">${a.name}</div>
-          <div class="alist-sub">${a.position||''} · Sheet: ${a.sheet_tab||'HRV'}</div>
+          <div class="alist-sub">${a.position||''}${a.team?' · '+a.team:''}</div>
         </div>
         <div class="alist-actions">
           <button class="abtn secondary small" onclick="editAthlete('${a.id}')">Edit</button>
@@ -1345,7 +1341,6 @@ async function editAthlete(id) {
   document.getElementById('af-position').value = a.position||'';
   document.getElementById('af-team').value     = a.team||'';
   document.getElementById('af-password').value = a.password||'';
-  document.getElementById('af-sheet').value    = a.sheet_tab||'HRV';
   document.getElementById('athlete-form').scrollIntoView({behavior:'smooth'});
 }
 async function deleteAthlete(id) {
