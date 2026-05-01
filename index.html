@@ -997,7 +997,8 @@ async function submitJournal() {
 async function loadJournalEntries() {
   const el = document.getElementById('journal-entries');
   try {
-    const data = await sb.get('journal', '?order=date.desc&limit=30');
+    const athleteName = encodeURIComponent(currentProfile?.name || '');
+    const data = await sb.get('journal', `?athlete=eq.${athleteName}&order=date.desc&limit=30`);
     if(!data.length) { el.innerHTML='<div class="soon"><div class="soon-t">No entries yet</div><div class="soon-s">Fill in today\'s form above</div></div>'; return null; }
     el.innerHTML = '';
     data.forEach((d,i) => {
