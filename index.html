@@ -562,6 +562,7 @@ body{min-height:100dvh;overflow-x:hidden}
         <span id="athlete-form-title">New Athlete</span>
         <button class="abtn secondary small" onclick="cancelAthleteEdit()">Cancel</button>
       </div>
+      <div style="font-family:var(--m);font-size:10px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase;margin-bottom:10px;margin-top:4px">Basic Information</div>
       <div class="agrid2">
         <div class="arow"><label class="albl">Name *</label><input class="ainput" id="af-name" placeholder="Dani"></div>
         <div class="arow"><label class="albl">Initials</label><input class="ainput" id="af-initials" placeholder="D" maxlength="2"></div>
@@ -1271,7 +1272,7 @@ async function saveAthlete() {
     name,
     initials: document.getElementById('af-initials').value.trim() || name[0].toUpperCase(),
     position: document.getElementById('af-position').value.trim(),
-    team:     document.getElementById('af-team').value.trim() || '',
+    team: document.getElementById('af-team').value.trim() || '',
     password: document.getElementById('af-password').value.trim(),
     color:    '#1a7a3c',
     color2:   '#2db85e',
@@ -1280,7 +1281,11 @@ async function saveAthlete() {
   };
   try {
     const r = editingAthleteId ? await sb.patch('athletes', editingAthleteId, data) : await sb.post('athletes', data);
-    if(!r.ok) throw new Error('Save failed');
+    if(!r.ok) {
+      const errText = await r.text();
+      console.error('Supabase error:', errText);
+      throw new Error('Save failed: ' + errText);
+    }
     showMsg('athlete-msg', editingAthleteId ? 'Athlete updated ✓' : 'Athlete saved ✓');
     cancelAthleteEdit();
     loadAdminAthletes();
@@ -1290,7 +1295,7 @@ function cancelAthleteEdit() {
   editingAthleteId = null;
   document.getElementById('athlete-form-title').textContent = 'New Athlete';
   ['af-name','af-initials','af-position','af-team','af-password','af-sheet']
-    .forEach(id => document.getElementById(id).value = '');
+    .forEach(id => document.getElementById(id).value='');
 }
 async function loadAdminAthletes() {
   const list = document.getElementById('admin-athletes-list');
