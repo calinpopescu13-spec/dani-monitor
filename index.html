@@ -219,6 +219,7 @@ body{min-height:100dvh;overflow-x:hidden}
 .jftitle{font-family:var(--bb);font-size:20px;letter-spacing:.06em;color:var(--wh);margin-bottom:14px}
 .jfrow{margin-bottom:14px}
 .jflbl{font-family:var(--m);font-size:10px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase;margin-bottom:8px;display:block}
+.jfhint{font-family:var(--f);font-size:11px;color:var(--t3);text-transform:none;letter-spacing:0;font-weight:400;margin-left:2px}
 .jfscale{display:flex;gap:6px}
 .jfscale button{flex:1;padding:12px 4px;background:var(--sf2);border:1px solid var(--b);border-radius:var(--r1);font-family:var(--bb);font-size:16px;color:var(--t2);cursor:pointer;transition:all .15s;min-height:44px}
 .jfscale button:hover{border-color:var(--b2);color:var(--tx)}
@@ -261,6 +262,21 @@ body{min-height:100dvh;overflow-x:hidden}
 .admin-tab{flex:1;padding:12px 8px 10px;font-family:var(--bb);font-size:13px;letter-spacing:.08em;color:var(--t2);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;transition:all .2s;text-align:center}
 .admin-tab.on{color:var(--wh);border-bottom-color:var(--accent)}
 .admin-pg{display:none;padding:16px}.admin-pg.on{display:block}
+/* ══ Athlete View (admin) ══ */
+.athlete-picker{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:14px;margin-bottom:16px;position:sticky;top:104px;z-index:10;backdrop-filter:blur(12px);background:rgba(10,21,12,.95)}
+.av-subtabs{display:flex;gap:4px;margin-bottom:14px;overflow-x:auto;scrollbar-width:none}
+.av-subtabs::-webkit-scrollbar{display:none}
+.av-section{display:none}.av-section.on{display:block;animation:pgi .2s ease}
+.av-row-actions{display:flex;gap:6px;flex-shrink:0}
+.av-list-item{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:13px;margin-bottom:8px}
+.av-list-item.editing{border-color:var(--accent);background:var(--sf2)}
+.av-list-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px}
+.av-list-date{font-family:var(--m);font-size:11px;color:var(--t2)}
+.av-list-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(60px,1fr));gap:6px;margin-bottom:6px}
+.av-stat{text-align:center}
+.av-stat-val{font-family:var(--bb);font-size:18px;line-height:1;color:var(--wh)}
+.av-stat-lbl{font-family:var(--m);font-size:9px;letter-spacing:.06em;color:var(--t2);text-transform:uppercase;margin-top:3px}
+.av-list-note{font-family:var(--f);font-size:13px;color:var(--t2);line-height:1.5;border-top:1px solid var(--b);padding-top:8px;margin-top:6px}
 .aform{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:16px;margin-bottom:14px}
 .aform-title{font-family:var(--bb);font-size:18px;letter-spacing:.06em;color:var(--wh);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
 .arow{margin-bottom:12px}
@@ -500,11 +516,11 @@ body{min-height:100dvh;overflow-x:hidden}
       </div>
       <div class="jform" id="journal-form">
         <div class="jftitle" id="j-title">Today's Entry</div>
-        <div class="jfrow"><label class="jflbl">Mood</label><div class="jfscale pos" id="sc-mood"></div></div>
-        <div class="jfrow"><label class="jflbl">Sleep Quality</label><div class="jfscale pos" id="sc-sleep"></div></div>
-        <div class="jfrow"><label class="jflbl">Energy Level</label><div class="jfscale pos" id="sc-energy"></div></div>
-        <div class="jfrow"><label class="jflbl">Muscle Soreness (1 = none, 5 = severe)</label><div class="jfscale inv" id="sc-soreness"></div></div>
-        <div class="jfrow"><label class="jflbl" for="jnotes">Notes (optional)</label><textarea class="jfta" id="jnotes" rows="3" placeholder="How did training feel?"></textarea></div>
+        <div class="jfrow"><label class="jflbl">Mood <span class="jfhint">— how are you feeling?</span></label><div class="jfscale pos" id="sc-mood"></div></div>
+        <div class="jfrow"><label class="jflbl">Sleep Quality <span class="jfhint">— how did you sleep?</span></label><div class="jfscale pos" id="sc-sleep"></div></div>
+        <div class="jfrow"><label class="jflbl">Energy Level <span class="jfhint">— how energized do you feel?</span></label><div class="jfscale pos" id="sc-energy"></div></div>
+        <div class="jfrow"><label class="jflbl">Muscle Soreness <span class="jfhint">— 1 = none, 5 = severe</span></label><div class="jfscale inv" id="sc-soreness"></div></div>
+        <div class="jfrow"><label class="jflbl" for="jnotes">Notes (optional)</label><textarea class="jfta" id="jnotes" rows="3" placeholder="How did training feel? Anything notable?"></textarea></div>
         <button class="jfsub" onclick="submitJournal()">Save Entry</button>
         <div class="jfmsg" id="jmsg"></div>
       </div>
@@ -520,10 +536,6 @@ body{min-height:100dvh;overflow-x:hidden}
         <div class="jfrow">
           <label class="jflbl" for="hrv-input">HRV Value (lnRMSSD ms)</label>
           <input class="ainput" id="hrv-input" type="number" placeholder="e.g. 55.2" step="0.1">
-        </div>
-        <div class="jfrow">
-          <label class="jflbl" for="hrv-notes">Notes (optional)</label>
-          <textarea class="jfta" id="hrv-notes" rows="2" placeholder="e.g. Good recovery, slept well"></textarea>
         </div>
         <button class="jfsub" onclick="submitHRV()">Save HRV</button>
         <div class="jfmsg" id="hrv-msg"></div>
@@ -572,12 +584,93 @@ body{min-height:100dvh;overflow-x:hidden}
     <button class="admin-back" onclick="backToProfiles()">← Exit</button>
   </div>
   <div class="admin-tabs">
-    <button class="admin-tab on" onclick="goAdminTab('sessions',this)">Sessions</button>
+    <button class="admin-tab on" onclick="goAdminTab('athlete-view',this)">Athlete View</button>
+    <button class="admin-tab"    onclick="goAdminTab('sessions',this)">Sessions</button>
     <button class="admin-tab"    onclick="goAdminTab('athletes',this)">Athletes</button>
-    <button class="admin-tab"    onclick="goAdminTab('journal',this)">Journal</button>
-    <button class="admin-tab"    onclick="goAdminTab('hrv',this)">HRV</button>
   </div>
-  <div class="admin-pg on" id="apg-sessions">
+  <div class="admin-pg on" id="apg-athlete-view">
+    <div class="athlete-picker">
+      <label class="albl" style="margin-bottom:8px">Monitoring Athlete</label>
+      <select class="aselect" id="av-athlete-select" onchange="onAdminAthleteChange()">
+        <option value="">— Select an athlete —</option>
+      </select>
+    </div>
+    <div id="av-empty" class="soon" style="padding:60px 20px">
+      <div class="soon-ico">👤</div>
+      <div class="soon-t">Select an athlete</div>
+      <div class="soon-s">Choose an athlete above to view and manage their journal, HRV, and sRPE data</div>
+    </div>
+    <div id="av-content" style="display:none">
+      <div class="av-subtabs">
+        <button class="stab on" onclick="goAVSection('journal',this)">Journal</button>
+        <button class="stab"    onclick="goAVSection('hrv',this)">HRV</button>
+        <button class="stab"    onclick="goAVSection('srpe',this)">sRPE</button>
+      </div>
+      <!-- JOURNAL SECTION -->
+      <div class="av-section on" id="av-sec-journal">
+        <div class="aform">
+          <div class="aform-title">
+            <span id="av-j-title">Add Journal Entry</span>
+            <button class="abtn secondary small" onclick="cancelAVJournal()">Cancel</button>
+          </div>
+          <div class="agrid2">
+            <div class="arow"><label class="albl">Date *</label><input class="ainput" type="date" id="av-j-date"></div>
+            <div class="arow"><label class="albl">Mood (1–5) *</label><input class="ainput" type="number" id="av-j-mood" min="1" max="5"></div>
+          </div>
+          <div class="agrid2">
+            <div class="arow"><label class="albl">Sleep (1–5) *</label><input class="ainput" type="number" id="av-j-sleep" min="1" max="5"></div>
+            <div class="arow"><label class="albl">Energy (1–5) *</label><input class="ainput" type="number" id="av-j-energy" min="1" max="5"></div>
+          </div>
+          <div class="arow"><label class="albl">Soreness (1–5, 1=none) *</label><input class="ainput" type="number" id="av-j-soreness" min="1" max="5"></div>
+          <div class="arow"><label class="albl">Notes (optional)</label><textarea class="atextarea" id="av-j-notes" rows="2"></textarea></div>
+          <button class="abtn" style="width:100%" onclick="saveAVJournal()">Save Entry</button>
+          <div class="amsg" id="av-j-msg"></div>
+        </div>
+        <div class="sh"><div class="shb"></div><div class="sht">All Journal Entries</div></div>
+        <div id="av-journal-list"></div>
+      </div>
+      <!-- HRV SECTION -->
+      <div class="av-section" id="av-sec-hrv">
+        <div class="aform">
+          <div class="aform-title">
+            <span id="av-h-title">Add HRV Value</span>
+            <button class="abtn secondary small" onclick="cancelAVHRV()">Cancel</button>
+          </div>
+          <div class="agrid2">
+            <div class="arow"><label class="albl">Date *</label><input class="ainput" type="date" id="av-h-date"></div>
+            <div class="arow"><label class="albl">HRV Value (lnRMSSD ms) *</label><input class="ainput" type="number" id="av-h-value" placeholder="e.g. 55.2" step="0.1"></div>
+          </div>
+          <button class="abtn" style="width:100%" onclick="saveAVHRV()">Save HRV</button>
+          <div class="amsg" id="av-h-msg"></div>
+        </div>
+        <div class="sh"><div class="shb"></div><div class="sht">All HRV Data</div></div>
+        <div id="av-hrv-list"></div>
+      </div>
+      <!-- sRPE SECTION -->
+      <div class="av-section" id="av-sec-srpe">
+        <div class="aform">
+          <div class="aform-title">
+            <span id="av-s-title">Add sRPE Session</span>
+            <button class="abtn secondary small" onclick="cancelAVSRPE()">Cancel</button>
+          </div>
+          <div class="agrid2">
+            <div class="arow"><label class="albl">Date *</label><input class="ainput" type="date" id="av-s-date"></div>
+            <div class="arow"><label class="albl">Duration (min) *</label><input class="ainput" type="number" id="av-s-duration" placeholder="e.g. 75" min="1"></div>
+          </div>
+          <div class="agrid2">
+            <div class="arow"><label class="albl">RPE (1–10) *</label><input class="ainput" type="number" id="av-s-rpe" placeholder="1-10" min="1" max="10"></div>
+            <div class="arow"><label class="albl">AU (auto-calc)</label><input class="ainput" id="av-s-au" placeholder="Duration × RPE" disabled style="opacity:.6"></div>
+          </div>
+          <div class="arow"><label class="albl">Notes (optional)</label><input class="ainput" id="av-s-notes" placeholder="e.g. Match day, gym"></div>
+          <button class="abtn" style="width:100%" onclick="saveAVSRPE()">Save Session</button>
+          <div class="amsg" id="av-s-msg"></div>
+        </div>
+        <div class="sh"><div class="shb"></div><div class="sht">All sRPE Sessions</div></div>
+        <div id="av-srpe-list"></div>
+      </div>
+    </div>
+  </div>
+  <div class="admin-pg" id="apg-sessions">
     <div class="aform" id="session-form">
       <div class="aform-title">
         <span id="session-form-title">New Session</span>
@@ -644,34 +737,6 @@ body{min-height:100dvh;overflow-x:hidden}
       <div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div>
     </div>
   </div>
-  <div class="admin-pg" id="apg-journal">
-    <div class="sh"><div class="shb"></div><div class="sht">All Journal Entries</div></div>
-    <div id="admin-journal-list">
-      <div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div>
-    </div>
-  </div>
-  <div class="admin-pg" id="apg-hrv">
-    <div class="aform" id="hrv-form">
-      <div class="aform-title">
-        <span id="hrv-form-title">Add HRV Value</span>
-        <button class="abtn secondary small" onclick="cancelHRVEdit()">Cancel</button>
-      </div>
-      <div class="agrid2">
-        <div class="arow"><label class="albl">Athlete *</label><select class="aselect" id="hrv-athlete"><option value="">Select athlete...</option></select></div>
-        <div class="arow"><label class="albl">Date *</label><input class="ainput" type="date" id="hrv-date"></div>
-      </div>
-      <div class="agrid2">
-        <div class="arow"><label class="albl">HRV Value (lnRMSSD ms) *</label><input class="ainput" type="number" id="hrv-value" placeholder="e.g. 55.2" step="0.1"></div>
-        <div class="arow"><label class="albl">Notes (optional)</label><input class="ainput" id="hrv-notes-admin" placeholder="e.g. Good recovery"></div>
-      </div>
-      <button class="abtn" style="width:100%" onclick="saveHRVValue()">Save HRV</button>
-      <div class="amsg" id="hrv-admin-msg"></div>
-    </div>
-    <div class="sh"><div class="shb"></div><div class="sht">All HRV Data</div></div>
-    <div id="admin-hrv-list">
-      <div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div>
-    </div>
-  </div>
 </div>
 <script>
 // ══════════════════════════════════════════════
@@ -729,7 +794,7 @@ function tryAdminLogin() {
     err.classList.remove('show');
     document.getElementById('admin-pw-input').value = '';
     showScreen('s-admin', 's-adminpw');
-    loadAdminSessions(); loadAdminAthletes(); loadAdminJournal();
+    loadAdminSessions(); loadAdminAthletes();
   } else {
     err.classList.add('show');
     document.getElementById('admin-pw-input').value = '';
@@ -835,7 +900,6 @@ function goAdminTab(id, tabEl) {
   document.getElementById('apg-'+id).classList.add('on');
   document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('on'));
   if(tabEl) tabEl.classList.add('on');
-  if(id === 'hrv') loadAdminHRV();
 }
 // ══════════════════════════════════════════════
 // UTILS
@@ -877,18 +941,16 @@ const cOpts = (mn,mx,fmt) => ({ responsive:true, maintainAspectRatio:false, plug
 // ══════════════════════════════════════════════
 async function submitHRV() {
   const value = document.getElementById('hrv-input').value.trim();
-  const notes = document.getElementById('hrv-notes').value.trim();
   const msg = document.getElementById('hrv-msg');
   if (!value || isNaN(value)) { msg.textContent = 'Please enter a valid HRV value'; msg.className = 'jfmsg err show'; setTimeout(() => msg.classList.remove('show'), 3000); return; }
   const today = new Date().toISOString().split('T')[0];
-  const data = { athlete_name: currentProfile.name, date: today, value: parseFloat(value), notes: notes || null };
+  const data = { athlete_name: currentProfile.name, date: today, value: parseFloat(value) };
   msg.textContent = 'Saving...'; msg.className = 'jfmsg show';
   try {
     const r = await sb.post('hrv_data', data);
     if (!r.ok) throw new Error('Save failed');
     msg.textContent = 'HRV saved ✓'; msg.className = 'jfmsg show';
     document.getElementById('hrv-input').value = '';
-    document.getElementById('hrv-notes').value = '';
     setTimeout(() => bootApp(), 1000);
   } catch(e) { msg.textContent = 'Error: ' + e.message; msg.className = 'jfmsg err show'; }
 }
@@ -1448,7 +1510,7 @@ async function loadJournalEntries() {
 }
 async function deleteJournalEntry(id) {
   if(!confirm('Delete this journal entry? This cannot be undone.')) return;
-  try { const r = await sb.delete('journal', id); if (!r.ok) throw new Error('Delete failed: ' + r.status); await loadJournalEntries(); loadAdminJournal && loadAdminJournal(); }
+  try { const r = await sb.delete('journal', id); if (!r.ok) throw new Error('Delete failed: ' + r.status); await loadJournalEntries(); }
   catch(e) { alert('Error deleting entry: ' + e.message); }
 }
 // ══════════════════════════════════════════════
@@ -1744,10 +1806,8 @@ function populateSessionAthleteDropdown(athletes) {
   athletes.forEach(a => { const o = document.createElement('option'); o.value = a.name; o.textContent = a.name; dropdown.appendChild(o); });
 }
 function populateHRVAthleteDropdown(athletes) {
-  const dropdown = document.getElementById('hrv-athlete');
-  if (!dropdown) return;
-  dropdown.innerHTML = '<option value="">Select athlete...</option>';
-  athletes.forEach(a => { const o = document.createElement('option'); o.value = a.name; o.textContent = a.name; dropdown.appendChild(o); });
+  // Legacy compatibility — now also populates the unified Athlete View selector
+  populateAdminAthleteSelector(athletes);
 }
 async function editAthlete(id) {
   const athletes = await sb.get('athletes',`?id=eq.${id}`);
@@ -1767,110 +1827,267 @@ async function deleteAthlete(id) {
   loadAdminAthletes();
 }
 // ══════════════════════════════════════════════
-// ADMIN — JOURNAL
+// ADMIN — ATHLETE VIEW (unified per-athlete management)
 // ══════════════════════════════════════════════
-async function loadAdminJournal() {
-  const list = document.getElementById('admin-journal-list');
+let avAthlete = null;          // currently selected athlete name
+let avEditId  = { journal: null, hrv: null, srpe: null };
+
+function populateAdminAthleteSelector(athletes) {
+  const sel = document.getElementById('av-athlete-select');
+  if (!sel) return;
+  const current = sel.value;
+  sel.innerHTML = '<option value="">— Select an athlete —</option>';
+  athletes.forEach(a => {
+    const o = document.createElement('option'); o.value = a.name; o.textContent = a.name;
+    sel.appendChild(o);
+  });
+  if (current && athletes.some(a => a.name === current)) sel.value = current;
+}
+async function onAdminAthleteChange() {
+  avAthlete = document.getElementById('av-athlete-select').value;
+  if (!avAthlete) {
+    document.getElementById('av-empty').style.display = '';
+    document.getElementById('av-content').style.display = 'none';
+    return;
+  }
+  document.getElementById('av-empty').style.display = 'none';
+  document.getElementById('av-content').style.display = '';
+  // Pre-fill date inputs with today
+  const today = new Date().toISOString().split('T')[0];
+  ['av-j-date','av-h-date','av-s-date'].forEach(id => {
+    const el = document.getElementById(id); if (el && !el.value) el.value = today;
+  });
+  // Wire AU auto-calc on sRPE form
+  const dur = document.getElementById('av-s-duration');
+  const rpe = document.getElementById('av-s-rpe');
+  const recalc = () => {
+    const d = parseFloat(dur.value), r = parseFloat(rpe.value);
+    document.getElementById('av-s-au').value = (d > 0 && r > 0) ? Math.round(d * r) : '';
+  };
+  if (!dur.dataset.wired) { dur.addEventListener('input', recalc); dur.dataset.wired = '1'; }
+  if (!rpe.dataset.wired) { rpe.addEventListener('input', recalc); rpe.dataset.wired = '1'; }
+  // Load all 3 sections
+  await Promise.all([loadAVJournal(), loadAVHRV(), loadAVSRPE()]);
+}
+function goAVSection(id, tabEl) {
+  document.querySelectorAll('.av-section').forEach(s => s.classList.remove('on'));
+  document.getElementById('av-sec-'+id).classList.add('on');
+  document.querySelectorAll('.av-subtabs .stab').forEach(t => t.classList.remove('on'));
+  if (tabEl) tabEl.classList.add('on');
+}
+// ── JOURNAL ─────────────────────────────────────
+async function loadAVJournal() {
+  const list = document.getElementById('av-journal-list');
   list.innerHTML = '<div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div>';
   try {
-    const data = await sb.get('journal','?order=date.desc&limit=100');
-    if(!data.length) { list.innerHTML='<div class="soon"><div class="soon-t">No entries yet</div></div>'; return; }
+    const data = await sb.get('journal', `?athlete=eq.${encodeURIComponent(avAthlete)}&order=date.desc&limit=100`);
+    if (!data.length) { list.innerHTML = '<div class="soon"><div class="soon-t">No entries yet</div><div class="soon-s">Add the first one above</div></div>'; return; }
     list.innerHTML = '';
-    data.forEach((d,i) => {
-      const div = document.createElement('div'); div.className = 'jentry'+(i===0?' latest':'');
-      const dc = v => v>=4?'var(--gn)':v>=3?'var(--am)':'var(--rd)';
-      const dcInv = v => v<=2?'var(--gn)':v<=3?'var(--am)':'var(--rd)';
+    data.forEach((d, i) => {
+      const dc    = v => v >= 4 ? 'var(--gn)' : v >= 3 ? 'var(--am)' : 'var(--rd)';
+      const dcInv = v => v <= 2 ? 'var(--gn)' : v <= 3 ? 'var(--am)' : 'var(--rd)';
+      const div = document.createElement('div');
+      div.className = 'av-list-item' + (avEditId.journal === d.id ? ' editing' : '');
       div.innerHTML = `
-        <div class="jetop">
-          <div class="jedate">${d.date} · <strong style="color:var(--rp3)">${d.athlete||'Unknown'}</strong></div>
-          <div style="display:flex;gap:6px;align-items:center">
-            <div class="jedots">
-              <div class="jedot" style="background:${dc(d.mood)}"></div>
-              <div class="jedot" style="background:${dc(d.sleep)}"></div>
-              <div class="jedot" style="background:${dc(d.energy)}"></div>
-              <div class="jedot" style="background:${dcInv(d.soreness)}"></div>
-            </div>
-            <button class="abtn danger small" onclick="deleteJournalEntry('${d.id}')">✕</button>
+        <div class="av-list-head">
+          <div class="av-list-date">${d.date}${i===0?' · Latest':''}</div>
+          <div class="av-row-actions">
+            <button class="abtn secondary small" onclick="editAVJournal('${d.id}')">Edit</button>
+            <button class="abtn danger small" onclick="deleteAVJournal('${d.id}')">✕</button>
           </div>
         </div>
-        <div class="jescores">
-          <div class="jescore"><div class="jeval">${d.mood}</div><div class="jelbl">Mood</div></div>
-          <div class="jescore"><div class="jeval">${d.sleep}</div><div class="jelbl">Sleep</div></div>
-          <div class="jescore"><div class="jeval">${d.energy}</div><div class="jelbl">Energy</div></div>
-          <div class="jescore"><div class="jeval">${d.soreness}</div><div class="jelbl">Soreness</div></div>
+        <div class="av-list-stats">
+          <div class="av-stat"><div class="av-stat-val" style="color:${dc(d.mood)}">${d.mood}</div><div class="av-stat-lbl">Mood</div></div>
+          <div class="av-stat"><div class="av-stat-val" style="color:${dc(d.sleep)}">${d.sleep}</div><div class="av-stat-lbl">Sleep</div></div>
+          <div class="av-stat"><div class="av-stat-val" style="color:${dc(d.energy)}">${d.energy}</div><div class="av-stat-lbl">Energy</div></div>
+          <div class="av-stat"><div class="av-stat-val" style="color:${dcInv(d.soreness)}">${d.soreness}</div><div class="av-stat-lbl">Soreness</div></div>
         </div>
-        ${d.notes?`<div class="jenote">${d.notes}</div>`:''}`;
+        ${d.notes ? `<div class="av-list-note">${d.notes}</div>` : ''}
+      `;
       list.appendChild(div);
     });
-  } catch { list.innerHTML='<div class="errbox">Error loading journal entries</div>'; }
+  } catch (e) { list.innerHTML = '<div class="errbox">Error loading journal: ' + e.message + '</div>'; }
 }
-// ══════════════════════════════════════════════
-// ADMIN — HRV
-// ══════════════════════════════════════════════
-async function loadAdminHRV() {
-  const list = document.getElementById('admin-hrv-list');
-  list.innerHTML = '<div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div>';
+async function saveAVJournal() {
+  if (!avAthlete) return;
+  const date = document.getElementById('av-j-date').value;
+  const mood = parseInt(document.getElementById('av-j-mood').value);
+  const sleep = parseInt(document.getElementById('av-j-sleep').value);
+  const energy = parseInt(document.getElementById('av-j-energy').value);
+  const soreness = parseInt(document.getElementById('av-j-soreness').value);
+  const notes = document.getElementById('av-j-notes').value.trim();
+  if (!date || !mood || !sleep || !energy || !soreness) { showMsg('av-j-msg', 'All fields except notes are required', true); return; }
+  const data = { athlete: avAthlete, date, mood, sleep, energy, soreness, notes: notes || null };
   try {
-    const athletes = await sb.get('athletes', '?order=name');
-    populateHRVAthleteDropdown(athletes);
-    const data = await sb.get('hrv_data','?order=date.desc&limit=100');
-    if(!data.length) { list.innerHTML='<div class="soon"><div class="soon-t">No HRV data yet</div></div>'; return; }
-    list.innerHTML = '';
-    data.forEach((d,i) => {
-      const div = document.createElement('div'); div.className = 'jentry'+(i===0?' latest':'');
-      div.innerHTML = `
-        <div class="jetop">
-          <div class="jedate">${d.date} · <strong style="color:var(--rp3)">${d.athlete_name||'Unknown'}</strong></div>
-          <div style="display:flex;gap:6px;align-items:center">
-            <div style="font-family:var(--bb);font-size:18px;color:var(--rp3)">${d.value}</div>
-            <button class="abtn secondary small" onclick="editHRVEntry('${d.id}')">Edit</button>
-            <button class="abtn danger small" onclick="deleteHRVEntry('${d.id}')">✕</button>
-          </div>
-        </div>
-        <div style="font-family:var(--f);font-size:13px;color:var(--t2);margin-top:8px">lnRMSSD ms</div>
-        ${d.notes?`<div class="jenote" style="margin-top:8px">${d.notes}</div>`:''}`;
-      list.appendChild(div);
-    });
-  } catch { list.innerHTML='<div class="errbox">Error loading HRV data</div>'; }
-}
-async function deleteHRVEntry(id) {
-  if(!confirm('Delete this HRV entry?')) return;
-  try { const r = await sb.delete('hrv_data', id); if (!r.ok) throw new Error('Delete failed'); await loadAdminHRV(); }
-  catch(e) { alert('Error: ' + e.message); }
-}
-async function saveHRVValue() {
-  const athleteName = document.getElementById('hrv-athlete').value.trim();
-  const date = document.getElementById('hrv-date').value;
-  const value = document.getElementById('hrv-value').value.trim();
-  const notes = document.getElementById('hrv-notes-admin').value.trim();
-  if (!athleteName || !date || !value) { showMsg('hrv-admin-msg', 'Athlete, date, and HRV value are required', true); return; }
-  const data = { athlete_name: athleteName, date, value: parseFloat(value), notes: notes || null };
-  try {
-    const r = editingHRVId ? await sb.patch('hrv_data', editingHRVId, data) : await sb.post('hrv_data', data);
+    const r = avEditId.journal ? await sb.patch('journal', avEditId.journal, data) : await sb.post('journal', data);
     if (!r.ok) throw new Error('Save failed ' + r.status);
-    showMsg('hrv-admin-msg', editingHRVId ? 'HRV updated ✓' : 'HRV saved ✓');
-    cancelHRVEdit();
-    loadAdminHRV();
-  } catch(e) { showMsg('hrv-admin-msg', 'Error: ' + e.message, true); }
+    showMsg('av-j-msg', avEditId.journal ? 'Updated ✓' : 'Saved ✓');
+    cancelAVJournal();
+    loadAVJournal();
+  } catch (e) { showMsg('av-j-msg', 'Error: ' + e.message, true); }
 }
-function cancelHRVEdit() {
-  editingHRVId = null;
-  document.getElementById('hrv-form-title').textContent = 'Add HRV Value';
-  document.getElementById('hrv-athlete').value = '';
-  document.getElementById('hrv-date').value = '';
-  document.getElementById('hrv-value').value = '';
-  document.getElementById('hrv-notes-admin').value = '';
+async function editAVJournal(id) {
+  const data = await sb.get('journal', `?id=eq.${id}`);
+  const e = data[0]; if (!e) return;
+  avEditId.journal = id;
+  document.getElementById('av-j-title').textContent = 'Edit Journal Entry';
+  document.getElementById('av-j-date').value = e.date || '';
+  document.getElementById('av-j-mood').value = e.mood || '';
+  document.getElementById('av-j-sleep').value = e.sleep || '';
+  document.getElementById('av-j-energy').value = e.energy || '';
+  document.getElementById('av-j-soreness').value = e.soreness || '';
+  document.getElementById('av-j-notes').value = e.notes || '';
+  document.getElementById('av-sec-journal').scrollIntoView({behavior:'smooth'});
+  loadAVJournal();
 }
-async function editHRVEntry(id) {
+function cancelAVJournal() {
+  avEditId.journal = null;
+  document.getElementById('av-j-title').textContent = 'Add Journal Entry';
+  ['av-j-mood','av-j-sleep','av-j-energy','av-j-soreness','av-j-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('av-j-date').value = new Date().toISOString().split('T')[0];
+  loadAVJournal();
+}
+async function deleteAVJournal(id) {
+  if (!confirm('Delete this journal entry? This cannot be undone.')) return;
+  try { const r = await sb.delete('journal', id); if (!r.ok) throw new Error('Delete failed'); loadAVJournal(); }
+  catch (e) { alert('Error: ' + e.message); }
+}
+// ── HRV ─────────────────────────────────────
+async function loadAVHRV() {
+  const list = document.getElementById('av-hrv-list');
+  list.innerHTML = '<div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div>';
+  try {
+    const data = await sb.get('hrv_data', `?athlete_name=eq.${encodeURIComponent(avAthlete)}&order=date.desc&limit=100`);
+    if (!data.length) { list.innerHTML = '<div class="soon"><div class="soon-t">No HRV data yet</div></div>'; return; }
+    list.innerHTML = '';
+    data.forEach((d, i) => {
+      const div = document.createElement('div');
+      div.className = 'av-list-item' + (avEditId.hrv === d.id ? ' editing' : '');
+      div.innerHTML = `
+        <div class="av-list-head">
+          <div class="av-list-date">${d.date}${i===0?' · Latest':''}</div>
+          <div class="av-row-actions">
+            <div style="font-family:var(--bb);font-size:20px;color:var(--rp3);margin-right:6px">${d.value}</div>
+            <button class="abtn secondary small" onclick="editAVHRV('${d.id}')">Edit</button>
+            <button class="abtn danger small" onclick="deleteAVHRV('${d.id}')">✕</button>
+          </div>
+        </div>
+        <div style="font-family:var(--m);font-size:11px;color:var(--t2)">lnRMSSD ms</div>
+      `;
+      list.appendChild(div);
+    });
+  } catch (e) { list.innerHTML = '<div class="errbox">Error: ' + e.message + '</div>'; }
+}
+async function saveAVHRV() {
+  if (!avAthlete) return;
+  const date = document.getElementById('av-h-date').value;
+  const value = parseFloat(document.getElementById('av-h-value').value);
+  if (!date || !value) { showMsg('av-h-msg', 'Date and value are required', true); return; }
+  const data = { athlete_name: avAthlete, date, value };
+  try {
+    const r = avEditId.hrv ? await sb.patch('hrv_data', avEditId.hrv, data) : await sb.post('hrv_data', data);
+    if (!r.ok) throw new Error('Save failed ' + r.status);
+    showMsg('av-h-msg', avEditId.hrv ? 'Updated ✓' : 'Saved ✓');
+    cancelAVHRV();
+    loadAVHRV();
+  } catch (e) { showMsg('av-h-msg', 'Error: ' + e.message, true); }
+}
+async function editAVHRV(id) {
   const data = await sb.get('hrv_data', `?id=eq.${id}`);
-  const entry = data[0]; if (!entry) return;
-  editingHRVId = id;
-  document.getElementById('hrv-form-title').textContent = 'Edit HRV Value';
-  document.getElementById('hrv-athlete').value = entry.athlete_name || '';
-  document.getElementById('hrv-date').value = entry.date || '';
-  document.getElementById('hrv-value').value = entry.value || '';
-  document.getElementById('hrv-notes-admin').value = entry.notes || '';
-  document.getElementById('hrv-form').scrollIntoView({behavior:'smooth'});
+  const e = data[0]; if (!e) return;
+  avEditId.hrv = id;
+  document.getElementById('av-h-title').textContent = 'Edit HRV Value';
+  document.getElementById('av-h-date').value = e.date || '';
+  document.getElementById('av-h-value').value = e.value || '';
+  document.getElementById('av-sec-hrv').scrollIntoView({behavior:'smooth'});
+  loadAVHRV();
+}
+function cancelAVHRV() {
+  avEditId.hrv = null;
+  document.getElementById('av-h-title').textContent = 'Add HRV Value';
+  document.getElementById('av-h-value').value = '';
+  document.getElementById('av-h-date').value = new Date().toISOString().split('T')[0];
+  loadAVHRV();
+}
+async function deleteAVHRV(id) {
+  if (!confirm('Delete this HRV entry?')) return;
+  try { const r = await sb.delete('hrv_data', id); if (!r.ok) throw new Error('Delete failed'); loadAVHRV(); }
+  catch (e) { alert('Error: ' + e.message); }
+}
+// ── sRPE ─────────────────────────────────────
+async function loadAVSRPE() {
+  const list = document.getElementById('av-srpe-list');
+  list.innerHTML = '<div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div>';
+  try {
+    const data = await sb.get('srpe_data', `?athlete_name=eq.${encodeURIComponent(avAthlete)}&order=date.desc&limit=100`);
+    if (!data.length) { list.innerHTML = '<div class="soon"><div class="soon-t">No sessions yet</div></div>'; return; }
+    list.innerHTML = '';
+    data.forEach((d, i) => {
+      const auColor = d.au < 300 ? 'var(--gn)' : d.au < 600 ? 'var(--am)' : 'var(--rd)';
+      const div = document.createElement('div');
+      div.className = 'av-list-item' + (avEditId.srpe === d.id ? ' editing' : '');
+      div.innerHTML = `
+        <div class="av-list-head">
+          <div class="av-list-date">${d.date}${i===0?' · Latest':''}</div>
+          <div class="av-row-actions">
+            <button class="abtn secondary small" onclick="editAVSRPE('${d.id}')">Edit</button>
+            <button class="abtn danger small" onclick="deleteAVSRPE('${d.id}')">✕</button>
+          </div>
+        </div>
+        <div class="av-list-stats">
+          <div class="av-stat"><div class="av-stat-val">${d.duration}</div><div class="av-stat-lbl">Min</div></div>
+          <div class="av-stat"><div class="av-stat-val">${d.rpe}</div><div class="av-stat-lbl">RPE</div></div>
+          <div class="av-stat"><div class="av-stat-val" style="color:${auColor}">${d.au}</div><div class="av-stat-lbl">AU</div></div>
+        </div>
+        ${d.notes ? `<div class="av-list-note">${d.notes}</div>` : ''}
+      `;
+      list.appendChild(div);
+    });
+  } catch (e) { list.innerHTML = '<div class="errbox">Error: ' + e.message + '</div>'; }
+}
+async function saveAVSRPE() {
+  if (!avAthlete) return;
+  const date = document.getElementById('av-s-date').value;
+  const duration = parseFloat(document.getElementById('av-s-duration').value);
+  const rpe = parseInt(document.getElementById('av-s-rpe').value);
+  const notes = document.getElementById('av-s-notes').value.trim();
+  if (!date || !duration || duration <= 0 || !rpe || rpe < 1 || rpe > 10) {
+    showMsg('av-s-msg', 'Date, duration, and RPE (1-10) are required', true); return;
+  }
+  const au = Math.round(duration * rpe);
+  const data = { athlete_name: avAthlete, date, duration, rpe, au, notes: notes || null };
+  try {
+    const r = avEditId.srpe ? await sb.patch('srpe_data', avEditId.srpe, data) : await sb.post('srpe_data', data);
+    if (!r.ok) throw new Error('Save failed ' + r.status);
+    showMsg('av-s-msg', `${avEditId.srpe ? 'Updated' : 'Saved'} ✓ (${au} AU)`);
+    cancelAVSRPE();
+    loadAVSRPE();
+  } catch (e) { showMsg('av-s-msg', 'Error: ' + e.message, true); }
+}
+async function editAVSRPE(id) {
+  const data = await sb.get('srpe_data', `?id=eq.${id}`);
+  const e = data[0]; if (!e) return;
+  avEditId.srpe = id;
+  document.getElementById('av-s-title').textContent = 'Edit sRPE Session';
+  document.getElementById('av-s-date').value = e.date || '';
+  document.getElementById('av-s-duration').value = e.duration || '';
+  document.getElementById('av-s-rpe').value = e.rpe || '';
+  document.getElementById('av-s-au').value = e.au || '';
+  document.getElementById('av-s-notes').value = e.notes || '';
+  document.getElementById('av-sec-srpe').scrollIntoView({behavior:'smooth'});
+  loadAVSRPE();
+}
+function cancelAVSRPE() {
+  avEditId.srpe = null;
+  document.getElementById('av-s-title').textContent = 'Add sRPE Session';
+  ['av-s-duration','av-s-rpe','av-s-au','av-s-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('av-s-date').value = new Date().toISOString().split('T')[0];
+  loadAVSRPE();
+}
+async function deleteAVSRPE(id) {
+  if (!confirm('Delete this sRPE session?')) return;
+  try { const r = await sb.delete('srpe_data', id); if (!r.ok) throw new Error('Delete failed'); loadAVSRPE(); }
+  catch (e) { alert('Error: ' + e.message); }
 }
 // ══════════════════════════════════════════════
 // BOOT
