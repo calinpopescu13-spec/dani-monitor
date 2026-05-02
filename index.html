@@ -330,6 +330,23 @@ body{min-height:100dvh;overflow-x:hidden}
 .av-stat-val{font-family:var(--bb);font-size:18px;line-height:1;color:var(--wh)}
 .av-stat-lbl{font-family:var(--m);font-size:9px;letter-spacing:.06em;color:var(--t2);text-transform:uppercase;margin-top:3px}
 .av-list-note{font-family:var(--f);font-size:13px;color:var(--t2);line-height:1.5;border-top:1px solid var(--b);padding-top:8px;margin-top:6px}
+/* ══ Dashboard builder ══ */
+.db-list{display:flex;flex-direction:column;gap:8px}
+.db-row{display:flex;align-items:stretch;gap:10px;background:var(--sf2);border:1px solid var(--b);border-radius:var(--r2);padding:10px;cursor:grab;transition:border-color .15s,background .15s,opacity .2s}
+.db-row:hover{border-color:rgba(45,184,94,.3)}
+.db-row.dragging{opacity:.4;cursor:grabbing}
+.db-row.drag-over{border-color:var(--accent);background:var(--sf3)}
+.db-handle{display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:16px;letter-spacing:-2px;width:24px;flex-shrink:0;line-height:1;font-family:var(--m);user-select:none}
+.db-row-body{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0}
+.db-row-top{display:flex;gap:8px;align-items:center}
+.db-label-input{flex:1;min-width:0;padding:8px 10px;font-size:13px;min-height:36px}
+.db-remove{background:transparent;border:none;color:var(--t2);cursor:pointer;font-size:14px;padding:6px 10px;border-radius:var(--r1);transition:all .15s;flex-shrink:0}
+.db-remove:hover{background:rgba(255,82,82,.12);color:var(--rd)}
+.db-row-bot{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.db-meta{font-family:var(--m);font-size:10px;color:var(--t3);letter-spacing:.04em}
+.db-toggle{display:flex;align-items:center;gap:6px;font-family:var(--m);font-size:11px;color:var(--t2);cursor:pointer;text-transform:uppercase;letter-spacing:.06em;user-select:none}
+.db-toggle input[type="checkbox"]{accent-color:var(--accent);width:16px;height:16px;cursor:pointer}
+.db-preview-wrap{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:14px}
 .aform{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:16px;margin-bottom:14px}
 .aform-title{font-family:var(--bb);font-size:18px;letter-spacing:.06em;color:var(--wh);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
 .arow{margin-bottom:12px}
@@ -664,12 +681,34 @@ body{min-height:100dvh;overflow-x:hidden}
     </div>
     <div id="av-content" style="display:none">
       <div class="av-subtabs">
-        <button class="stab on" onclick="goAVSection('journal',this)">Journal</button>
+        <button class="stab on" onclick="goAVSection('dashboard',this)">Dashboard</button>
+        <button class="stab"    onclick="goAVSection('journal',this)">Journal</button>
         <button class="stab"    onclick="goAVSection('hrv',this)">HRV</button>
         <button class="stab"    onclick="goAVSection('srpe',this)">sRPE</button>
       </div>
+      <!-- DASHBOARD BUILDER SECTION -->
+      <div class="av-section on" id="av-sec-dashboard">
+        <div class="aform">
+          <div class="aform-title">
+            <span>Dashboard Layout</span>
+            <button class="abtn secondary small" onclick="resetDashConfig()">Reset to Default</button>
+          </div>
+          <div style="font-family:var(--m);font-size:11px;color:var(--t2);line-height:1.6;margin-bottom:14px">
+            Drag handles to reorder. Toggle visibility, customize labels, and mark as headline (highlighted with green accent).
+          </div>
+          <div id="db-active-list" class="db-list"></div>
+          <div style="font-family:var(--m);font-size:10px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase;margin:18px 0 8px">Add More Stats</div>
+          <select class="aselect" id="db-add-select" onchange="addDashWidget()">
+            <option value="">+ Choose a stat to add…</option>
+          </select>
+          <button class="abtn" style="width:100%;margin-top:14px" onclick="saveDashConfig()">Save Layout</button>
+          <div class="amsg" id="db-msg"></div>
+        </div>
+        <div class="sh"><div class="shb"></div><div class="sht">Live Preview</div></div>
+        <div id="db-preview" class="db-preview-wrap"></div>
+      </div>
       <!-- JOURNAL SECTION -->
-      <div class="av-section on" id="av-sec-journal">
+      <div class="av-section" id="av-sec-journal">
         <div class="aform">
           <div class="aform-title">
             <span id="av-j-title">Add Journal Entry</span>
@@ -1632,8 +1671,66 @@ async function deleteJournalEntry(id) {
   catch(e) { alert('Error deleting entry: ' + e.message); }
 }
 // ══════════════════════════════════════════════
-// DASHBOARD — Player profile (independent of monitoring)
+// DASHBOARD — Config-driven player profile
 // ══════════════════════════════════════════════
+
+// Catalog: every available widget. Each has a default label and how to compute its value.
+const STAT_CATALOG = {
+  // Headline / featured
+  goals:           { lbl: 'Goals',          group: 'Attack',   get: p => p.season_goals },
+  assists:         { lbl: 'Assists',        group: 'Attack',   get: p => p.season_assists },
+  goal_contrib:    { lbl: 'G+A',            group: 'Attack',   get: p => (p.season_goals||0) + (p.season_assists||0) },
+  shots_total:     { lbl: 'Shots',          group: 'Attack',   get: p => p.season_shots_total },
+  shots_on:        { lbl: 'Shots on Target',group: 'Attack',   get: p => p.season_shots_on },
+  shot_accuracy:   { lbl: 'Shot Accuracy',  group: 'Attack',   get: p => p.season_shots_total ? Math.round(p.season_shots_on/p.season_shots_total*100) : 0, suffix: '%', isPct: true, fillFrom: 'shots_on', fillTo: 'shots_total' },
+  // Playmaking
+  passes_total:    { lbl: 'Total Passes',   group: 'Passing',  get: p => p.season_passes_total },
+  passes_key:      { lbl: 'Key Passes',     group: 'Passing',  get: p => p.season_passes_key },
+  passes_accuracy: { lbl: 'Pass Accuracy',  group: 'Passing',  get: p => p.season_passes_accuracy, suffix: '%', isPct: true },
+  // Dribbles
+  dribbles_attempts: { lbl: 'Dribbles Tried', group: 'Dribbles', get: p => p.season_dribbles_attempts },
+  dribbles_success:  { lbl: 'Dribbles Won',   group: 'Dribbles', get: p => p.season_dribbles_success },
+  dribbles_past:     { lbl: 'Dribbled Past',  group: 'Dribbles', get: p => p.season_dribbles_past },
+  dribble_success_rate: { lbl: 'Dribble Success', group: 'Dribbles', get: p => p.season_dribbles_attempts ? Math.round(p.season_dribbles_success/p.season_dribbles_attempts*100) : 0, suffix: '%', isPct: true, fillFrom: 'dribbles_success', fillTo: 'dribbles_attempts' },
+  // Defense
+  tackles:         { lbl: 'Tackles',        group: 'Defense',  get: p => p.season_tackles_total },
+  blocks:          { lbl: 'Blocks',         group: 'Defense',  get: p => p.season_blocks },
+  interceptions:   { lbl: 'Interceptions',  group: 'Defense',  get: p => p.season_interceptions },
+  // Duels
+  duels_total:     { lbl: 'Duels',          group: 'Duels',    get: p => p.season_duels_total },
+  duels_won:       { lbl: 'Duels Won',      group: 'Duels',    get: p => p.season_duels_won },
+  duels_win_rate:  { lbl: 'Duels Win %',    group: 'Duels',    get: p => p.season_duels_total ? Math.round(p.season_duels_won/p.season_duels_total*100) : 0, suffix: '%', isPct: true, fillFrom: 'duels_won', fillTo: 'duels_total' },
+  // Games / minutes
+  appearances:     { lbl: 'Appearances',    group: 'Games',    get: p => p.season_appearances },
+  lineups:         { lbl: 'Starts',         group: 'Games',    get: p => p.season_lineups },
+  minutes:         { lbl: 'Minutes',        group: 'Games',    get: p => p.season_minutes, fmt: 'num' },
+  min_per_game:    { lbl: 'Min/Game',       group: 'Games',    get: p => p.season_appearances ? Math.round(p.season_minutes/p.season_appearances) : 0 },
+  rating:          { lbl: 'Avg Rating',     group: 'Games',    get: p => p.season_rating ? +parseFloat(p.season_rating).toFixed(2) : 0 },
+  subs_in:         { lbl: 'Came on as Sub', group: 'Games',    get: p => p.season_subs_in },
+  subs_out:        { lbl: 'Subbed Out',     group: 'Games',    get: p => p.season_subs_out },
+  // Discipline
+  fouls_drawn:     { lbl: 'Fouls Drawn',    group: 'Discipline', get: p => p.season_fouls_drawn },
+  fouls_committed: { lbl: 'Fouls Committed',group: 'Discipline', get: p => p.season_fouls_committed },
+  yellow:          { lbl: 'Yellow Cards',   group: 'Discipline', get: p => p.season_yellow },
+  red:             { lbl: 'Red Cards',      group: 'Discipline', get: p => p.season_red },
+  // Penalties
+  pen_scored:      { lbl: 'Penalties Scored', group: 'Penalties', get: p => p.season_pen_scored },
+  pen_missed:      { lbl: 'Penalties Missed', group: 'Penalties', get: p => p.season_pen_missed },
+  pen_won:         { lbl: 'Penalties Won',    group: 'Penalties', get: p => p.season_pen_won }
+};
+
+// Default config for a brand-new athlete (ordered list)
+const DEFAULT_DASHBOARD_CONFIG = [
+  { key: 'goals',           label: 'Goals',          headline: true },
+  { key: 'assists',         label: 'Assists',        headline: true },
+  { key: 'appearances',     label: 'Apps' },
+  { key: 'minutes',         label: 'Minutes' },
+  { key: 'rating',          label: 'Avg Rating' },
+  { key: 'min_per_game',    label: 'Min/Game' },
+  { key: 'shot_accuracy',   label: 'Shot Accuracy' },
+  { key: 'dribble_success_rate', label: 'Dribble Success' }
+];
+
 function getGreeting() {
   const h = new Date().getHours();
   if (h < 5)  return 'Late night';
@@ -1650,9 +1747,13 @@ function calcAge(birth) {
   return age;
 }
 function fmtNum(n) { return new Intl.NumberFormat().format(n || 0); }
+function getDashConfig(p) {
+  const cfg = p.dashboard_config;
+  if (Array.isArray(cfg) && cfg.length) return cfg;
+  return DEFAULT_DASHBOARD_CONFIG;
+}
 
 async function buildDash() {
-  // Refetch the latest athlete record for fresh API-Football data
   let p = currentProfile;
   try {
     const fresh = await sb.get('athletes', `?id=eq.${currentProfile.id}`);
@@ -1663,18 +1764,9 @@ async function buildDash() {
   const greeting = getGreeting();
   const age = calcAge(p.birth_date);
   const hasApiData = !!p.player_photo || !!p.team_name || (p.season_appearances || 0) > 0;
-  const minPerGame = p.season_appearances ? Math.round(p.season_minutes / p.season_appearances) : 0;
-  const goalContrib = (p.season_goals || 0) + (p.season_assists || 0);
-  const shotAccuracy = p.season_shots_total ? Math.round((p.season_shots_on / p.season_shots_total) * 100) : 0;
-  const dribbleSuccess = p.season_dribbles_attempts ? Math.round((p.season_dribbles_success / p.season_dribbles_attempts) * 100) : 0;
-  const photoDataUrl = p.player_photo || '';
-  const teamDataUrl = p.team_logo || '';
-  const leagueDataUrl = p.league_logo || '';
-  const ratingNum = parseFloat(p.season_rating) || 0;
-  const ratingColor = ratingNum >= 7 ? 'var(--gn)' : ratingNum >= 6 ? 'var(--am)' : 'var(--t2)';
   const seasonLabel = p.season_year ? `${p.season_year}/${(p.season_year + 1).toString().slice(-2)}` : '';
 
-  // ── Hero: greeting + photo + identity ─────────────
+  // Hero
   const heroHTML = `
     <div class="dash-hero">
       <div class="dash-hero-bg"></div>
@@ -1685,8 +1777,8 @@ async function buildDash() {
           <div class="dash-greet-date">${today}</div>
         </div>
         <div class="dash-photo-wrap">
-          ${photoDataUrl
-            ? `<img class="dash-photo" src="${photoDataUrl}" alt="${p.name}" onerror="this.style.display='none'">`
+          ${p.player_photo
+            ? `<img class="dash-photo" src="${p.player_photo}" alt="${p.name}" onerror="this.style.display='none'">`
             : `<div class="dash-photo-fallback">${p.initials || p.name[0]}</div>`}
         </div>
       </div>
@@ -1694,20 +1786,20 @@ async function buildDash() {
     </div>
   `;
 
-  // ── Identity strip: nationality + age + height + position ──
-  const identityHTML = (p.nationality || age || p.height_cm) ? `
+  // Identity strip
+  const identityHTML = (p.nationality || age || p.height_cm || p.position) ? `
     <div class="dash-identity">
-      ${p.position ? `<div class="dash-id-item"><div class="dash-id-lbl">Position</div><div class="dash-id-val">${p.position}</div></div>` : ''}
+      ${p.position ? `<div class="dash-id-item"><div class="dash-id-lbl">Position</div><div class="dash-id-val sm">${p.position}</div></div>` : ''}
       ${age ? `<div class="dash-id-item"><div class="dash-id-lbl">Age</div><div class="dash-id-val">${age}</div></div>` : ''}
       ${p.height_cm ? `<div class="dash-id-item"><div class="dash-id-lbl">Height</div><div class="dash-id-val">${p.height_cm}<span class="dash-id-u">cm</span></div></div>` : ''}
       ${p.nationality ? `<div class="dash-id-item"><div class="dash-id-lbl">Nationality</div><div class="dash-id-val sm">${p.nationality}</div></div>` : ''}
     </div>` : '';
 
-  // ── Team & league strip ────────────────────────
+  // Team & league
   const teamHTML = (p.team_name || p.league_name) ? `
     <div class="dash-team-strip">
       <div class="dash-team-block">
-        ${teamDataUrl ? `<img class="dash-team-logo" src="${teamDataUrl}" alt="${p.team_name||''}" onerror="this.style.display='none'">` : '<div class="dash-team-logo-ph">⚽</div>'}
+        ${p.team_logo ? `<img class="dash-team-logo" src="${p.team_logo}" alt="" onerror="this.style.display='none'">` : '<div class="dash-team-logo-ph">⚽</div>'}
         <div class="dash-team-info">
           <div class="dash-team-lbl">Team</div>
           <div class="dash-team-name">${p.team_name || '—'}</div>
@@ -1715,7 +1807,7 @@ async function buildDash() {
       </div>
       <div class="dash-team-divider"></div>
       <div class="dash-team-block">
-        ${leagueDataUrl ? `<img class="dash-team-logo small" src="${leagueDataUrl}" alt="${p.league_name||''}" onerror="this.style.display='none'">` : ''}
+        ${p.league_logo ? `<img class="dash-team-logo small" src="${p.league_logo}" alt="" onerror="this.style.display='none'">` : ''}
         <div class="dash-team-info">
           <div class="dash-team-lbl">${seasonLabel ? 'Season ' + seasonLabel : 'League'}</div>
           <div class="dash-team-name">${p.league_name || '—'}</div>
@@ -1723,60 +1815,59 @@ async function buildDash() {
       </div>
     </div>` : '';
 
-  // ── Season stats grid ──────────────────────────
-  const statsHTML = hasApiData ? `
-    <div class="sh"><div class="shb"></div><div class="sht">Season ${seasonLabel}</div></div>
-    <div class="dash-stats-grid">
-      <div class="dash-stat headline">
-        <div class="dash-stat-val">${p.season_goals || 0}</div>
-        <div class="dash-stat-lbl">Goals</div>
+  // Stats — driven by config
+  let statsHTML = '';
+  if (hasApiData) {
+    const cfg = getDashConfig(p);
+    const cards = cfg.map(item => {
+      const meta = STAT_CATALOG[item.key];
+      if (!meta) return '';
+      let val = meta.get(p);
+      if (val == null || val === '' || isNaN(val)) val = 0;
+      const label = item.label || meta.lbl;
+      const isHeadline = !!item.headline;
+      const valColor = meta === STAT_CATALOG.rating
+        ? (val >= 7 ? 'var(--gn)' : val >= 6 ? 'var(--am)' : 'var(--t2)')
+        : null;
+      // Progress bar version (for percentage stats)
+      if (meta.isPct && meta.fillFrom && meta.fillTo) {
+        const num = p['season_' + meta.fillFrom.replace(/^season_/, '')] || p[`season_${meta.fillFrom}`] || 0;
+        const den = p['season_' + meta.fillTo.replace(/^season_/, '')] || p[`season_${meta.fillTo}`] || 0;
+        return `
+          <div class="dash-prog">
+            <div class="dash-prog-head"><span>${label}</span><span class="dash-prog-pct">${val}%</span></div>
+            <div class="dash-prog-bar"><div class="dash-prog-fill" style="width:${val}%"></div></div>
+            ${den ? `<div class="dash-prog-sub">${num}/${den}</div>` : ''}
+          </div>`;
+      }
+      // Standard stat card
+      return `
+        <div class="dash-stat${isHeadline ? ' headline' : ''}">
+          <div class="dash-stat-val"${valColor ? ` style="color:${valColor}"` : ''}>${meta.fmt === 'num' ? fmtNum(val) : val}${meta.suffix || ''}</div>
+          <div class="dash-stat-lbl">${label}</div>
+        </div>`;
+    }).filter(Boolean);
+
+    // Split into stat cards vs progress bars
+    const statCards = cards.filter(c => c.includes('dash-stat')).join('');
+    const progBars  = cards.filter(c => c.includes('dash-prog')).join('');
+
+    statsHTML = `
+      <div class="sh"><div class="shb"></div><div class="sht">Season ${seasonLabel}</div></div>
+      ${statCards ? `<div class="dash-stats-grid">${statCards}</div>` : ''}
+      ${progBars ? `<div class="dash-secondary">${progBars}</div>` : ''}
+      <div class="dash-sync">
+        ${p.last_sync ? `Last synced ${new Date(p.last_sync).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}` : 'Awaiting first sync'}
       </div>
-      <div class="dash-stat headline">
-        <div class="dash-stat-val">${p.season_assists || 0}</div>
-        <div class="dash-stat-lbl">Assists</div>
-      </div>
-      <div class="dash-stat">
-        <div class="dash-stat-val">${p.season_appearances || 0}</div>
-        <div class="dash-stat-lbl">Apps</div>
-      </div>
-      <div class="dash-stat">
-        <div class="dash-stat-val">${fmtNum(p.season_minutes)}</div>
-        <div class="dash-stat-lbl">Minutes</div>
-      </div>
-      <div class="dash-stat">
-        <div class="dash-stat-val" style="color:${ratingColor}">${ratingNum ? ratingNum.toFixed(2) : '—'}</div>
-        <div class="dash-stat-lbl">Avg Rating</div>
-      </div>
-      <div class="dash-stat">
-        <div class="dash-stat-val">${minPerGame || '—'}</div>
-        <div class="dash-stat-lbl">Min/Game</div>
-      </div>
-    </div>
-    ${(p.season_shots_total || p.season_dribbles_attempts) ? `
-    <div class="dash-secondary">
-      ${p.season_shots_total ? `
-        <div class="dash-prog">
-          <div class="dash-prog-head"><span>Shot Accuracy</span><span class="dash-prog-pct">${shotAccuracy}%</span></div>
-          <div class="dash-prog-bar"><div class="dash-prog-fill" style="width:${shotAccuracy}%"></div></div>
-          <div class="dash-prog-sub">${p.season_shots_on}/${p.season_shots_total} on target</div>
-        </div>` : ''}
-      ${p.season_dribbles_attempts ? `
-        <div class="dash-prog">
-          <div class="dash-prog-head"><span>Dribble Success</span><span class="dash-prog-pct">${dribbleSuccess}%</span></div>
-          <div class="dash-prog-bar"><div class="dash-prog-fill" style="width:${dribbleSuccess}%"></div></div>
-          <div class="dash-prog-sub">${p.season_dribbles_success}/${p.season_dribbles_attempts} successful</div>
-        </div>` : ''}
-    </div>` : ''}
-    <div class="dash-sync">
-      ${p.last_sync ? `Last synced ${new Date(p.last_sync).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}` : 'Awaiting first sync'}
-    </div>
-  ` : `
-    <div class="card" style="text-align:center;padding:30px 20px">
-      <div class="soon-ico" style="font-size:32px;opacity:.4">📊</div>
-      <div class="soon-t" style="margin-top:10px">No live stats yet</div>
-      <div class="soon-s" style="margin-top:6px">Admin can link this athlete to API-Football to display their season data here.</div>
-    </div>
-  `;
+    `;
+  } else {
+    statsHTML = `
+      <div class="card" style="text-align:center;padding:30px 20px">
+        <div class="soon-ico" style="font-size:32px;opacity:.4">📊</div>
+        <div class="soon-t" style="margin-top:10px">No live stats yet</div>
+        <div class="soon-s" style="margin-top:6px">Admin can link this athlete to API-Football to display their season data here.</div>
+      </div>`;
+  }
 
   document.getElementById('dash-body').innerHTML = heroHTML + identityHTML + teamHTML + statsHTML;
 }
@@ -2069,12 +2160,152 @@ async function onAdminAthleteChange() {
   if (!rpe.dataset.wired) { rpe.addEventListener('input', recalc); rpe.dataset.wired = '1'; }
   // Load all 3 sections
   await Promise.all([loadAVJournal(), loadAVHRV(), loadAVSRPE()]);
+  loadDashBuilder();
 }
 function goAVSection(id, tabEl) {
   document.querySelectorAll('.av-section').forEach(s => s.classList.remove('on'));
   document.getElementById('av-sec-'+id).classList.add('on');
   document.querySelectorAll('.av-subtabs .stab').forEach(t => t.classList.remove('on'));
   if (tabEl) tabEl.classList.add('on');
+  if (id === 'dashboard') loadDashBuilder();
+}
+// ── DASHBOARD BUILDER ───────────────────────────
+let _dbConfig = []; // working copy of config being edited
+async function loadDashBuilder() {
+  if (!avAthlete) return;
+  const data = await sb.get('athletes', `?name=eq.${encodeURIComponent(avAthlete)}&limit=1`);
+  const a = data[0]; if (!a) return;
+  _dbConfig = Array.isArray(a.dashboard_config) && a.dashboard_config.length
+    ? JSON.parse(JSON.stringify(a.dashboard_config))
+    : JSON.parse(JSON.stringify(DEFAULT_DASHBOARD_CONFIG));
+  renderDashBuilder(a);
+}
+function renderDashBuilder(athlete) {
+  const list = document.getElementById('db-active-list');
+  list.innerHTML = '';
+  _dbConfig.forEach((item, i) => {
+    const meta = STAT_CATALOG[item.key];
+    if (!meta) return;
+    const row = document.createElement('div');
+    row.className = 'db-row';
+    row.draggable = true;
+    row.dataset.idx = i;
+    row.innerHTML = `
+      <div class="db-handle" title="Drag to reorder">⋮⋮</div>
+      <div class="db-row-body">
+        <div class="db-row-top">
+          <input class="ainput db-label-input" value="${(item.label || meta.lbl).replace(/"/g,'&quot;')}" placeholder="${meta.lbl}" oninput="updateDashItem(${i}, 'label', this.value)">
+          <button class="db-remove" onclick="removeDashItem(${i})" title="Remove">✕</button>
+        </div>
+        <div class="db-row-bot">
+          <span class="db-meta">${meta.group} · default: ${meta.lbl}</span>
+          <label class="db-toggle">
+            <input type="checkbox" ${item.headline ? 'checked' : ''} onchange="updateDashItem(${i}, 'headline', this.checked)">
+            <span>Headline</span>
+          </label>
+        </div>
+      </div>
+    `;
+    // Drag handlers
+    row.addEventListener('dragstart', e => {
+      row.classList.add('dragging');
+      e.dataTransfer.setData('text/plain', i);
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    row.addEventListener('dragend', () => row.classList.remove('dragging'));
+    row.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; row.classList.add('drag-over'); });
+    row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+    row.addEventListener('drop', e => {
+      e.preventDefault();
+      row.classList.remove('drag-over');
+      const from = parseInt(e.dataTransfer.getData('text/plain'));
+      const to = i;
+      if (from === to) return;
+      const moved = _dbConfig.splice(from, 1)[0];
+      _dbConfig.splice(to, 0, moved);
+      renderDashBuilder(athlete);
+    });
+    list.appendChild(row);
+  });
+  // Populate the "add" dropdown
+  const sel = document.getElementById('db-add-select');
+  sel.innerHTML = '<option value="">+ Choose a stat to add…</option>';
+  const usedKeys = new Set(_dbConfig.map(i => i.key));
+  // Group stats
+  const grouped = {};
+  Object.entries(STAT_CATALOG).forEach(([key, meta]) => {
+    if (usedKeys.has(key)) return;
+    if (!grouped[meta.group]) grouped[meta.group] = [];
+    grouped[meta.group].push({ key, lbl: meta.lbl });
+  });
+  Object.entries(grouped).forEach(([group, items]) => {
+    const og = document.createElement('optgroup'); og.label = group;
+    items.forEach(it => {
+      const o = document.createElement('option'); o.value = it.key; o.textContent = it.lbl;
+      og.appendChild(o);
+    });
+    sel.appendChild(og);
+  });
+  renderDashPreview(athlete);
+}
+function updateDashItem(idx, field, value) {
+  if (!_dbConfig[idx]) return;
+  _dbConfig[idx][field] = value;
+  // Re-render only the preview, not the form (so the input doesn't lose focus)
+  sb.get('athletes', `?name=eq.${encodeURIComponent(avAthlete)}&limit=1`).then(data => {
+    if (data[0]) renderDashPreview(data[0]);
+  });
+}
+function removeDashItem(idx) {
+  _dbConfig.splice(idx, 1);
+  loadDashBuilder();
+}
+function addDashWidget() {
+  const sel = document.getElementById('db-add-select');
+  const key = sel.value;
+  if (!key || !STAT_CATALOG[key]) return;
+  _dbConfig.push({ key, label: STAT_CATALOG[key].lbl, headline: false });
+  sel.value = '';
+  loadDashBuilder();
+}
+function resetDashConfig() {
+  if (!confirm('Reset this athlete\'s dashboard to the default layout?')) return;
+  _dbConfig = JSON.parse(JSON.stringify(DEFAULT_DASHBOARD_CONFIG));
+  loadDashBuilder();
+}
+async function saveDashConfig() {
+  if (!avAthlete) return;
+  try {
+    const data = await sb.get('athletes', `?name=eq.${encodeURIComponent(avAthlete)}&limit=1`);
+    const a = data[0]; if (!a) throw new Error('Athlete not found');
+    const r = await sb.patch('athletes', a.id, { dashboard_config: _dbConfig });
+    if (!r.ok) throw new Error('Save failed ' + r.status);
+    showMsg('db-msg', 'Layout saved ✓');
+  } catch (e) { showMsg('db-msg', 'Error: ' + e.message, true); }
+}
+function renderDashPreview(p) {
+  const wrap = document.getElementById('db-preview');
+  if (!wrap) return;
+  const cards = _dbConfig.map(item => {
+    const meta = STAT_CATALOG[item.key];
+    if (!meta) return '';
+    let val = meta.get(p);
+    if (val == null || val === '' || isNaN(val)) val = 0;
+    const label = item.label || meta.lbl;
+    if (meta.isPct && meta.fillFrom && meta.fillTo) {
+      const num = p[`season_${meta.fillFrom}`] || 0;
+      const den = p[`season_${meta.fillTo}`] || 0;
+      return `<div class="dash-prog"><div class="dash-prog-head"><span>${label}</span><span class="dash-prog-pct">${val}%</span></div><div class="dash-prog-bar"><div class="dash-prog-fill" style="width:${val}%"></div></div>${den ? `<div class="dash-prog-sub">${num}/${den}</div>` : ''}</div>`;
+    }
+    return `<div class="dash-stat${item.headline ? ' headline' : ''}"><div class="dash-stat-val">${meta.fmt === 'num' ? fmtNum(val) : val}${meta.suffix || ''}</div><div class="dash-stat-lbl">${label}</div></div>`;
+  }).filter(Boolean);
+  const statCards = cards.filter(c => c.includes('dash-stat')).join('');
+  const progBars = cards.filter(c => c.includes('dash-prog')).join('');
+  wrap.innerHTML = `
+    ${statCards ? `<div class="dash-stats-grid">${statCards}</div>` : ''}
+    ${progBars ? `<div class="dash-secondary">${progBars}</div>` : ''}
+    ${!statCards && !progBars ? '<div class="soon" style="padding:30px"><div class="soon-s">No stats configured. Add some above.</div></div>' : ''}
+  `;
 }
 // ── JOURNAL ─────────────────────────────────────
 async function loadAVJournal() {
