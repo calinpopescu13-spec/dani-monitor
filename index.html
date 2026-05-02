@@ -2256,22 +2256,27 @@ function updateDashItem(idx, field, value) {
     if (data[0]) renderDashPreview(data[0]);
   });
 }
-function removeDashItem(idx) {
+async function removeDashItem(idx) {
   _dbConfig.splice(idx, 1);
-  loadDashBuilder();
+  // Re-render with current local _dbConfig — DON'T reload from DB
+  const data = await sb.get('athletes', `?name=eq.${encodeURIComponent(avAthlete)}&limit=1`);
+  if (data[0]) renderDashBuilder(data[0]);
 }
-function addDashWidget() {
+async function addDashWidget() {
   const sel = document.getElementById('db-add-select');
   const key = sel.value;
   if (!key || !STAT_CATALOG[key]) return;
   _dbConfig.push({ key, label: STAT_CATALOG[key].lbl, headline: false });
   sel.value = '';
-  loadDashBuilder();
+  // Re-render with current local _dbConfig — DON'T reload from DB
+  const data = await sb.get('athletes', `?name=eq.${encodeURIComponent(avAthlete)}&limit=1`);
+  if (data[0]) renderDashBuilder(data[0]);
 }
-function resetDashConfig() {
+async function resetDashConfig() {
   if (!confirm('Reset this athlete\'s dashboard to the default layout?')) return;
   _dbConfig = JSON.parse(JSON.stringify(DEFAULT_DASHBOARD_CONFIG));
-  loadDashBuilder();
+  const data = await sb.get('athletes', `?name=eq.${encodeURIComponent(avAthlete)}&limit=1`);
+  if (data[0]) renderDashBuilder(data[0]);
 }
 async function saveDashConfig() {
   if (!avAthlete) return;
