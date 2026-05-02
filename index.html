@@ -46,19 +46,30 @@ body{min-height:100dvh;overflow-x:hidden}
 .fps-name{font-family:var(--bb);font-size:26px;letter-spacing:.06em;color:var(--wh);line-height:1}
 .fps-divider{width:36px;height:2px;background:var(--accent);border-radius:1px;margin:16px auto 12px}
 .fps-prompt{font-family:var(--m);font-size:11px;color:var(--t3);letter-spacing:.06em}
-.profiles-grid{width:100%;max-width:480px;display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.pc{background:var(--sf);border:1px solid var(--b);border-radius:var(--r3);padding:22px 14px 18px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:10px;position:relative;overflow:hidden;min-height:180px}
-.pc::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(45,184,94,.1),transparent);opacity:0;transition:opacity .2s}
-.pc:hover{border-color:rgba(45,184,94,.5);background:var(--sf2)}.pc:hover::after{opacity:1}
-.pc:active{transform:scale(.97)}
-.pc-avatar{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--bb);font-size:28px;color:var(--wh);border:2px solid rgba(45,184,94,.5);flex-shrink:0;position:relative;box-shadow:0 4px 14px rgba(0,0,0,.35)}
-.pc-online{position:absolute;bottom:2px;right:2px;width:10px;height:10px;border-radius:50%;background:var(--gn);border:2px solid var(--sf);box-shadow:0 0 6px rgba(76,217,123,.6)}
-.pc-name{font-family:var(--bb);font-size:20px;letter-spacing:.04em;color:var(--wh)}
-.pc-role{font-family:var(--m);font-size:10px;letter-spacing:.08em;color:var(--t2);text-transform:uppercase}
-.pc-add{border:1px dashed rgba(255,255,255,.14);background:transparent}
-.pc-add:hover{border-color:rgba(45,184,94,.45);background:var(--rpd)}
-.pc-add-icon{width:44px;height:44px;border-radius:50%;border:1px dashed rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--t2)}
-.pc-add-lbl{font-family:var(--m);font-size:10px;letter-spacing:.08em;color:var(--t2);text-transform:uppercase}
+.profiles-dropdown-wrap{width:100%;max-width:380px;display:flex;flex-direction:column;gap:14px}
+.profiles-label{font-family:var(--m);font-size:10px;letter-spacing:.14em;color:var(--t2);text-transform:uppercase;text-align:center;margin-bottom:-4px}
+.custom-select{position:relative;width:100%}
+.custom-select-btn{width:100%;background:var(--sf2);border:1px solid var(--b2);border-radius:var(--r2);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-family:var(--m);font-size:13px;color:var(--tx);transition:border-color .2s,box-shadow .2s;letter-spacing:.04em;min-height:54px}
+.custom-select-btn:hover{border-color:rgba(45,184,94,.4)}
+.custom-select-btn[aria-expanded="true"]{border-color:var(--accent);box-shadow:0 0 0 3px rgba(45,184,94,.15)}
+.custom-select-btn svg{transition:transform .2s;color:var(--rp3);flex-shrink:0}
+.custom-select-btn[aria-expanded="true"] svg{transform:rotate(180deg)}
+.custom-select-menu{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--sf2);border:1px solid var(--b2);border-radius:var(--r2);max-height:280px;overflow-y:auto;z-index:50;box-shadow:0 10px 30px rgba(0,0,0,.45);animation:csIn .15s ease}
+@keyframes csIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.cs-option{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;border-bottom:1px solid var(--b);transition:background .15s;min-height:56px}
+.cs-option:last-child{border-bottom:none}
+.cs-option:hover{background:var(--sf3)}
+.cs-option.sel{background:rgba(45,184,94,.08)}
+.cs-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--bb);font-size:15px;color:var(--wh);flex-shrink:0;border:1.5px solid rgba(45,184,94,.4);overflow:hidden}
+.cs-avatar img{width:100%;height:100%;object-fit:cover}
+.cs-info{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+.cs-name{font-family:var(--bb);font-size:15px;letter-spacing:.04em;color:var(--wh)}
+.cs-role{font-family:var(--m);font-size:10px;letter-spacing:.06em;color:var(--t2);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cs-empty{padding:18px;text-align:center;font-family:var(--m);font-size:11px;color:var(--t2)}
+.cs-display-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--rp),var(--rp3));display:flex;align-items:center;justify-content:center;font-family:var(--bb);font-size:13px;color:var(--wh);margin-right:10px;overflow:hidden;border:1.5px solid rgba(45,184,94,.45)}
+.cs-display-avatar img{width:100%;height:100%;object-fit:cover}
+.cs-display-wrap{display:flex;align-items:center;flex:1;min-width:0}
+#profile-continue:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
 .admin-entry{margin-top:20px;width:100%;max-width:480px;text-align:center}
 .admin-link{font-family:var(--m);font-size:10px;letter-spacing:.1em;color:var(--t2);cursor:pointer;padding:10px 16px;border:1px solid var(--b);border-radius:var(--r1);background:transparent;transition:all .2s;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px}
 .admin-link:hover{color:var(--rp3);border-color:rgba(45,184,94,.4)}
@@ -109,6 +120,48 @@ body{min-height:100dvh;overflow-x:hidden}
 .clbl{font-family:var(--m);font-size:9px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase;margin-bottom:6px}
 .cval{font-family:var(--bb);font-size:28px;letter-spacing:.01em;line-height:1;color:var(--wh)}
 .cval.md{font-size:22px}.csub{font-family:var(--m);font-size:9px;color:var(--t3);margin-top:4px}
+/* ══ DASHBOARD — Player profile ══ */
+.dash-hero{position:relative;background:linear-gradient(135deg,var(--sf2) 0%,var(--sf) 60%,var(--sf3) 100%);border:1px solid rgba(45,184,94,.28);border-radius:var(--r3);padding:24px 22px 22px;margin-bottom:14px;overflow:hidden}
+.dash-hero-bg{position:absolute;inset:0;background:radial-gradient(circle at top right,rgba(45,184,94,.18),transparent 55%),radial-gradient(circle at bottom left,rgba(45,184,94,.08),transparent 50%);pointer-events:none}
+.dash-hero-content{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.dash-greeting{flex:1;min-width:0}
+.dash-greet-eyebrow{font-family:var(--m);font-size:11px;color:var(--rp3);letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px}
+.dash-greet-name{font-family:var(--bb);font-size:38px;line-height:1;color:var(--wh);letter-spacing:.02em;margin-bottom:8px;word-break:break-word}
+.dash-greet-date{font-family:var(--m);font-size:11px;color:var(--t2);letter-spacing:.04em}
+.dash-photo-wrap{flex-shrink:0;width:96px;height:96px;border-radius:50%;border:3px solid rgba(45,184,94,.45);overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.45),0 0 0 4px rgba(45,184,94,.08);background:var(--sf3);position:relative}
+.dash-photo{width:100%;height:100%;object-fit:cover;display:block}
+.dash-photo-fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--bb);font-size:38px;color:var(--wh);background:linear-gradient(135deg,var(--rp),var(--rp3))}
+.dash-motto{position:relative;z-index:1;margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.07);font-family:var(--f);font-size:14px;font-style:italic;color:var(--t2);line-height:1.55;text-align:center}
+.dash-identity{display:grid;grid-template-columns:repeat(auto-fit,minmax(75px,1fr));gap:8px;margin-bottom:10px}
+.dash-id-item{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:11px 8px;text-align:center}
+.dash-id-lbl{font-family:var(--m);font-size:9px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase;margin-bottom:5px}
+.dash-id-val{font-family:var(--bb);font-size:20px;color:var(--wh);line-height:1;letter-spacing:.02em}
+.dash-id-val.sm{font-size:13px;font-family:var(--fc);font-weight:600}
+.dash-id-u{font-size:10px;color:var(--t2);font-family:var(--m);margin-left:2px;font-weight:400;letter-spacing:.04em}
+.dash-team-strip{display:flex;align-items:center;gap:14px;background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:12px 14px;margin-bottom:12px}
+.dash-team-block{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.dash-team-logo{width:36px;height:36px;object-fit:contain;flex-shrink:0;filter:drop-shadow(0 1px 4px rgba(0,0,0,.4))}
+.dash-team-logo.small{width:28px;height:28px}
+.dash-team-logo-ph{width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:var(--sf2);border-radius:50%}
+.dash-team-info{flex:1;min-width:0}
+.dash-team-lbl{font-family:var(--m);font-size:9px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase;margin-bottom:3px}
+.dash-team-name{font-family:var(--fc);font-size:14px;font-weight:600;color:var(--wh);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dash-team-divider{width:1px;height:32px;background:var(--b);flex-shrink:0}
+.dash-stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.dash-stat{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:14px 10px;text-align:center;transition:border-color .2s}
+.dash-stat.headline{background:linear-gradient(135deg,var(--sf2),var(--sf));border-color:rgba(45,184,94,.3)}
+.dash-stat.headline .dash-stat-val{color:var(--rp3)}
+.dash-stat-val{font-family:var(--bb);font-size:30px;line-height:1;color:var(--wh);letter-spacing:.01em}
+.dash-stat-lbl{font-family:var(--m);font-size:9px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase;margin-top:6px}
+.dash-secondary{display:grid;gap:10px;margin-bottom:12px}
+.dash-prog{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:13px 14px}
+.dash-prog-head{display:flex;justify-content:space-between;align-items:center;font-family:var(--m);font-size:11px;color:var(--t2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.dash-prog-pct{font-family:var(--bb);font-size:16px;color:var(--rp3);letter-spacing:.02em}
+.dash-prog-bar{height:5px;background:var(--sf2);border-radius:999px;overflow:hidden}
+.dash-prog-fill{height:100%;background:linear-gradient(90deg,var(--rp),var(--accent));border-radius:999px;transition:width 1s cubic-bezier(.34,1.56,.64,1)}
+.dash-prog-sub{font-family:var(--m);font-size:10px;color:var(--t3);margin-top:6px}
+.dash-sync{font-family:var(--m);font-size:10px;color:var(--t3);text-align:center;margin-top:14px;letter-spacing:.04em}
+@media(max-width:360px){.dash-greet-name{font-size:30px}.dash-photo-wrap{width:78px;height:78px}.dash-stat-val{font-size:24px}}
 /* ══ HERO HRV CARD (dashboard) ══ */
 .hero{background:linear-gradient(135deg,var(--sf2),var(--sf));border:1px solid rgba(45,184,94,.28);border-radius:var(--r3);padding:18px;margin-bottom:12px;position:relative;overflow:hidden}
 .hero::after{content:'';position:absolute;top:0;right:0;width:180px;height:180px;background:radial-gradient(circle,rgba(45,184,94,.12),transparent 70%);pointer-events:none}
@@ -392,9 +445,18 @@ body{min-height:100dvh;overflow-x:hidden}
     <div class="fps-divider"></div>
     <div class="fps-prompt">Choose your athlete profile to continue</div>
   </div>
-  <div class="profiles-grid" id="profiles-grid">
-    <div class="sk-card"><div class="sk sk-line lg"></div><div class="sk sk-line sm"></div></div>
-    <div class="sk-card"><div class="sk sk-line lg"></div><div class="sk sk-line sm"></div></div>
+  <div class="profiles-dropdown-wrap" id="profiles-dropdown-wrap">
+    <label class="profiles-label" for="profile-select">Select Athlete</label>
+    <div class="custom-select" id="custom-select">
+      <button class="custom-select-btn" id="custom-select-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
+        <span id="cs-display">— Choose your profile —</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="custom-select-menu" id="custom-select-menu" role="listbox" hidden>
+        <div class="cs-empty" id="cs-empty">Loading…</div>
+      </div>
+    </div>
+    <button class="pw-btn" id="profile-continue" onclick="continueWithProfile()" disabled>Continue</button>
   </div>
   <div class="admin-entry">
     <button class="admin-link" onclick="goAdmin()">
@@ -729,6 +791,9 @@ body{min-height:100dvh;overflow-x:hidden}
         <div class="arow"><label class="albl">Team</label><input class="ainput" id="af-team" placeholder="Rapid București"></div>
       </div>
       <div class="arow"><label class="albl">Password</label><input class="ainput" id="af-password" placeholder="athlete2026"></div>
+      <div style="font-family:var(--m);font-size:10px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase;margin-bottom:10px;margin-top:14px">Live Data & Personal</div>
+      <div class="arow"><label class="albl">API-Football Player ID <span style="font-family:var(--f);font-size:10px;color:var(--t3);text-transform:none;letter-spacing:0;font-weight:400">— enables live stats on dashboard</span></label><input class="ainput" id="af-api-id" type="number" placeholder="e.g. 42754"></div>
+      <div class="arow"><label class="albl">Personal Motto <span style="font-family:var(--f);font-size:10px;color:var(--t3);text-transform:none;letter-spacing:0;font-weight:400">— shown on athlete's dashboard</span></label><textarea class="atextarea" id="af-motto" rows="2" placeholder='e.g. "Trust the process — every day matters."'></textarea></div>
       <button class="abtn" style="width:100%;margin-top:14px" onclick="saveAthlete()">Save Athlete</button>
       <div class="amsg" id="athlete-msg"></div>
     </div>
@@ -809,33 +874,86 @@ function avatarGradient(a) {
   const c2 = a.color2 || '#2db85e';
   return `linear-gradient(135deg, ${c1}, ${c2})`;
 }
+let _selectedProfile = null;
+let _allAthletes = [];
+
 async function loadProfiles() {
-  const grid = document.getElementById('profiles-grid');
-  grid.innerHTML = '<div class="sk-card"><div class="sk sk-line lg"></div><div class="sk sk-line sm"></div></div><div class="sk-card"><div class="sk sk-line lg"></div><div class="sk sk-line sm"></div></div>';
+  const menu = document.getElementById('custom-select-menu');
+  menu.innerHTML = '<div class="cs-empty">Loading…</div>';
+  document.getElementById('cs-display').textContent = '— Choose your profile —';
+  document.getElementById('profile-continue').disabled = true;
+  _selectedProfile = null;
   try {
-    const athletes = await sb.get('athletes', '?order=name&online=eq.true');
-    grid.innerHTML = '';
-    athletes.forEach(a => {
-      const card = document.createElement('div');
-      card.className = 'pc';
-      card.innerHTML = `
-        <div class="pc-avatar" style="background:${avatarGradient(a)}">
-          ${a.initials||a.name[0]}
-          <div class="pc-online"></div>
-        </div>
-        <div class="pc-name">${a.name}</div>
-        <div class="pc-role">${a.position||''}</div>
-      `;
-      card.onclick = () => selectProfile(a);
-      grid.appendChild(card);
-    });
-    const add = document.createElement('div');
-    add.className = 'pc pc-add';
-    add.innerHTML = `<div class="pc-add-icon">+</div><div class="pc-add-lbl">Add athlete</div>`;
-    add.onclick = () => goAdmin();
-    grid.appendChild(add);
-  } catch(e) { grid.innerHTML = '<div class="errbox">Could not load profiles</div>'; }
+    _allAthletes = await sb.get('athletes', '?order=name&online=eq.true');
+    renderProfileMenu();
+  } catch (e) {
+    menu.innerHTML = '<div class="cs-empty" style="color:var(--rd)">Could not load profiles</div>';
+  }
 }
+
+function renderProfileMenu() {
+  const menu = document.getElementById('custom-select-menu');
+  if (!_allAthletes.length) {
+    menu.innerHTML = '<div class="cs-empty">No athletes yet</div>';
+    return;
+  }
+  menu.innerHTML = '';
+  _allAthletes.forEach(a => {
+    const opt = document.createElement('div');
+    opt.className = 'cs-option' + (_selectedProfile?.id === a.id ? ' sel' : '');
+    opt.setAttribute('role', 'option');
+    opt.innerHTML = `
+      <div class="cs-avatar" style="background:${avatarGradient(a)}">
+        ${a.player_photo ? `<img src="${a.player_photo}" alt="${a.name}" onerror="this.style.display='none';this.parentElement.textContent='${(a.initials || a.name[0]).replace(/'/g,'')}'">` : (a.initials || a.name[0])}
+      </div>
+      <div class="cs-info">
+        <div class="cs-name">${a.name}</div>
+        <div class="cs-role">${[a.position, a.team_name].filter(Boolean).join(' · ') || '—'}</div>
+      </div>
+    `;
+    opt.onclick = () => pickProfile(a);
+    menu.appendChild(opt);
+  });
+}
+
+function toggleProfileMenu(force) {
+  const btn = document.getElementById('custom-select-btn');
+  const menu = document.getElementById('custom-select-menu');
+  const open = force !== undefined ? force : btn.getAttribute('aria-expanded') !== 'true';
+  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  menu.hidden = !open;
+}
+
+function pickProfile(a) {
+  _selectedProfile = a;
+  const display = document.getElementById('cs-display');
+  display.innerHTML = `
+    <div class="cs-display-wrap">
+      <div class="cs-display-avatar" style="background:${avatarGradient(a)}">
+        ${a.player_photo ? `<img src="${a.player_photo}" alt="${a.name}" onerror="this.style.display='none';this.parentElement.textContent='${(a.initials || a.name[0]).replace(/'/g,'')}'">` : (a.initials || a.name[0])}
+      </div>
+      <span style="color:var(--wh);font-family:var(--bb);font-size:15px;letter-spacing:.04em">${a.name}</span>
+    </div>
+  `;
+  document.getElementById('profile-continue').disabled = false;
+  toggleProfileMenu(false);
+  renderProfileMenu();
+}
+
+function continueWithProfile() {
+  if (!_selectedProfile) return;
+  selectProfile(_selectedProfile);
+}
+
+// Wire the dropdown button + outside-click close after DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('custom-select-btn');
+  if (btn) btn.onclick = () => toggleProfileMenu();
+  document.addEventListener('click', (e) => {
+    const wrap = document.getElementById('custom-select');
+    if (wrap && !wrap.contains(e.target)) toggleProfileMenu(false);
+  });
+});
 function selectProfile(profile) {
   currentProfile = profile;
   document.getElementById('pw-avatar').textContent = profile.initials || profile.name[0];
@@ -1514,75 +1632,153 @@ async function deleteJournalEntry(id) {
   catch(e) { alert('Error deleting entry: ' + e.message); }
 }
 // ══════════════════════════════════════════════
-// DASHBOARD — HRV-first layout
+// DASHBOARD — Player profile (independent of monitoring)
 // ══════════════════════════════════════════════
-async function buildDash(lastRaw, pctToday, si, allHrvRaw, allHrvLabels, lastJ) {
-  const today = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
-  const latest = allSessions[0]||null;
-  // Wellness: avg of mood/sleep/energy/(inverted) soreness out of 5
-  const wellnessScore = lastJ ? ((lastJ.mood+lastJ.sleep+lastJ.energy+(6-lastJ.soreness))/4).toFixed(1) : null;
-  const wellnessColor = wellnessScore >= 3.5 ? 'var(--gn)' : wellnessScore >= 2.5 ? 'var(--am)' : 'var(--rd)';
-  // HRV hero
-  let heroHTML = '';
-  if(lastRaw != null) {
-    const gp = Math.min(Math.max((pctToday+30)/50*100,3),97);
-    const p7 = allHrvRaw.length>=7 ? allHrvRaw.slice(-7) : allHrvRaw;
-    const trend = p7.length>1 ? +(((p7[p7.length-1]-p7[0])/p7[0])*100).toFixed(1) : 0;
-    heroHTML = `
-      <div class="hero">
-        <div class="hero-top">
-          <div>
-            <div class="hero-eyebrow">Today's HRV</div>
-            <div class="hero-sub">${today}</div>
-          </div>
-          <div class="gbg ${si.g}"><div class="bdot"></div>${si.t}</div>
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 5)  return 'Late night';
+  if (h < 12) return 'Good morning';
+  if (h < 18) return 'Good afternoon';
+  return 'Good evening';
+}
+function calcAge(birth) {
+  if (!birth) return null;
+  const b = new Date(birth), n = new Date();
+  let age = n.getFullYear() - b.getFullYear();
+  const m = n.getMonth() - b.getMonth();
+  if (m < 0 || (m === 0 && n.getDate() < b.getDate())) age--;
+  return age;
+}
+function fmtNum(n) { return new Intl.NumberFormat().format(n || 0); }
+
+async function buildDash() {
+  // Refetch the latest athlete record for fresh API-Football data
+  let p = currentProfile;
+  try {
+    const fresh = await sb.get('athletes', `?id=eq.${currentProfile.id}`);
+    if (fresh && fresh[0]) p = fresh[0];
+  } catch {}
+
+  const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+  const greeting = getGreeting();
+  const age = calcAge(p.birth_date);
+  const hasApiData = !!p.player_photo || !!p.team_name || (p.season_appearances || 0) > 0;
+  const minPerGame = p.season_appearances ? Math.round(p.season_minutes / p.season_appearances) : 0;
+  const goalContrib = (p.season_goals || 0) + (p.season_assists || 0);
+  const shotAccuracy = p.season_shots_total ? Math.round((p.season_shots_on / p.season_shots_total) * 100) : 0;
+  const dribbleSuccess = p.season_dribbles_attempts ? Math.round((p.season_dribbles_success / p.season_dribbles_attempts) * 100) : 0;
+  const photoDataUrl = p.player_photo || '';
+  const teamDataUrl = p.team_logo || '';
+  const leagueDataUrl = p.league_logo || '';
+  const ratingNum = parseFloat(p.season_rating) || 0;
+  const ratingColor = ratingNum >= 7 ? 'var(--gn)' : ratingNum >= 6 ? 'var(--am)' : 'var(--t2)';
+  const seasonLabel = p.season_year ? `${p.season_year}/${(p.season_year + 1).toString().slice(-2)}` : '';
+
+  // ── Hero: greeting + photo + identity ─────────────
+  const heroHTML = `
+    <div class="dash-hero">
+      <div class="dash-hero-bg"></div>
+      <div class="dash-hero-content">
+        <div class="dash-greeting">
+          <div class="dash-greet-eyebrow">${greeting},</div>
+          <div class="dash-greet-name">${p.name}</div>
+          <div class="dash-greet-date">${today}</div>
         </div>
-        <div class="hero-main">
-          <div class="hero-val" style="color:${si.col}">${lastRaw}</div>
-          <div class="hero-unit">lnRMSSD ms</div>
-        </div>
-        <div class="hero-gauge"><div class="hero-needle" id="dash-needle"></div></div>
-        <div class="gaxis"><span>−25%</span><span>−10%</span><span>0</span><span>+10%</span><span>+20%</span></div>
-        <div class="hero-row">
-          <div class="hero-pct" style="color:${si.col}">${pctToday>=0?'+':''}${pctToday}%</div>
-          <div style="font-family:var(--m);font-size:11px;color:var(--t2)">
-            7d: <span style="color:${trend>2?'var(--gn)':trend<-2?'var(--rd)':'var(--t2)'};font-weight:500">${trend>=0?'+':''}${trend}%</span>
-          </div>
+        <div class="dash-photo-wrap">
+          ${photoDataUrl
+            ? `<img class="dash-photo" src="${photoDataUrl}" alt="${p.name}" onerror="this.style.display='none'">`
+            : `<div class="dash-photo-fallback">${p.initials || p.name[0]}</div>`}
         </div>
       </div>
-    `;
-    setTimeout(() => { const n = document.getElementById('dash-needle'); if(n) n.style.left = gp+'%'; }, 250);
-  }
-  const sHTML = latest ? `
-    <div class="sh"><div class="shb"></div><div class="sht">Latest Session</div></div>
-    <div class="scard" onclick="openSession(allSessions[0])">
-      <div class="scard-inner">
-        <div class="scard-date"><div class="scard-day">${parseSD(latest.date).day}</div><div class="scard-mon">${parseSD(latest.date).mon}</div></div>
-        <div class="scard-body"><div class="scard-tag">${latest.tag||''}</div><div class="scard-title">${latest.title}</div><div class="scard-meta"><span>${latest.duration||''}</span><span>${latest.type||''}</span></div></div>
-        <div class="scard-r">→</div>
+      ${p.motto ? `<div class="dash-motto">"${p.motto}"</div>` : ''}
+    </div>
+  `;
+
+  // ── Identity strip: nationality + age + height + position ──
+  const identityHTML = (p.nationality || age || p.height_cm) ? `
+    <div class="dash-identity">
+      ${p.position ? `<div class="dash-id-item"><div class="dash-id-lbl">Position</div><div class="dash-id-val">${p.position}</div></div>` : ''}
+      ${age ? `<div class="dash-id-item"><div class="dash-id-lbl">Age</div><div class="dash-id-val">${age}</div></div>` : ''}
+      ${p.height_cm ? `<div class="dash-id-item"><div class="dash-id-lbl">Height</div><div class="dash-id-val">${p.height_cm}<span class="dash-id-u">cm</span></div></div>` : ''}
+      ${p.nationality ? `<div class="dash-id-item"><div class="dash-id-lbl">Nationality</div><div class="dash-id-val sm">${p.nationality}</div></div>` : ''}
+    </div>` : '';
+
+  // ── Team & league strip ────────────────────────
+  const teamHTML = (p.team_name || p.league_name) ? `
+    <div class="dash-team-strip">
+      <div class="dash-team-block">
+        ${teamDataUrl ? `<img class="dash-team-logo" src="${teamDataUrl}" alt="${p.team_name||''}" onerror="this.style.display='none'">` : '<div class="dash-team-logo-ph">⚽</div>'}
+        <div class="dash-team-info">
+          <div class="dash-team-lbl">Team</div>
+          <div class="dash-team-name">${p.team_name || '—'}</div>
+        </div>
+      </div>
+      <div class="dash-team-divider"></div>
+      <div class="dash-team-block">
+        ${leagueDataUrl ? `<img class="dash-team-logo small" src="${leagueDataUrl}" alt="${p.league_name||''}" onerror="this.style.display='none'">` : ''}
+        <div class="dash-team-info">
+          <div class="dash-team-lbl">${seasonLabel ? 'Season ' + seasonLabel : 'League'}</div>
+          <div class="dash-team-name">${p.league_name || '—'}</div>
+        </div>
       </div>
     </div>` : '';
-  const jHTML = lastJ ? `
-    <div class="sh"><div class="shb"></div><div class="sht">Wellness Check</div></div>
-    <div class="card" style="margin-bottom:10px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div class="clbl" style="margin:0">Last entry · ${lastJ.date}</div>
-        <div style="font-family:var(--bb);font-size:22px;color:${wellnessColor}">${wellnessScore}/5</div>
+
+  // ── Season stats grid ──────────────────────────
+  const statsHTML = hasApiData ? `
+    <div class="sh"><div class="shb"></div><div class="sht">Season ${seasonLabel}</div></div>
+    <div class="dash-stats-grid">
+      <div class="dash-stat headline">
+        <div class="dash-stat-val">${p.season_goals || 0}</div>
+        <div class="dash-stat-lbl">Goals</div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
-        ${[['Mood',lastJ.mood,false],['Sleep',lastJ.sleep,false],['Energy',lastJ.energy,false],['Soreness',lastJ.soreness,true]].map(([lbl,val,inv])=>{
-          const c = inv ? (val<=2?'var(--gn)':val<=3?'var(--am)':'var(--rd)') : (val>=4?'var(--gn)':val>=3?'var(--am)':'var(--rd)');
-          return `<div style="text-align:center"><div style="font-family:var(--bb);font-size:22px;color:${c}">${val}</div><div style="font-family:var(--m);font-size:9px;color:var(--t2);text-transform:uppercase;margin-top:3px;letter-spacing:.06em">${lbl}</div></div>`;
-        }).join('')}
+      <div class="dash-stat headline">
+        <div class="dash-stat-val">${p.season_assists || 0}</div>
+        <div class="dash-stat-lbl">Assists</div>
       </div>
-      ${lastJ.notes?`<div style="font-family:var(--f);font-size:13px;color:var(--t2);border-top:1px solid var(--b);padding-top:8px;margin-top:8px;line-height:1.5">${lastJ.notes}</div>`:''}
-    </div>` : `
-    <div class="sh"><div class="shb"></div><div class="sht">Wellness Check</div></div>
-    <div class="card" style="margin-bottom:10px;text-align:center;padding:20px">
-      <div style="font-family:var(--m);font-size:11px;color:var(--t2)">No journal entry today</div>
-      <button onclick="goTab('journal')" style="margin-top:10px;padding:10px 18px;background:var(--accent);border:none;border-radius:var(--r1);font-family:var(--bb);font-size:14px;letter-spacing:.08em;color:#062010;cursor:pointer">Log Today →</button>
-    </div>`;
-  document.getElementById('dash-body').innerHTML = heroHTML + jHTML + sHTML;
+      <div class="dash-stat">
+        <div class="dash-stat-val">${p.season_appearances || 0}</div>
+        <div class="dash-stat-lbl">Apps</div>
+      </div>
+      <div class="dash-stat">
+        <div class="dash-stat-val">${fmtNum(p.season_minutes)}</div>
+        <div class="dash-stat-lbl">Minutes</div>
+      </div>
+      <div class="dash-stat">
+        <div class="dash-stat-val" style="color:${ratingColor}">${ratingNum ? ratingNum.toFixed(2) : '—'}</div>
+        <div class="dash-stat-lbl">Avg Rating</div>
+      </div>
+      <div class="dash-stat">
+        <div class="dash-stat-val">${minPerGame || '—'}</div>
+        <div class="dash-stat-lbl">Min/Game</div>
+      </div>
+    </div>
+    ${(p.season_shots_total || p.season_dribbles_attempts) ? `
+    <div class="dash-secondary">
+      ${p.season_shots_total ? `
+        <div class="dash-prog">
+          <div class="dash-prog-head"><span>Shot Accuracy</span><span class="dash-prog-pct">${shotAccuracy}%</span></div>
+          <div class="dash-prog-bar"><div class="dash-prog-fill" style="width:${shotAccuracy}%"></div></div>
+          <div class="dash-prog-sub">${p.season_shots_on}/${p.season_shots_total} on target</div>
+        </div>` : ''}
+      ${p.season_dribbles_attempts ? `
+        <div class="dash-prog">
+          <div class="dash-prog-head"><span>Dribble Success</span><span class="dash-prog-pct">${dribbleSuccess}%</span></div>
+          <div class="dash-prog-bar"><div class="dash-prog-fill" style="width:${dribbleSuccess}%"></div></div>
+          <div class="dash-prog-sub">${p.season_dribbles_success}/${p.season_dribbles_attempts} successful</div>
+        </div>` : ''}
+    </div>` : ''}
+    <div class="dash-sync">
+      ${p.last_sync ? `Last synced ${new Date(p.last_sync).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}` : 'Awaiting first sync'}
+    </div>
+  ` : `
+    <div class="card" style="text-align:center;padding:30px 20px">
+      <div class="soon-ico" style="font-size:32px;opacity:.4">📊</div>
+      <div class="soon-t" style="margin-top:10px">No live stats yet</div>
+      <div class="soon-s" style="margin-top:6px">Admin can link this athlete to API-Football to display their season data here.</div>
+    </div>
+  `;
+
+  document.getElementById('dash-body').innerHTML = heroHTML + identityHTML + teamHTML + statsHTML;
 }
 // ══════════════════════════════════════════════
 // ADMIN — SESSIONS (phases)
@@ -1746,12 +1942,15 @@ async function deleteSession(id) {
 async function saveAthlete() {
   const name = document.getElementById('af-name').value.trim();
   if(!name) { showMsg('athlete-msg','Name is required',true); return; }
+  const apiIdRaw = document.getElementById('af-api-id').value.trim();
   const data = {
     name,
     initials: document.getElementById('af-initials').value.trim() || name[0].toUpperCase(),
     position: document.getElementById('af-position').value.trim(),
     team: document.getElementById('af-team').value.trim() || '',
     password: document.getElementById('af-password').value.trim(),
+    api_football_id: apiIdRaw ? parseInt(apiIdRaw) : null,
+    motto: document.getElementById('af-motto').value.trim() || null,
     color:    '#1a7a3c',
     color2:   '#2db85e',
     online:   true
@@ -1771,7 +1970,7 @@ async function saveAthlete() {
 function cancelAthleteEdit() {
   editingAthleteId = null;
   document.getElementById('athlete-form-title').textContent = 'New Athlete';
-  ['af-name','af-initials','af-position','af-team','af-password']
+  ['af-name','af-initials','af-position','af-team','af-password','af-api-id','af-motto']
     .forEach(id => document.getElementById(id).value='');
 }
 async function loadAdminAthletes() {
@@ -1819,6 +2018,8 @@ async function editAthlete(id) {
   document.getElementById('af-position').value = a.position||'';
   document.getElementById('af-team').value     = a.team||'';
   document.getElementById('af-password').value = a.password||'';
+  document.getElementById('af-api-id').value   = a.api_football_id||'';
+  document.getElementById('af-motto').value    = a.motto||'';
   document.getElementById('athlete-form').scrollIntoView({behavior:'smooth'});
 }
 async function deleteAthlete(id) {
@@ -2101,25 +2302,21 @@ async function bootApp() {
   goTab('dash');
   document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('on',i===0));
   document.querySelectorAll('.bn').forEach((b,i) => b.classList.toggle('on',i===0));
-  await loadSessions();
-  await loadSRPE();
-  const lastJ = await loadJournalEntries();
+  // Dashboard is now player-profile based — render it immediately
+  await buildDash();
+  // Load other sections in parallel
+  loadSessions();
+  loadSRPE();
+  loadJournalEntries();
+  // HRV section in Wellness tab
   try {
     const hrvData = await sb.get('hrv_data', `?athlete_name=eq.${currentProfile.name}&order=date.asc`);
     if(!hrvData||!hrvData.length) throw new Error('No HRV data yet — add your first value from Wellness › HRV');
     const aL = hrvData.map(d => cleanDate(d.date));
     const aR = hrvData.map(d => +d.value);
-    const raw28 = aR.slice(-WIN);
-    const ewma = ewma28(aR);
-    const pct = pctDev(raw28, ewma);
-    const n = raw28.length;
-    const si = sig(pct[n-1]);
     buildHRV(aL, aR, document.getElementById('hrv-body'), 'hrv');
-    await buildDash(raw28[n-1], pct[n-1], si, aR, aL, lastJ);
   } catch(err) {
     document.getElementById('hrv-body').innerHTML = `<div class="errbox">⚠ ${err.message}</div>`;
-    // Dashboard without HRV
-    await buildDash(null, null, null, [], [], lastJ);
   }
 }
 loadProfiles();
