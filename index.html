@@ -1224,6 +1224,10 @@ function buildHRV(aL, aR, el, uid) {
     </div>
 
     <div class="sh"><div class="shb"></div><div class="sht">Z-Score · Lifetime distribution</div></div>
+    <div class="cg2" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+      <div class="card"><div class="clbl">Mean (μ)</div><div class="cval md">${mu.toFixed(1)}</div><div class="csub">${n} day${n === 1 ? '' : 's'} · lifetime avg</div></div>
+      <div class="card"><div class="clbl">Std Dev (σ)</div><div class="cval md">${sigma.toFixed(2)}</div><div class="csub">${sigmaSpan >= 60 ? 'last 60 days' : sigmaSpan + ' day' + (sigmaSpan === 1 ? '' : 's')}</div></div>
+    </div>
     <div class="ccrd">
       <div class="chd">
         <div class="ct">Each dot = one day's reading · ${n} total</div>
