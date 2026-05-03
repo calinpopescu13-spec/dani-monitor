@@ -162,6 +162,32 @@ body{min-height:100dvh;overflow-x:hidden}
 .dash-prog-sub{font-family:var(--m);font-size:10px;color:var(--t3);margin-top:6px}
 .dash-sync{font-family:var(--m);font-size:10px;color:var(--t3);text-align:center;margin-top:14px;letter-spacing:.04em}
 @media(max-width:360px){.dash-greet-name{font-size:30px}.dash-photo-wrap{width:78px;height:78px}.dash-stat-val{font-size:24px}}
+/* ══ MATCH CARDS (last / next match widgets) ══ */
+.dash-match{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:14px;margin-bottom:10px;position:relative;overflow:hidden}
+.dash-match.next{background:linear-gradient(135deg,var(--sf2),var(--sf));border-color:rgba(45,184,94,.28)}
+.dash-match-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px}
+.dash-match-tag{font-family:var(--m);font-size:9px;letter-spacing:.14em;color:var(--rp3);text-transform:uppercase}
+.dash-match-when{font-family:var(--m);font-size:10px;color:var(--t2);letter-spacing:.04em}
+.dash-match-teams{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.dash-match-side{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.dash-match-side.away{order:2}
+.dash-match-logo{width:42px;height:42px;object-fit:contain;filter:drop-shadow(0 1px 4px rgba(0,0,0,.4))}
+.dash-match-logo-ph{width:42px;height:42px;display:flex;align-items:center;justify-content:center;background:var(--sf2);border-radius:50%;font-size:18px}
+.dash-match-tname{font-family:var(--fc);font-size:12px;font-weight:600;color:var(--wh);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.dash-match-mid{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:64px}
+.dash-match-score{font-family:var(--bb);font-size:28px;color:var(--wh);letter-spacing:.04em;line-height:1}
+.dash-match-vs{font-family:var(--bb);font-size:18px;color:var(--rp3);letter-spacing:.1em}
+.dash-match-status{font-family:var(--m);font-size:9px;color:var(--t3);letter-spacing:.08em;text-transform:uppercase}
+.dash-match-meta{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--b);font-family:var(--m);font-size:10px;color:var(--t2);gap:8px;flex-wrap:wrap}
+.dash-match-league{display:flex;align-items:center;gap:6px;min-width:0}
+.dash-match-league img{width:14px;height:14px;object-fit:contain;flex-shrink:0}
+.dash-match-league span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dash-match-perf{display:flex;gap:10px;font-family:var(--bb);font-size:13px;color:var(--wh);letter-spacing:.04em}
+.dash-match-perf b{color:var(--rp3);margin-right:3px;font-weight:400}
+.dash-match-empty{padding:18px 6px;text-align:center;font-family:var(--m);font-size:11px;color:var(--t3);letter-spacing:.04em}
+.dash-match-empty-t{font-family:var(--bb);font-size:14px;color:var(--t2);letter-spacing:.08em;margin-bottom:4px}
+.db-row.section{background:rgba(45,184,94,.06);border-color:rgba(45,184,94,.25)}
+.db-row.section .db-meta{color:var(--rp3)}
 /* ══ HERO HRV CARD (dashboard) ══ */
 .hero{background:linear-gradient(135deg,var(--sf2),var(--sf));border:1px solid rgba(45,184,94,.28);border-radius:var(--r3);padding:18px;margin-bottom:12px;position:relative;overflow:hidden}
 .hero::after{content:'';position:absolute;top:0;right:0;width:180px;height:180px;background:radial-gradient(circle,rgba(45,184,94,.12),transparent 70%);pointer-events:none}
@@ -1674,7 +1700,7 @@ async function deleteJournalEntry(id) {
 // DASHBOARD — Config-driven player profile
 // ══════════════════════════════════════════════
 
-// Catalog: every available widget. Each has a default label and how to compute its value.
+// Catalog: every stat widget. Each has a default label and how to compute its value.
 const STAT_CATALOG = {
   // Headline / featured
   goals:           { lbl: 'Goals',          group: 'Attack',   get: p => p.season_goals },
@@ -1719,17 +1745,107 @@ const STAT_CATALOG = {
   pen_won:         { lbl: 'Penalties Won',    group: 'Penalties', get: p => p.season_pen_won }
 };
 
-// Default config for a brand-new athlete (ordered list)
+// Section widgets (full-width blocks: hero, identity, team, last/next match, season header)
+const SECTION_CATALOG = {
+  hero: {
+    lbl: 'Hero (greeting + photo)',
+    group: 'Header',
+    render: (p, ctx) => `
+      <div class="dash-hero">
+        <div class="dash-hero-bg"></div>
+        <div class="dash-hero-content">
+          <div class="dash-greeting">
+            <div class="dash-greet-eyebrow">${ctx.greeting},</div>
+            <div class="dash-greet-name">${escapeHtml(p.name)}</div>
+            <div class="dash-greet-date">${ctx.today}</div>
+          </div>
+          <div class="dash-photo-wrap">
+            ${p.player_photo
+              ? `<img class="dash-photo" src="${p.player_photo}" alt="${escapeHtml(p.name)}" onerror="this.style.display='none'">`
+              : `<div class="dash-photo-fallback">${escapeHtml(p.initials || p.name[0])}</div>`}
+          </div>
+        </div>
+        ${p.motto ? `<div class="dash-motto">"${escapeHtml(p.motto)}"</div>` : ''}
+      </div>
+    `
+  },
+  identity: {
+    lbl: 'Identity strip (position/age/height/nationality)',
+    group: 'Header',
+    render: (p, ctx) => {
+      if (!(p.nationality || ctx.age || p.height_cm || p.position)) return '';
+      return `
+        <div class="dash-identity">
+          ${p.position    ? `<div class="dash-id-item"><div class="dash-id-lbl">Position</div><div class="dash-id-val sm">${escapeHtml(p.position)}</div></div>` : ''}
+          ${ctx.age       ? `<div class="dash-id-item"><div class="dash-id-lbl">Age</div><div class="dash-id-val">${ctx.age}</div></div>` : ''}
+          ${p.height_cm   ? `<div class="dash-id-item"><div class="dash-id-lbl">Height</div><div class="dash-id-val">${p.height_cm}<span class="dash-id-u">cm</span></div></div>` : ''}
+          ${p.nationality ? `<div class="dash-id-item"><div class="dash-id-lbl">Nationality</div><div class="dash-id-val sm">${escapeHtml(p.nationality)}</div></div>` : ''}
+        </div>`;
+    }
+  },
+  team: {
+    lbl: 'Team & league strip',
+    group: 'Header',
+    render: (p, ctx) => {
+      if (!(p.team_name || p.league_name)) return '';
+      return `
+        <div class="dash-team-strip">
+          <div class="dash-team-block">
+            ${p.team_logo ? `<img class="dash-team-logo" src="${p.team_logo}" alt="" onerror="this.style.display='none'">` : '<div class="dash-team-logo-ph">⚽</div>'}
+            <div class="dash-team-info">
+              <div class="dash-team-lbl">Team</div>
+              <div class="dash-team-name">${escapeHtml(p.team_name || '—')}</div>
+            </div>
+          </div>
+          <div class="dash-team-divider"></div>
+          <div class="dash-team-block">
+            ${p.league_logo ? `<img class="dash-team-logo small" src="${p.league_logo}" alt="" onerror="this.style.display='none'">` : ''}
+            <div class="dash-team-info">
+              <div class="dash-team-lbl">${ctx.seasonLabel ? 'Season ' + ctx.seasonLabel : 'League'}</div>
+              <div class="dash-team-name">${escapeHtml(p.league_name || '—')}</div>
+            </div>
+          </div>
+        </div>`;
+    }
+  },
+  last_match: {
+    lbl: 'Last match result',
+    group: 'Matches',
+    render: (p, ctx) => renderLastMatch(ctx.lastMatch)
+  },
+  next_match: {
+    lbl: 'Next match preview',
+    group: 'Matches',
+    render: (p, ctx) => renderNextMatch(ctx.nextMatch, ctx.seasonLabel)
+  },
+  season_header: {
+    lbl: 'Season header (e.g. "Season 2024/25")',
+    group: 'Header',
+    render: (p, ctx) => ctx.seasonLabel
+      ? `<div class="sh"><div class="shb"></div><div class="sht">Season ${ctx.seasonLabel}</div></div>`
+      : ''
+  }
+};
+
+// Default layout — header sections + match cards + key stats
 const DEFAULT_DASHBOARD_CONFIG = [
-  { key: 'goals',           label: 'Goals',          headline: true },
-  { key: 'assists',         label: 'Assists',        headline: true },
-  { key: 'appearances',     label: 'Apps' },
-  { key: 'minutes',         label: 'Minutes' },
-  { key: 'rating',          label: 'Avg Rating' },
-  { key: 'min_per_game',    label: 'Min/Game' },
-  { key: 'shot_accuracy',   label: 'Shot Accuracy' },
-  { key: 'dribble_success_rate', label: 'Dribble Success' }
+  { type: 'section', key: 'hero' },
+  { type: 'section', key: 'identity' },
+  { type: 'section', key: 'team' },
+  { type: 'section', key: 'last_match' },
+  { type: 'section', key: 'next_match' },
+  { type: 'section', key: 'season_header' },
+  { type: 'stat', key: 'goals',           label: 'Goals',          headline: true },
+  { type: 'stat', key: 'assists',         label: 'Assists',        headline: true },
+  { type: 'stat', key: 'appearances',     label: 'Apps' },
+  { type: 'stat', key: 'minutes',         label: 'Minutes' },
+  { type: 'stat', key: 'rating',          label: 'Avg Rating' },
+  { type: 'stat', key: 'min_per_game',    label: 'Min/Game' },
+  { type: 'stat', key: 'shot_accuracy',   label: 'Shot Accuracy' },
+  { type: 'stat', key: 'dribble_success_rate', label: 'Dribble Success' }
 ];
+
+function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 function getGreeting() {
   const h = new Date().getHours();
@@ -1747,10 +1863,188 @@ function calcAge(birth) {
   return age;
 }
 function fmtNum(n) { return new Intl.NumberFormat().format(n || 0); }
+
+// Migration: old configs are flat lists of stat items without `type`.
 function getDashConfig(p) {
   const cfg = p.dashboard_config;
-  if (Array.isArray(cfg) && cfg.length) return cfg;
+  if (Array.isArray(cfg) && cfg.length) {
+    return cfg.map(it => it.type ? it : Object.assign({ type: 'stat' }, it));
+  }
   return DEFAULT_DASHBOARD_CONFIG;
+}
+
+// ── Match card helpers ────────────────────────────────────────────
+function fmtMatchDate(iso, withTime) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const opts = { weekday: 'short', day: 'numeric', month: 'short' };
+  if (withTime) { opts.hour = '2-digit'; opts.minute = '2-digit'; }
+  return d.toLocaleDateString('en-GB', opts);
+}
+function relativeWhen(iso) {
+  if (!iso) return '';
+  const ms = new Date(iso) - new Date();
+  const days = Math.round(ms / 86400000);
+  if (days === 0) return 'Today';
+  if (days === 1) return 'Tomorrow';
+  if (days === -1) return 'Yesterday';
+  if (days > 1 && days < 7) return `In ${days} days`;
+  if (days < -1 && days > -7) return `${-days} days ago`;
+  return fmtMatchDate(iso, false);
+}
+
+function renderLastMatch(m) {
+  if (!m) {
+    return `
+      <div class="dash-match">
+        <div class="dash-match-head"><span class="dash-match-tag">Last match</span></div>
+        <div class="dash-match-empty">
+          <div class="dash-match-empty-t">No match data yet</div>
+          <div>Sync from admin to load the most recent fixture.</div>
+        </div>
+      </div>`;
+  }
+  const home = { name: m.home_team || '—', logo: m.home_logo, score: m.home_score };
+  const away = { name: m.away_team || '—', logo: m.away_logo, score: m.away_score };
+  const scoreLine = (home.score != null && away.score != null) ? `${home.score} – ${away.score}` : '— : —';
+  const result = m.is_home != null && home.score != null && away.score != null
+    ? (home.score === away.score ? 'D' : (m.is_home ? (home.score > away.score ? 'W' : 'L') : (away.score > home.score ? 'W' : 'L')))
+    : null;
+  const resultColor = result === 'W' ? 'var(--gn)' : result === 'L' ? 'var(--rd)' : 'var(--am)';
+  return `
+    <div class="dash-match">
+      <div class="dash-match-head">
+        <span class="dash-match-tag">Last match · ${relativeWhen(m.match_date)}</span>
+        ${result ? `<span style="color:${resultColor};font-family:var(--bb);font-size:13px;letter-spacing:.1em">${result}</span>` : ''}
+      </div>
+      <div class="dash-match-teams">
+        <div class="dash-match-side">
+          ${home.logo ? `<img class="dash-match-logo" src="${home.logo}" alt="" onerror="this.style.display='none'">` : '<div class="dash-match-logo-ph">⚽</div>'}
+          <div class="dash-match-tname">${escapeHtml(home.name)}</div>
+        </div>
+        <div class="dash-match-mid">
+          <div class="dash-match-score">${scoreLine}</div>
+          <div class="dash-match-status">FT</div>
+        </div>
+        <div class="dash-match-side away">
+          ${away.logo ? `<img class="dash-match-logo" src="${away.logo}" alt="" onerror="this.style.display='none'">` : '<div class="dash-match-logo-ph">⚽</div>'}
+          <div class="dash-match-tname">${escapeHtml(away.name)}</div>
+        </div>
+      </div>
+      <div class="dash-match-meta">
+        <div class="dash-match-league">
+          ${m.league_logo ? `<img src="${m.league_logo}" alt="" onerror="this.style.display='none'">` : ''}
+          <span>${escapeHtml(m.league_name || '')}</span>
+        </div>
+        <div class="dash-match-perf">
+          ${m.minutes ? `<span><b>${m.minutes}</b>min</span>` : ''}
+          ${m.goals ? `<span><b>${m.goals}</b>G</span>` : ''}
+          ${m.assists ? `<span><b>${m.assists}</b>A</span>` : ''}
+          ${m.rating_match ? `<span><b>${(+m.rating_match).toFixed(1)}</b></span>` : ''}
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderNextMatch(m, seasonLabel) {
+  if (!m) {
+    return `
+      <div class="dash-match next">
+        <div class="dash-match-head"><span class="dash-match-tag">Next match</span></div>
+        <div class="dash-match-empty">
+          <div class="dash-match-empty-t">No upcoming fixtures</div>
+          <div>${seasonLabel ? `Season ${seasonLabel} schedule complete or off-season.` : 'Off-season — check back when fixtures are released.'}</div>
+        </div>
+      </div>`;
+  }
+  const home = { name: m.home_team || '—', logo: m.home_logo };
+  const away = { name: m.away_team || '—', logo: m.away_logo };
+  return `
+    <div class="dash-match next">
+      <div class="dash-match-head">
+        <span class="dash-match-tag">Next match</span>
+        <span class="dash-match-when">${relativeWhen(m.fixture_date)} · ${fmtMatchDate(m.fixture_date, true)}</span>
+      </div>
+      <div class="dash-match-teams">
+        <div class="dash-match-side">
+          ${home.logo ? `<img class="dash-match-logo" src="${home.logo}" alt="" onerror="this.style.display='none'">` : '<div class="dash-match-logo-ph">⚽</div>'}
+          <div class="dash-match-tname">${escapeHtml(home.name)}</div>
+        </div>
+        <div class="dash-match-mid">
+          <div class="dash-match-vs">VS</div>
+        </div>
+        <div class="dash-match-side away">
+          ${away.logo ? `<img class="dash-match-logo" src="${away.logo}" alt="" onerror="this.style.display='none'">` : '<div class="dash-match-logo-ph">⚽</div>'}
+          <div class="dash-match-tname">${escapeHtml(away.name)}</div>
+        </div>
+      </div>
+      <div class="dash-match-meta">
+        <div class="dash-match-league">
+          ${m.league_logo ? `<img src="${m.league_logo}" alt="" onerror="this.style.display='none'">` : ''}
+          <span>${escapeHtml(m.league_name || '')}</span>
+        </div>
+        ${m.venue ? `<div style="font-family:var(--m);font-size:10px;color:var(--t3)">${escapeHtml(m.venue)}</div>` : ''}
+      </div>
+    </div>`;
+}
+
+// ── Stat card renderer ────────────────────────────────────────────
+function renderStatItem(item, p) {
+  const meta = STAT_CATALOG[item.key];
+  if (!meta) return '';
+  let val = meta.get(p);
+  if (val == null || val === '' || isNaN(val)) val = 0;
+  const label = item.label || meta.lbl;
+  const isHeadline = !!item.headline;
+  const valColor = meta === STAT_CATALOG.rating
+    ? (val >= 7 ? 'var(--gn)' : val >= 6 ? 'var(--am)' : 'var(--t2)')
+    : null;
+  if (meta.isPct && meta.fillFrom && meta.fillTo) {
+    const num = p[`season_${meta.fillFrom}`] || 0;
+    const den = p[`season_${meta.fillTo}`] || 0;
+    return `
+      <div class="dash-prog">
+        <div class="dash-prog-head"><span>${escapeHtml(label)}</span><span class="dash-prog-pct">${val}%</span></div>
+        <div class="dash-prog-bar"><div class="dash-prog-fill" style="width:${val}%"></div></div>
+        ${den ? `<div class="dash-prog-sub">${num}/${den}</div>` : ''}
+      </div>`;
+  }
+  return `
+    <div class="dash-stat${isHeadline ? ' headline' : ''}">
+      <div class="dash-stat-val"${valColor ? ` style="color:${valColor}"` : ''}>${meta.fmt === 'num' ? fmtNum(val) : val}${meta.suffix || ''}</div>
+      <div class="dash-stat-lbl">${escapeHtml(label)}</div>
+    </div>`;
+}
+
+// Render config in order; consecutive stats group into a grid, progress bars into a column.
+function buildDashHTML(cfg, p, ctx) {
+  let html = '';
+  let statBuf = [];
+  let progBuf = [];
+  const flushStats = () => { if (statBuf.length) { html += `<div class="dash-stats-grid">${statBuf.join('')}</div>`; statBuf = []; } };
+  const flushProgs = () => { if (progBuf.length) { html += `<div class="dash-secondary">${progBuf.join('')}</div>`; progBuf = []; } };
+  const flushAll = () => { flushStats(); flushProgs(); };
+
+  cfg.forEach(item => {
+    if (item.type === 'section') {
+      flushAll();
+      const meta = SECTION_CATALOG[item.key];
+      if (meta) html += meta.render(p, ctx);
+      return;
+    }
+    const meta = STAT_CATALOG[item.key];
+    if (!meta) return;
+    const rendered = renderStatItem(item, p);
+    if (meta.isPct && meta.fillFrom && meta.fillTo) {
+      flushStats();
+      progBuf.push(rendered);
+    } else {
+      flushProgs();
+      statBuf.push(rendered);
+    }
+  });
+  flushAll();
+  return html;
 }
 
 async function buildDash() {
@@ -1760,116 +2054,47 @@ async function buildDash() {
     if (fresh && fresh[0]) p = fresh[0];
   } catch {}
 
-  const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
-  const greeting = getGreeting();
-  const age = calcAge(p.birth_date);
+  // Fetch last + next match (best-effort)
+  let lastMatch = null, nextMatch = null;
+  try {
+    const lm = await sb.get('matches', `?athlete_id=eq.${p.id}&order=match_date.desc&limit=1`);
+    lastMatch = lm && lm[0] ? lm[0] : null;
+  } catch {}
+  try {
+    const nm = await sb.get('next_matches', `?athlete_id=eq.${p.id}&order=fixture_date.asc&limit=1`);
+    nextMatch = nm && nm[0] ? nm[0] : null;
+  } catch {}
+
+  const ctx = {
+    today: new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }),
+    greeting: getGreeting(),
+    age: calcAge(p.birth_date),
+    seasonLabel: p.season_year ? `${p.season_year}/${(p.season_year + 1).toString().slice(-2)}` : '',
+    lastMatch, nextMatch
+  };
+
   const hasApiData = !!p.player_photo || !!p.team_name || (p.season_appearances || 0) > 0;
-  const seasonLabel = p.season_year ? `${p.season_year}/${(p.season_year + 1).toString().slice(-2)}` : '';
+  const cfg = getDashConfig(p);
 
-  // Hero
-  const heroHTML = `
-    <div class="dash-hero">
-      <div class="dash-hero-bg"></div>
-      <div class="dash-hero-content">
-        <div class="dash-greeting">
-          <div class="dash-greet-eyebrow">${greeting},</div>
-          <div class="dash-greet-name">${p.name}</div>
-          <div class="dash-greet-date">${today}</div>
-        </div>
-        <div class="dash-photo-wrap">
-          ${p.player_photo
-            ? `<img class="dash-photo" src="${p.player_photo}" alt="${p.name}" onerror="this.style.display='none'">`
-            : `<div class="dash-photo-fallback">${p.initials || p.name[0]}</div>`}
-        </div>
-      </div>
-      ${p.motto ? `<div class="dash-motto">"${p.motto}"</div>` : ''}
-    </div>
-  `;
+  let body = buildDashHTML(cfg, p, ctx);
 
-  // Identity strip
-  const identityHTML = (p.nationality || age || p.height_cm || p.position) ? `
-    <div class="dash-identity">
-      ${p.position ? `<div class="dash-id-item"><div class="dash-id-lbl">Position</div><div class="dash-id-val sm">${p.position}</div></div>` : ''}
-      ${age ? `<div class="dash-id-item"><div class="dash-id-lbl">Age</div><div class="dash-id-val">${age}</div></div>` : ''}
-      ${p.height_cm ? `<div class="dash-id-item"><div class="dash-id-lbl">Height</div><div class="dash-id-val">${p.height_cm}<span class="dash-id-u">cm</span></div></div>` : ''}
-      ${p.nationality ? `<div class="dash-id-item"><div class="dash-id-lbl">Nationality</div><div class="dash-id-val sm">${p.nationality}</div></div>` : ''}
-    </div>` : '';
-
-  // Team & league
-  const teamHTML = (p.team_name || p.league_name) ? `
-    <div class="dash-team-strip">
-      <div class="dash-team-block">
-        ${p.team_logo ? `<img class="dash-team-logo" src="${p.team_logo}" alt="" onerror="this.style.display='none'">` : '<div class="dash-team-logo-ph">⚽</div>'}
-        <div class="dash-team-info">
-          <div class="dash-team-lbl">Team</div>
-          <div class="dash-team-name">${p.team_name || '—'}</div>
-        </div>
-      </div>
-      <div class="dash-team-divider"></div>
-      <div class="dash-team-block">
-        ${p.league_logo ? `<img class="dash-team-logo small" src="${p.league_logo}" alt="" onerror="this.style.display='none'">` : ''}
-        <div class="dash-team-info">
-          <div class="dash-team-lbl">${seasonLabel ? 'Season ' + seasonLabel : 'League'}</div>
-          <div class="dash-team-name">${p.league_name || '—'}</div>
-        </div>
-      </div>
-    </div>` : '';
-
-  // Stats — driven by config
-  let statsHTML = '';
-  if (hasApiData) {
-    const cfg = getDashConfig(p);
-    const cards = cfg.map(item => {
-      const meta = STAT_CATALOG[item.key];
-      if (!meta) return '';
-      let val = meta.get(p);
-      if (val == null || val === '' || isNaN(val)) val = 0;
-      const label = item.label || meta.lbl;
-      const isHeadline = !!item.headline;
-      const valColor = meta === STAT_CATALOG.rating
-        ? (val >= 7 ? 'var(--gn)' : val >= 6 ? 'var(--am)' : 'var(--t2)')
-        : null;
-      // Progress bar version (for percentage stats)
-      if (meta.isPct && meta.fillFrom && meta.fillTo) {
-        const num = p['season_' + meta.fillFrom.replace(/^season_/, '')] || p[`season_${meta.fillFrom}`] || 0;
-        const den = p['season_' + meta.fillTo.replace(/^season_/, '')] || p[`season_${meta.fillTo}`] || 0;
-        return `
-          <div class="dash-prog">
-            <div class="dash-prog-head"><span>${label}</span><span class="dash-prog-pct">${val}%</span></div>
-            <div class="dash-prog-bar"><div class="dash-prog-fill" style="width:${val}%"></div></div>
-            ${den ? `<div class="dash-prog-sub">${num}/${den}</div>` : ''}
-          </div>`;
-      }
-      // Standard stat card
-      return `
-        <div class="dash-stat${isHeadline ? ' headline' : ''}">
-          <div class="dash-stat-val"${valColor ? ` style="color:${valColor}"` : ''}>${meta.fmt === 'num' ? fmtNum(val) : val}${meta.suffix || ''}</div>
-          <div class="dash-stat-lbl">${label}</div>
-        </div>`;
-    }).filter(Boolean);
-
-    // Split into stat cards vs progress bars
-    const statCards = cards.filter(c => c.includes('dash-stat')).join('');
-    const progBars  = cards.filter(c => c.includes('dash-prog')).join('');
-
-    statsHTML = `
-      <div class="sh"><div class="shb"></div><div class="sht">Season ${seasonLabel}</div></div>
-      ${statCards ? `<div class="dash-stats-grid">${statCards}</div>` : ''}
-      ${progBars ? `<div class="dash-secondary">${progBars}</div>` : ''}
-      <div class="dash-sync">
-        ${p.last_sync ? `Last synced ${new Date(p.last_sync).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}` : 'Awaiting first sync'}
-      </div>
-    `;
-  } else {
-    statsHTML = `
-      <div class="card" style="text-align:center;padding:30px 20px">
+  // No-data fallback message
+  if (!hasApiData) {
+    body += `
+      <div class="card" style="text-align:center;padding:30px 20px;margin-top:10px">
         <div class="soon-ico" style="font-size:32px;opacity:.4">📊</div>
         <div class="soon-t" style="margin-top:10px">No live stats yet</div>
         <div class="soon-s" style="margin-top:6px">Admin can link this athlete to API-Football to display their season data here.</div>
       </div>`;
   }
 
-  document.getElementById('dash-body').innerHTML = heroHTML + identityHTML + teamHTML + statsHTML;
+  // Sync footer
+  body += `
+    <div class="dash-sync">
+      ${p.last_sync ? `Last synced ${new Date(p.last_sync).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}` : 'Awaiting first sync'}
+    </div>`;
+
+  document.getElementById('dash-body').innerHTML = body;
 }
 // ══════════════════════════════════════════════
 // ADMIN — SESSIONS (phases)
@@ -2184,28 +2409,46 @@ function renderDashBuilder(athlete) {
   const list = document.getElementById('db-active-list');
   list.innerHTML = '';
   _dbConfig.forEach((item, i) => {
-    const meta = STAT_CATALOG[item.key];
+    const isSection = item.type === 'section';
+    const meta = isSection ? SECTION_CATALOG[item.key] : STAT_CATALOG[item.key];
     if (!meta) return;
     const row = document.createElement('div');
-    row.className = 'db-row';
+    row.className = 'db-row' + (isSection ? ' section' : '');
     row.draggable = true;
     row.dataset.idx = i;
-    row.innerHTML = `
-      <div class="db-handle" title="Drag to reorder">⋮⋮</div>
-      <div class="db-row-body">
-        <div class="db-row-top">
-          <input class="ainput db-label-input" value="${(item.label || meta.lbl).replace(/"/g,'&quot;')}" placeholder="${meta.lbl}" oninput="updateDashItem(${i}, 'label', this.value)">
-          <button class="db-remove" onclick="removeDashItem(${i})" title="Remove">✕</button>
+
+    if (isSection) {
+      row.innerHTML = `
+        <div class="db-handle" title="Drag to reorder">⋮⋮</div>
+        <div class="db-row-body">
+          <div class="db-row-top">
+            <div style="font-family:var(--bb);font-size:14px;color:var(--wh);letter-spacing:.06em;flex:1">${meta.lbl}</div>
+            <button class="db-remove" onclick="removeDashItem(${i})" title="Remove">✕</button>
+          </div>
+          <div class="db-row-bot">
+            <span class="db-meta">Section · ${meta.group}</span>
+          </div>
         </div>
-        <div class="db-row-bot">
-          <span class="db-meta">${meta.group} · default: ${meta.lbl}</span>
-          <label class="db-toggle">
-            <input type="checkbox" ${item.headline ? 'checked' : ''} onchange="updateDashItem(${i}, 'headline', this.checked)">
-            <span>Headline</span>
-          </label>
+      `;
+    } else {
+      row.innerHTML = `
+        <div class="db-handle" title="Drag to reorder">⋮⋮</div>
+        <div class="db-row-body">
+          <div class="db-row-top">
+            <input class="ainput db-label-input" value="${(item.label || meta.lbl).replace(/"/g,'&quot;')}" placeholder="${meta.lbl}" oninput="updateDashItem(${i}, 'label', this.value)">
+            <button class="db-remove" onclick="removeDashItem(${i})" title="Remove">✕</button>
+          </div>
+          <div class="db-row-bot">
+            <span class="db-meta">${meta.group} · default: ${meta.lbl}</span>
+            <label class="db-toggle">
+              <input type="checkbox" ${item.headline ? 'checked' : ''} onchange="updateDashItem(${i}, 'headline', this.checked)">
+              <span>Headline</span>
+            </label>
+          </div>
         </div>
-      </div>
-    `;
+      `;
+    }
+
     // Drag handlers
     row.addEventListener('dragstart', e => {
       row.classList.add('dragging');
@@ -2227,16 +2470,32 @@ function renderDashBuilder(athlete) {
     });
     list.appendChild(row);
   });
-  // Populate the "add" dropdown
+
+  // Populate the "add" dropdown — sections + stats
   const sel = document.getElementById('db-add-select');
-  sel.innerHTML = '<option value="">+ Choose a stat to add…</option>';
-  const usedKeys = new Set(_dbConfig.map(i => i.key));
-  // Group stats
+  sel.innerHTML = '<option value="">+ Choose a widget to add…</option>';
+  const usedSections = new Set(_dbConfig.filter(i => i.type === 'section').map(i => i.key));
+  const usedStats = new Set(_dbConfig.filter(i => i.type !== 'section').map(i => i.key));
+
+  // Sections group
+  const sectionItems = Object.entries(SECTION_CATALOG)
+    .filter(([k]) => !usedSections.has(k))
+    .map(([k, m]) => ({ key: 'section:' + k, lbl: m.lbl }));
+  if (sectionItems.length) {
+    const og = document.createElement('optgroup'); og.label = 'Sections';
+    sectionItems.forEach(it => {
+      const o = document.createElement('option'); o.value = it.key; o.textContent = it.lbl;
+      og.appendChild(o);
+    });
+    sel.appendChild(og);
+  }
+
+  // Stat groups
   const grouped = {};
   Object.entries(STAT_CATALOG).forEach(([key, meta]) => {
-    if (usedKeys.has(key)) return;
+    if (usedStats.has(key)) return;
     if (!grouped[meta.group]) grouped[meta.group] = [];
-    grouped[meta.group].push({ key, lbl: meta.lbl });
+    grouped[meta.group].push({ key: 'stat:' + key, lbl: meta.lbl });
   });
   Object.entries(grouped).forEach(([group, items]) => {
     const og = document.createElement('optgroup'); og.label = group;
@@ -2246,6 +2505,7 @@ function renderDashBuilder(athlete) {
     });
     sel.appendChild(og);
   });
+
   renderDashPreview(athlete);
 }
 function updateDashItem(idx, field, value) {
@@ -2264,11 +2524,17 @@ async function removeDashItem(idx) {
 }
 async function addDashWidget() {
   const sel = document.getElementById('db-add-select');
-  const key = sel.value;
-  if (!key || !STAT_CATALOG[key]) return;
-  _dbConfig.push({ key, label: STAT_CATALOG[key].lbl, headline: false });
+  const value = sel.value;
+  if (!value) return;
+  const [kind, key] = value.split(':');
+  if (kind === 'section' && SECTION_CATALOG[key]) {
+    _dbConfig.push({ type: 'section', key });
+  } else if (kind === 'stat' && STAT_CATALOG[key]) {
+    _dbConfig.push({ type: 'stat', key, label: STAT_CATALOG[key].lbl, headline: false });
+  } else {
+    return;
+  }
   sel.value = '';
-  // Re-render with current local _dbConfig — DON'T reload from DB
   const data = await sb.get('athletes', `?name=eq.${encodeURIComponent(avAthlete)}&limit=1`);
   if (data[0]) renderDashBuilder(data[0]);
 }
@@ -2288,29 +2554,31 @@ async function saveDashConfig() {
     showMsg('db-msg', 'Layout saved ✓');
   } catch (e) { showMsg('db-msg', 'Error: ' + e.message, true); }
 }
-function renderDashPreview(p) {
+async function renderDashPreview(p) {
   const wrap = document.getElementById('db-preview');
   if (!wrap) return;
-  const cards = _dbConfig.map(item => {
-    const meta = STAT_CATALOG[item.key];
-    if (!meta) return '';
-    let val = meta.get(p);
-    if (val == null || val === '' || isNaN(val)) val = 0;
-    const label = item.label || meta.lbl;
-    if (meta.isPct && meta.fillFrom && meta.fillTo) {
-      const num = p[`season_${meta.fillFrom}`] || 0;
-      const den = p[`season_${meta.fillTo}`] || 0;
-      return `<div class="dash-prog"><div class="dash-prog-head"><span>${label}</span><span class="dash-prog-pct">${val}%</span></div><div class="dash-prog-bar"><div class="dash-prog-fill" style="width:${val}%"></div></div>${den ? `<div class="dash-prog-sub">${num}/${den}</div>` : ''}</div>`;
-    }
-    return `<div class="dash-stat${item.headline ? ' headline' : ''}"><div class="dash-stat-val">${meta.fmt === 'num' ? fmtNum(val) : val}${meta.suffix || ''}</div><div class="dash-stat-lbl">${label}</div></div>`;
-  }).filter(Boolean);
-  const statCards = cards.filter(c => c.includes('dash-stat')).join('');
-  const progBars = cards.filter(c => c.includes('dash-prog')).join('');
-  wrap.innerHTML = `
-    ${statCards ? `<div class="dash-stats-grid">${statCards}</div>` : ''}
-    ${progBars ? `<div class="dash-secondary">${progBars}</div>` : ''}
-    ${!statCards && !progBars ? '<div class="soon" style="padding:30px"><div class="soon-s">No stats configured. Add some above.</div></div>' : ''}
-  `;
+
+  // Pull last/next match for preview too
+  let lastMatch = null, nextMatch = null;
+  try {
+    const lm = await sb.get('matches', `?athlete_id=eq.${p.id}&order=match_date.desc&limit=1`);
+    lastMatch = lm && lm[0] ? lm[0] : null;
+  } catch {}
+  try {
+    const nm = await sb.get('next_matches', `?athlete_id=eq.${p.id}&order=fixture_date.asc&limit=1`);
+    nextMatch = nm && nm[0] ? nm[0] : null;
+  } catch {}
+
+  const ctx = {
+    today: new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }),
+    greeting: getGreeting(),
+    age: calcAge(p.birth_date),
+    seasonLabel: p.season_year ? `${p.season_year}/${(p.season_year + 1).toString().slice(-2)}` : '',
+    lastMatch, nextMatch
+  };
+
+  const html = buildDashHTML(_dbConfig, p, ctx);
+  wrap.innerHTML = html || '<div class="soon" style="padding:30px"><div class="soon-s">No widgets configured. Add some above.</div></div>';
 }
 // ── JOURNAL ─────────────────────────────────────
 async function loadAVJournal() {
