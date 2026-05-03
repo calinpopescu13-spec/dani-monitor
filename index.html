@@ -876,7 +876,6 @@ const API        = 'https://script.google.com/macros/s/AKfycbwylLgnvlp-XJGryeJlu
 const SB_URL     = 'https://tbgghnngqsbaexrypfuo.supabase.co';
 const SB_KEY     = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRiZ2dobm5ncXNiYWV4cnlwZnVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNDA3OTYsImV4cCI6MjA5MTkxNjc5Nn0.hoxIiVE8MUQYkyTeztJEMbJ5KjURjQaDIqd7h2Smq-w';
 const ADMIN_PW   = 'admin2026';
-const WIN        = 28;
 // ══════════════════════════════════════════════
 // SUPABASE HELPERS
 // ══════════════════════════════════════════════
@@ -1105,19 +1104,51 @@ function showMsg(id, text, isErr=false) {
   setTimeout(() => el.classList.remove('show'), 3000);
 }
 // ══════════════════════════════════════════════
-// HRV MATH
+// HRV MATH — Z-score against lifetime mean, 60-day rolling σ
 // ══════════════════════════════════════════════
-function ewma28(all) { const v=all.slice(-WIN),lam=2/(WIN+1),seed=v.slice(0,Math.min(7,v.length)).reduce((a,b)=>a+b,0)/Math.min(7,v.length),e=[+seed.toFixed(2)]; for(let i=1;i<v.length;i++) e.push(+(lam*v[i]+(1-lam)*e[i-1]).toFixed(2)); return e; }
-function pctDev(v,e) { return v.map((x,i) => +((x-e[i])/e[i]*100).toFixed(1)); }
-function sig(p) {
-  if(p>=10) return {t:'Well above',c:'cup',g:'ggg',col:'#00c896'};
-  if(p>=0)  return {t:'Normal',    c:'cgn',g:'ggg',col:'var(--gn)'};
-  if(p>=-5) return {t:'Slight dip',c:'ca', g:'gga',col:'var(--am)'};
-  if(p>=-10)return {t:'Mild supp.',c:'ca', g:'gga',col:'var(--am)'};
-  if(p>=-20)return {t:'Suppressed',c:'cr', g:'ggr',col:'var(--rd)'};
-  return          {t:'Critical',  c:'cr2',g:'ggrp',col:'#cc2200'};
+function mean(arr) { if (!arr.length) return 0; return arr.reduce((a, b) => a + b, 0) / arr.length; }
+function stdDev(arr, mu) {
+  if (arr.length < 2) return 0;
+  const m = mu == null ? mean(arr) : mu;
+  const sq = arr.reduce((s, v) => s + (v - m) * (v - m), 0);
+  return Math.sqrt(sq / (arr.length - 1)); // sample stddev
 }
-function hcol(p) { if(p>=10) return 'rgba(0,200,150,.78)'; if(p>=0) return 'rgba(76,217,123,.68)'; if(p>=-5) return 'rgba(245,179,51,.58)'; if(p>=-10) return 'rgba(245,179,51,.75)'; if(p>=-20) return 'rgba(255,82,82,.68)'; return 'rgba(204,34,0,.78)'; }
+// σ window: prefer last 60 days, fall back to whatever's available (min 7 for stability)
+function sigmaWindow(allValues) {
+  const SIGMA_WIN = 60;
+  if (allValues.length >= SIGMA_WIN) return allValues.slice(-SIGMA_WIN);
+  if (allValues.length >= 7) return allValues.slice();
+  return allValues.slice(); // even with <7 days we still compute, just gets noisy
+}
+function zScore(value, mu, sigma) {
+  if (!sigma || sigma < 0.001) return 0;
+  return +((value - mu) / sigma).toFixed(2);
+}
+// Approximate normal CDF for percentile rank (Abramowitz & Stegun)
+function normalCdf(z) {
+  const t = 1 / (1 + 0.2316419 * Math.abs(z));
+  const d = 0.3989423 * Math.exp(-z * z / 2);
+  const p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+  return z > 0 ? 1 - p : p;
+}
+// Signal classification by Z (replaces sig() which used % deviation)
+function sigZ(z) {
+  if (z >=  2)   return { t: 'Well above', c: 'cup', g: 'ggg',  col: '#00c896' };
+  if (z >=  1)   return { t: 'Above',      c: 'cup', g: 'ggg',  col: '#4cd97b' };
+  if (z >= -1)   return { t: 'Normal',     c: 'cgn', g: 'ggg',  col: 'var(--gn)' };
+  if (z >= -2)   return { t: 'Suppressed', c: 'ca',  g: 'gga',  col: 'var(--am)' };
+  if (z >= -3)   return { t: 'Alert',      c: 'cr',  g: 'ggr',  col: 'var(--rd)' };
+  return            { t: 'Critical',   c: 'cr2', g: 'ggrp', col: '#cc2200' };
+}
+// Heatmap / point color by Z zone
+function zcol(z) {
+  if (z >=  2)   return 'rgba(0,200,150,.78)';
+  if (z >=  1)   return 'rgba(76,217,123,.78)';
+  if (z >= -1)   return 'rgba(76,217,123,.6)';
+  if (z >= -2)   return 'rgba(245,179,51,.75)';
+  if (z >= -3)   return 'rgba(255,82,82,.75)';
+  return            'rgba(204,34,0,.85)';
+}
 const cOpts = (mn,mx,fmt) => ({ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'rgba(4,10,4,.97)', titleColor:'#ede8e2', bodyColor:'#a8a29d', borderColor:'rgba(255,255,255,.08)', borderWidth:1, titleFont:{family:'JetBrains Mono',size:11}, bodyFont:{family:'JetBrains Mono',size:10}, padding:10, cornerRadius:8, displayColors:false }}, scales:{ x:{ ticks:{color:'#807a75',font:{family:'JetBrains Mono',size:9},maxRotation:0,autoSkip:true,maxTicksLimit:6}, grid:{color:'rgba(255,255,255,0.03)'}, border:{color:'rgba(255,255,255,0.05)'} }, y:{ min:mn, max:mx, ticks:{color:'#807a75',font:{family:'JetBrains Mono',size:9},callback:fmt||undefined}, grid:{color:'rgba(255,255,255,0.03)'}, border:{color:'rgba(255,255,255,0.05)'} }}});
 // ══════════════════════════════════════════════
 // HRV INPUT
@@ -1138,40 +1169,200 @@ async function submitHRV() {
   } catch(e) { msg.textContent = 'Error: ' + e.message; msg.className = 'jfmsg err show'; }
 }
 function buildHRV(aL, aR, el, uid) {
-  const labels=aL.slice(-WIN), raw=aR.slice(-WIN), ewma=ewma28(aR), pct=pctDev(raw,ewma);
-  const n=raw.length, pL=pct[n-1], eL=ewma[n-1], si=sig(pL);
-  const p7=pct.slice(-7), tr=+(p7[p7.length-1]-p7[0]).toFixed(1);
-  const gp=Math.min(Math.max((pL+30)/50*100,3),97);
-  const heat=pct.map((p,i)=>`<div class="hmcell" style="background:${hcol(p)}" title="${labels[i]}: ${raw[i]} (${p>=0?'+':''}${p}%)">${raw[i]}</div>`).join('');
-  el.innerHTML=`
-    <div class="pill">EWMA · last ${n} days · λ=2/29</div>
+  // Use ALL history for lifetime baseline (μ); σ from 60-day rolling window
+  const allLabels = aL.slice(), allRaw = aR.slice();
+  const n = allRaw.length;
+  if (n === 0) { el.innerHTML = '<div class="errbox">No HRV data</div>'; return; }
+
+  const mu = mean(allRaw);                              // lifetime mean
+  const sigmaArr = sigmaWindow(allRaw);                 // 60d window (or all if <60)
+  const sigma = stdDev(sigmaArr, mean(sigmaArr));
+  const sigmaSpan = sigmaArr.length;
+
+  // Z-score for every reading
+  const zs = allRaw.map(v => zScore(v, mu, sigma));
+  const today = allRaw[n - 1];
+  const todayZ = zs[n - 1];
+  const todaySig = sigZ(todayZ);
+  const todayPct = Math.round(normalCdf(todayZ) * 100);
+
+  // 7-day Z trend (Δ in σ over the last week)
+  const trendWin = Math.min(7, n);
+  const z7 = zs.slice(-trendWin);
+  const trendZ = +(z7[z7.length - 1] - z7[0]).toFixed(2);
+
+  // Recovery gauge position: map Z from −3..+3 to 3..97%
+  const gPos = Math.min(Math.max((todayZ + 3) / 6 * 100, 3), 97);
+
+  // Heatmap window: last 28 days (visual recap)
+  const heatWin = 28;
+  const heatVals = allRaw.slice(-heatWin);
+  const heatZs   = zs.slice(-heatWin);
+  const heatLbls = allLabels.slice(-heatWin);
+  const heat = heatVals.map((v, i) => {
+    const z = heatZs[i];
+    return `<div class="hmcell" style="background:${zcol(z)}" title="${heatLbls[i]}: ${v} (Z ${z >= 0 ? '+' : ''}${z.toFixed(2)})">${v}</div>`;
+  }).join('');
+
+  // Status pill text
+  const statusPill = sigmaSpan >= 60
+    ? `Lifetime Z · μ=${mu.toFixed(1)} · σ from last 60 days`
+    : `Lifetime Z · μ=${mu.toFixed(1)} · σ from ${sigmaSpan} day${sigmaSpan === 1 ? '' : 's'}${sigmaSpan < 14 ? ' (gaining stability)' : ''}`;
+
+  el.innerHTML = `
+    <div class="pill">${statusPill}</div>
     <div class="cg3">
-      <div class="card hi"><div class="clbl">HRV Today</div><div class="cval">${raw[n-1]}</div><div class="csub">lnRMSSD ms</div></div>
-      <div class="card"><div class="clbl">EWMA Base</div><div class="cval md">${eL.toFixed(1)}</div><div class="csub">28-day</div></div>
-      <div class="card"><div class="clbl">7d Trend</div><div class="cval md" style="color:${tr>2?'var(--gn)':tr<-2?'var(--rd)':'var(--t2)'}">${tr>=0?'+':''}${tr}%</div><div class="csub">${tr>2?'↑ rising':tr<-2?'↓ falling':'→ stable'}</div></div>
+      <div class="card hi"><div class="clbl">HRV Today</div><div class="cval">${today}</div><div class="csub">lnRMSSD ms</div></div>
+      <div class="card"><div class="clbl">Today's Z</div><div class="cval md" style="color:${todaySig.col}">${todayZ >= 0 ? '+' : ''}${todayZ.toFixed(2)}σ</div><div class="csub">${todayPct}th pct</div></div>
+      <div class="card"><div class="clbl">7d Z Trend</div><div class="cval md" style="color:${trendZ > 0.3 ? 'var(--gn)' : trendZ < -0.3 ? 'var(--rd)' : 'var(--t2)'}">${trendZ >= 0 ? '+' : ''}${trendZ}σ</div><div class="csub">${trendZ > 0.3 ? '↑ rising' : trendZ < -0.3 ? '↓ falling' : '→ stable'}</div></div>
     </div>
     <div class="gcrd">
-      <div class="ct" style="margin-bottom:10px">Recovery gauge · today vs EWMA</div>
+      <div class="ct" style="margin-bottom:10px">Recovery gauge · standard deviations from baseline</div>
       <div class="gtrack"><div class="gneedle" id="gn${uid}"></div></div>
-      <div class="gaxis"><span>−25%</span><span>−10%</span><span>0</span><span>+10%</span><span>+20%</span></div>
-      <div class="grow"><div class="gpct" style="color:${si.col}">${pL>=0?'+':''}${pL}%</div><div class="gbg ${si.g}"><div class="bdot"></div>${si.t}</div></div>
+      <div class="gaxis"><span>−3σ</span><span>−1σ</span><span>μ</span><span>+1σ</span><span>+3σ</span></div>
+      <div class="grow"><div class="gpct" style="color:${todaySig.col}">${todayZ >= 0 ? '+' : ''}${todayZ.toFixed(2)}σ</div><div class="gbg ${todaySig.g}"><div class="bdot"></div>${todaySig.t}</div></div>
     </div>
-    <div class="sh"><div class="shb"></div><div class="sht">HRV vs EWMA</div></div>
-    <div class="ccrd"><div class="chd"><div class="ct">Last ${n} days</div><div class="cleg"><div class="cl"><div class="cll" style="background:var(--accent)"></div>HRV</div><div class="cl"><div class="cld" style="border-color:#a8a29d"></div>EWMA</div></div></div><div style="position:relative;height:180px"><canvas id="hc1${uid}"></canvas></div></div>
-    <div class="sh"><div class="shb"></div><div class="sht">Daily % Deviation</div></div>
-    <div class="ccrd"><div style="position:relative;height:130px"><canvas id="hc2${uid}"></canvas></div></div>
+
+    <div class="sh"><div class="shb"></div><div class="sht">Z-Score · Lifetime distribution</div></div>
+    <div class="ccrd">
+      <div class="chd">
+        <div class="ct">Each dot = one day's reading · ${n} total</div>
+        <div class="cleg">
+          <div class="cl"><div class="cll" style="background:rgba(76,217,123,0.7);border-radius:50%"></div>Past</div>
+          <div class="cl"><div class="cll" style="background:#4cd97b;border:2px solid #f0ece6;box-sizing:border-box;border-radius:50%;width:11px;height:11px"></div>Today</div>
+        </div>
+      </div>
+      <div id="hzwrap${uid}" style="margin-top:6px"></div>
+    </div>
+
+    <div class="sh"><div class="shb"></div><div class="sht">Recent HRV · last 28 days</div></div>
+    <div class="ccrd"><div class="chd"><div class="ct">Raw readings, colored by Z-zone</div></div><div style="position:relative;height:160px"><canvas id="hc1${uid}"></canvas></div></div>
+
     <div class="sh"><div class="shb"></div><div class="sht">28-day Heatmap</div></div>
     <div class="hmcrd"><div class="ct">Recovery signal per day</div><div class="hmgrid">${heat}</div></div>
+
     <div class="sh"><div class="shb"></div><div class="sht">Data Log</div></div>
-    <div class="tcrd"><div class="thd" style="grid-template-columns:56px 42px 62px 1fr"><span>Date</span><span>HRV</span><span>Dev%</span><span>Signal</span></div><div id="ht${uid}"></div></div>
-    <div class="refcrd"><div class="ct">Signal reference</div><div class="refgrid">${[['#00c896','≥+10% Well above'],['var(--gn)','0 to +10% Normal'],['var(--am)','-10% to 0% Mild'],['var(--rd)','-10% to -20% Suppressed'],['#cc2200','<-20% Critical']].map(([c,t])=>`<div class="refrow"><div class="refdot" style="background:${c}"></div><span>${t}</span></div>`).join('')}</div></div>
+    <div class="tcrd"><div class="thd" style="grid-template-columns:62px 42px 56px 1fr"><span>Date</span><span>HRV</span><span>Z</span><span>Signal</span></div><div id="ht${uid}"></div></div>
+
+    <div class="refcrd"><div class="ct">Signal reference</div><div class="refgrid">${[
+      ['#00c896', '≥ +2σ Well above'],
+      ['#4cd97b', '+1 to +2σ Above'],
+      ['var(--gn)', '−1 to +1σ Normal'],
+      ['var(--am)', '−2 to −1σ Suppressed'],
+      ['var(--rd)', '−3 to −2σ Alert'],
+      ['#cc2200', '< −3σ Critical']
+    ].map(([c, t]) => `<div class="refrow"><div class="refdot" style="background:${c}"></div><span>${t}</span></div>`).join('')}</div></div>
   `;
-  setTimeout(() => { const el2=document.getElementById('gn'+uid); if(el2) el2.style.left=gp+'%'; }, 200);
+
+  setTimeout(() => { const el2 = document.getElementById('gn' + uid); if (el2) el2.style.left = gPos + '%'; }, 200);
   document.getElementById('ldot').style.opacity = '1';
-  new Chart(document.getElementById('hc1'+uid),{type:'line',data:{labels,datasets:[{label:'HRV',data:raw,borderColor:'#2db85e',backgroundColor:'rgba(45,184,94,0.1)',pointRadius:raw.map((_,i)=>i===n-1?5:2),pointBackgroundColor:raw.map((_,i)=>pct[i]>=0?'#4cd97b':pct[i]>=-10?'#f5b333':'#ff5252'),pointBorderColor:'rgba(4,10,6,.8)',pointBorderWidth:1.5,tension:.35,fill:true,borderWidth:2,order:1},{label:'EWMA',data:ewma,borderColor:'rgba(190,180,170,.4)',borderDash:[4,3],pointRadius:0,tension:.4,fill:false,borderWidth:1.5,order:2}]},options:cOpts(30,90)});
-  new Chart(document.getElementById('hc2'+uid),{type:'bar',data:{labels,datasets:[{label:'%',data:pct,borderRadius:3,backgroundColor:pct.map(p=>p>=0?'rgba(76,217,123,.75)':p>=-10?'rgba(245,179,51,.75)':'rgba(255,82,82,.75)')}]},options:cOpts(-45,25,v=>v+'%')});
-  const tbl=document.getElementById('ht'+uid);
-  for(let i=n-1;i>=0;i--) { const p=pct[i],si2=sig(p),isT=i===n-1,row=document.createElement('div'); row.className='trow'+(isT?' now':''); row.style.gridTemplateColumns='56px 42px 62px 1fr'; row.innerHTML=`<span class="tda">${labels[i]}${isT?' ▸':''}</span><span class="tva">${raw[i]}</span><span class="tpa ${si2.c}">${p>=0?'+':''}${p}%</span><span class="tsa ${si2.c}">${si2.t}</span>`; tbl.appendChild(row); }
+
+  // Render the dot-plot distribution (SVG, density-stacked)
+  renderHRVDotPlot(document.getElementById('hzwrap' + uid), zs, allRaw, allLabels);
+
+  // Recent HRV line chart — last 28 days, points colored by Z-zone
+  const recentN = Math.min(28, n);
+  const rLabels = allLabels.slice(-recentN);
+  const rRaw    = allRaw.slice(-recentN);
+  const rZs     = zs.slice(-recentN);
+  const rN = rRaw.length;
+  const dataMin = Math.min(...rRaw), dataMax = Math.max(...rRaw);
+  const yMin = Math.max(0, Math.floor((dataMin - 5) / 5) * 5);
+  const yMax = Math.ceil((dataMax + 5) / 5) * 5;
+
+  new Chart(document.getElementById('hc1' + uid), {
+    type: 'line',
+    data: {
+      labels: rLabels,
+      datasets: [{
+        label: 'HRV', data: rRaw,
+        borderColor: '#2db85e',
+        backgroundColor: 'rgba(45,184,94,0.1)',
+        pointRadius: rRaw.map((_, i) => i === rN - 1 ? 6 : 3),
+        pointBackgroundColor: rZs.map(z => zcol(z).replace(/,[^,]+\)/, ',1)')),
+        pointBorderColor: rRaw.map((_, i) => i === rN - 1 ? '#f0ece6' : 'rgba(4,10,6,.8)'),
+        pointBorderWidth: rRaw.map((_, i) => i === rN - 1 ? 2 : 1),
+        tension: 0.35, fill: true, borderWidth: 2
+      }]
+    },
+    options: cOpts(yMin, yMax)
+  });
+
+  // Data log — most recent first, last ~30 entries
+  const tbl = document.getElementById('ht' + uid);
+  const logCount = Math.min(30, n);
+  for (let i = n - 1; i >= n - logCount; i--) {
+    const z = zs[i], si2 = sigZ(z), isT = i === n - 1;
+    const row = document.createElement('div');
+    row.className = 'trow' + (isT ? ' now' : '');
+    row.style.gridTemplateColumns = '62px 42px 56px 1fr';
+    row.innerHTML = `<span class="tda">${allLabels[i]}${isT ? ' ▸' : ''}</span><span class="tva">${allRaw[i]}</span><span class="tpa ${si2.c}">${z >= 0 ? '+' : ''}${z.toFixed(2)}σ</span><span class="tsa ${si2.c}">${si2.t}</span>`;
+    tbl.appendChild(row);
+  }
+}
+
+// ── HRV dot plot (SVG, density-stacked) ───────────────────────────
+function renderHRVDotPlot(wrapEl, zs, vals, labels) {
+  if (!wrapEl) return;
+  const W = 360, H = 240, padL = 10, padR = 10, padT = 14, padB = 28;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const xMin = -3.2, xMax = 3.2;
+  const xOf = z => padL + (Math.max(xMin, Math.min(xMax, z)) - xMin) / (xMax - xMin) * plotW;
+  const yBase = H - padB;
+  const dotR = 4;
+
+  // Stack dots vertically when they fall in the same Z bin
+  const binW = 0.16;
+  const used = new Map();
+  const pts = zs.map((z, i) => {
+    const k = Math.round(z / binW);
+    const u = used.get(k) || 0;
+    used.set(k, u + 1);
+    const half = Math.floor(u / 2) + 1;
+    const slot = u === 0 ? 0 : (u % 2 === 1 ? half : -half);
+    return { x: xOf(z), y: yBase - 30 - slot * 9, z, v: vals[i], lbl: labels[i], i };
+  });
+
+  // Bell curve
+  const peak = 1 / Math.sqrt(2 * Math.PI);
+  const curveTop = padT + 6, curveBase = yBase - 4;
+  const curveSpan = curveBase - curveTop;
+  let path = '';
+  for (let i = 0; i <= 120; i++) {
+    const z = xMin + (xMax - xMin) * (i / 120);
+    const pdf = Math.exp(-0.5 * z * z) / Math.sqrt(2 * Math.PI);
+    const y = curveBase - (pdf / peak) * curveSpan * 0.7;
+    path += (i === 0 ? 'M' : 'L') + xOf(z).toFixed(1) + ',' + y.toFixed(1) + ' ';
+  }
+
+  // Vertical sigma gridlines
+  const grids = [-3, -2, -1, 0, 1, 2, 3].map(z => {
+    const x = xOf(z);
+    const isMu = z === 0;
+    const isOuter = Math.abs(z) === 3;
+    return `<line x1="${x.toFixed(1)}" x2="${x.toFixed(1)}" y1="${padT}" y2="${yBase}" stroke="${isMu ? 'rgba(168,162,157,0.45)' : 'rgba(255,255,255,0.06)'}" stroke-width="${isMu ? 1.2 : 1}" ${isMu || isOuter ? '' : 'stroke-dasharray="3,3"'} />`;
+  }).join('');
+
+  // Tick labels
+  const tickLabels = [-3, -2, -1, 0, 1, 2, 3].map(z => {
+    const x = xOf(z);
+    const lbl = z === 0 ? 'μ' : (z > 0 ? '+' : '') + z + 'σ';
+    return `<text x="${x.toFixed(1)}" y="${H - 8}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#807a75">${lbl}</text>`;
+  }).join('');
+
+  // Soft normal-zone background
+  const normalBand = `<rect x="${xOf(-1).toFixed(1)}" y="${padT}" width="${(xOf(1) - xOf(-1)).toFixed(1)}" height="${plotH}" fill="rgba(76,217,123,0.04)"/>`;
+
+  const todayPt = pts[pts.length - 1];
+  const pastDots = pts.slice(0, -1).map(p => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${dotR}" fill="${zcol(p.z)}" stroke="rgba(4,10,6,0.5)" stroke-width="0.5"><title>${p.lbl}: HRV ${p.v} (Z ${p.z >= 0 ? '+' : ''}${p.z.toFixed(2)})</title></circle>`).join('');
+
+  const todayDot = `<circle cx="${todayPt.x.toFixed(1)}" cy="${todayPt.y.toFixed(1)}" r="7" fill="#4cd97b" stroke="#f0ece6" stroke-width="2.5"><title>Today: HRV ${todayPt.v} (Z ${todayPt.z >= 0 ? '+' : ''}${todayPt.z.toFixed(2)})</title></circle>`;
+
+  // Today label badge
+  const lblX = Math.max(28, Math.min(W - 28, todayPt.x));
+  const todayBadge = `<g><rect x="${(lblX - 22).toFixed(1)}" y="${(todayPt.y - 26).toFixed(1)}" width="44" height="16" rx="3" fill="#4cd97b"/><text x="${lblX.toFixed(1)}" y="${(todayPt.y - 15).toFixed(1)}" text-anchor="middle" font-family="Bebas Neue, sans-serif" font-size="11" fill="#062010" letter-spacing="0.04em">TODAY</text></g>`;
+
+  wrapEl.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;max-width:100%" role="img" aria-label="Dot plot of HRV Z-scores">${normalBand}${grids}<path d="${path}" fill="none" stroke="rgba(240,236,230,0.32)" stroke-width="1.2" stroke-dasharray="4,3"/>${pastDots}${todayDot}${todayBadge}${tickLabels}</svg>`;
 }
 // ══════════════════════════════════════════════
 // sRPE / INTERNAL LOAD (Foster method: AU = duration × RPE)
