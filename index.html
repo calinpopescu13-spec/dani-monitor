@@ -862,7 +862,7 @@ body{min-height:100dvh;overflow-x:hidden}
       <button class="abtn" style="width:100%;margin-top:14px" onclick="saveAthlete()">Save Athlete</button>
       <div class="amsg" id="athlete-msg"></div>
     </div>
-    <div class="sh"><div class="shb"></div><div class="sht">All Athletes</div></div>
+    <div class="sh" style="display:flex;align-items:center;justify-content:space-between;gap:8px"><div style="display:flex;align-items:center;gap:8px"><div class="shb"></div><div class="sht">All Athletes</div></div><button class="abtn small" id="sync-all-btn" onclick="syncAllAthletes()" title="Sync all athletes that have an API-Football ID">Sync All</button></div>
     <div id="admin-athletes-list">
       <div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div>
     </div>
@@ -2300,13 +2300,21 @@ async function loadAdminAthletes() {
     list.innerHTML = '';
     athletes.forEach(a => {
       const div = document.createElement('div'); div.className = 'alist-item';
+      const lastSyncText = a.last_sync
+        ? `Synced ${new Date(a.last_sync).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}`
+        : (a.api_football_id ? 'Never synced' : '');
+      const subParts = [a.position||'', a.team||'', lastSyncText].filter(Boolean);
+      const syncBtn = a.api_football_id
+        ? `<button class="abtn small" id="sync-btn-${a.id}" onclick="syncAthlete('${a.id}', ${a.api_football_id})" title="Pull latest stats from API-Football">Sync</button>`
+        : `<button class="abtn secondary small" disabled title="Add an API-Football Player ID to enable sync" style="opacity:.4;cursor:not-allowed">Sync</button>`;
       div.innerHTML = `
         <div style="width:36px;height:36px;font-size:15px;background:${avatarGradient(a)};border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--bb);flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.25)">${a.initials||a.name[0]}</div>
         <div class="alist-info">
           <div class="alist-name">${a.name}</div>
-          <div class="alist-sub">${a.position||''}${a.team?' · '+a.team:''}</div>
+          <div class="alist-sub">${subParts.join(' · ')}</div>
         </div>
         <div class="alist-actions">
+          ${syncBtn}
           <button class="abtn secondary small" onclick="editAthlete('${a.id}')">Edit</button>
           <button class="abtn danger small" onclick="deleteAthlete('${a.id}')">Delete</button>
         </div>`;
@@ -2314,6 +2322,76 @@ async function loadAdminAthletes() {
     });
   } catch { list.innerHTML='<div class="errbox">Error loading athletes</div>'; }
 }
+
+// ── ATHLETE SYNC (calls Apps Script → API-Football → Supabase) ──
+async function syncAthlete(athleteId, playerId) {
+  const btn = document.getElementById('sync-btn-' + athleteId);
+  if (!btn) return;
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Syncing…';
+  btn.style.opacity = '.6';
+  btn.style.cursor = 'wait';
+  try {
+    // Apps Script web app — uses no-cors mode, so we can't read the response body.
+    // Strategy: fire the request, then poll Supabase for an updated last_sync.
+    const beforeSync = await sb.get('athletes', `?id=eq.${athleteId}&select=last_sync`);
+    const beforeTs = beforeSync[0]?.last_sync || null;
+
+    const url = `${API}?action=syncNow&athleteId=${encodeURIComponent(athleteId)}&player=${encodeURIComponent(playerId)}`;
+    fetch(url, { method: 'GET', mode: 'no-cors' }).catch(() => {});
+
+    // Poll up to 25 seconds for last_sync to change
+    let updated = false;
+    for (let i = 0; i < 25; i++) {
+      await new Promise(r => setTimeout(r, 1000));
+      const fresh = await sb.get('athletes', `?id=eq.${athleteId}&select=last_sync`);
+      if (fresh[0]?.last_sync && fresh[0].last_sync !== beforeTs) { updated = true; break; }
+    }
+
+    if (updated) {
+      btn.textContent = '✓ Synced';
+      btn.style.background = 'var(--gn)';
+      btn.style.borderColor = 'var(--gn)';
+      btn.style.color = '#062010';
+      setTimeout(() => loadAdminAthletes(), 1200);
+    } else {
+      btn.textContent = '⚠ Timeout';
+      btn.style.background = 'var(--am)';
+      btn.style.color = '#062010';
+      alert('Sync request was sent but no update detected within 25s.\n\nPossible causes:\n• Apps Script took longer than expected (try again)\n• API-Football daily limit reached\n• Wrong player ID for season ' + (new Date().getFullYear() - 2));
+      setTimeout(() => { btn.disabled = false; btn.textContent = originalText; btn.style.opacity = '1'; btn.style.cursor = 'pointer'; btn.style.background = ''; btn.style.color = ''; btn.style.borderColor = ''; }, 2000);
+    }
+  } catch (e) {
+    btn.textContent = '✗ Failed';
+    btn.style.background = 'var(--rd)';
+    btn.style.color = '#fff';
+    alert('Sync error: ' + e.message);
+    setTimeout(() => { btn.disabled = false; btn.textContent = originalText; btn.style.opacity = '1'; btn.style.cursor = 'pointer'; btn.style.background = ''; btn.style.color = ''; }, 2000);
+  }
+}
+
+async function syncAllAthletes() {
+  const athletes = await sb.get('athletes', '?select=id,name,api_football_id&api_football_id=not.is.null&order=name');
+  if (!athletes.length) { alert('No athletes have an API-Football ID set.'); return; }
+  if (!confirm(`Sync ${athletes.length} athlete${athletes.length === 1 ? '' : 's'} now?\n\nThis will call API-Football for each one — uses your daily quota.`)) return;
+  const btn = document.getElementById('sync-all-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Syncing all…'; btn.style.opacity = '.6'; }
+  let ok = 0, fail = 0;
+  for (const a of athletes) {
+    try {
+      const url = `${API}?action=syncNow&athleteId=${encodeURIComponent(a.id)}&player=${encodeURIComponent(a.api_football_id)}`;
+      fetch(url, { method: 'GET', mode: 'no-cors' }).catch(() => {});
+      // Stagger to avoid hammering the API
+      await new Promise(r => setTimeout(r, 2500));
+      ok++;
+    } catch { fail++; }
+  }
+  if (btn) { btn.disabled = false; btn.textContent = 'Sync All'; btn.style.opacity = '1'; }
+  alert(`Triggered sync for ${ok} athlete${ok === 1 ? '' : 's'}${fail ? ` (${fail} failed to dispatch)` : ''}.\n\nWait ~30 seconds, then refresh the list to see updated stats.`);
+  setTimeout(() => loadAdminAthletes(), 30000);
+}
+
 function populateSessionAthleteDropdown(athletes) {
   const dropdown = document.getElementById('sf-assigned-to');
   if(!dropdown) return;
