@@ -511,6 +511,14 @@ body{min-height:100dvh;overflow-x:hidden}
 #intro-prog{height:100%;width:0;background:#2db85e;box-shadow:0 0 8px #2db85e}
 #intro-skip{position:absolute;bottom:18px;right:18px;font-family:var(--m);font-size:9px;letter-spacing:.16em;color:#2db85e;text-transform:uppercase;background:transparent;border:1px solid rgba(45,184,94,0.3);padding:8px 14px;cursor:pointer;opacity:0;z-index:100;transition:all .2s}
 #intro-skip:hover{border-color:#2db85e;background:rgba(45,184,94,0.08)}
+#intro-ui{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;text-align:center}
+#intro-tag{font-family:var(--m);font-size:10px;letter-spacing:.28em;color:#2db85e;text-transform:uppercase;opacity:0;margin-bottom:18px;filter:blur(8px)}
+#intro-headline{text-align:center;width:100%}
+.intro-word{font-family:var(--bb);font-size:clamp(76px,15vw,128px);line-height:.85;letter-spacing:.05em;color:var(--wh);display:block;overflow:hidden;text-align:center}
+.intro-word span{display:inline-block;transform:translateY(110%)}
+.intro-word.ig{color:#2db85e}
+#intro-divline{width:0;height:1.5px;background:linear-gradient(90deg,transparent,#2db85e,transparent);margin:22px auto}
+#intro-sub{font-family:var(--m);font-size:9px;letter-spacing:.22em;color:#807a75;text-transform:uppercase;opacity:0}
 </style>
 </head>
 <body>
