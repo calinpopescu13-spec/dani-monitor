@@ -77,20 +77,72 @@ body{min-height:100dvh;overflow-x:hidden}
 }
 #s1 .fps-header,#s1 .profiles-dropdown-wrap,#s1 .admin-entry{position:relative;z-index:1}
 @media(min-width:600px){
-  #s1{display:flex;flex-direction:column;align-items:center;justify-content:center}
-  #s1 .fps-header,#s1 .profiles-dropdown-wrap,#s1 .admin-entry{
-    background:rgba(4,10,6,0.55);
-    backdrop-filter:blur(12px);
-    -webkit-backdrop-filter:blur(12px);
-    border-radius:16px;
-    padding:28px 32px;
-    border:1px solid rgba(45,184,94,0.15);
-    width:100%;max-width:440px;
+  #s1{
+    display:grid !important;
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:1fr;
+    align-items:stretch;
+    overflow:hidden;
   }
-  #s1 .fps-header{margin-bottom:0;padding-bottom:0;border-radius:16px 16px 0 0;border-bottom:none}
-  #s1 .profiles-dropdown-wrap{border-radius:0;border-top:none;border-bottom:none;padding-top:0}
-  #s1 .admin-entry{border-radius:0 0 16px 16px;border-top:none;padding-top:12px}
-  #s1-motto{background:rgba(4,10,6,0.45);backdrop-filter:blur(8px);padding:16px 20px;border-radius:10px;border:1px solid rgba(45,184,94,0.1)}
+  /* Left side: photo area with motto at bottom */
+  #s1-motto{
+    grid-column:1;
+    grid-row:1;
+    align-self:end;
+    position:relative;
+    z-index:2;
+    padding:0 48px 48px;
+    background:none;
+    border:none;
+    border-radius:0;
+    max-width:none;
+  }
+  #s1-motto-text{max-width:100%;font-size:15px}
+  /* Right side: dark panel with all form content */
+  .fps-header{
+    grid-column:2 !important;
+    grid-row:1 !important;
+    position:relative !important;
+    z-index:2 !important;
+    background:rgba(4,10,6,0.88) !important;
+    backdrop-filter:blur(20px) !important;
+    -webkit-backdrop-filter:blur(20px) !important;
+    border-left:1px solid rgba(45,184,94,0.12) !important;
+    padding:60px 48px 0 !important;
+    margin:0 !important;
+    max-width:none !important;
+    width:100% !important;
+    align-self:start !important;
+    min-height:100vh !important;
+  }
+  .profiles-dropdown-wrap{
+    grid-column:2 !important;
+    grid-row:1 !important;
+    position:relative !important;
+    z-index:2 !important;
+    background:rgba(4,10,6,0.88) !important;
+    backdrop-filter:blur(20px) !important;
+    border-left:1px solid rgba(45,184,94,0.12) !important;
+    padding:0 48px !important;
+    margin:0 !important;
+    max-width:none !important;
+    width:100% !important;
+    align-self:start !important;
+  }
+  .admin-entry{
+    grid-column:2 !important;
+    grid-row:1 !important;
+    position:relative !important;
+    z-index:2 !important;
+    background:rgba(4,10,6,0.88) !important;
+    backdrop-filter:blur(20px) !important;
+    border-left:1px solid rgba(45,184,94,0.12) !important;
+    padding:0 48px 60px !important;
+    margin:0 !important;
+    max-width:none !important;
+    width:100% !important;
+    align-self:start !important;
+  }
 }
 #s1-motto{
   position:absolute;bottom:28px;left:28px;right:28px;z-index:1;
@@ -606,7 +658,7 @@ body{min-height:100dvh;overflow-x:hidden}
 <div class="screen on" id="s1" >
   <div id="s1-motto">
     <div id="s1-motto-line"></div>
-    <div id="s1-motto-text">The life of a footballer can look like this sometimes — but remember, even the biggest champions have work to do — and that's why we are here.</div>
+    <div id="s1-motto-text">The life of a footballer can look like this sometimes.<br>But remember, even the biggest champions have work to do.<br>And that's why we are here.</div>
     <div id="s1-motto-sub">Football Performance Society</div>
   </div>
   <div class="fps-header">
