@@ -1163,6 +1163,20 @@ async function deleteExtLoad(id) {
   try { const r = await sb.delete('external_load_data', id); if (!r.ok) throw new Error('Delete failed'); loadExtLoad(); }
   catch (e) { alert('Error: ' + e.message); }
 }
+function buildExtDailySeries(list, days) {
+  // Same approach as buildDailySeries (used for sRPE), generalized to any 'value' field.
+  // Missing days AND explicit 0-distance entries both correctly collapse to 0 — no double counting.
+  const map = {};
+  list.forEach(d => { map[d.date] = (map[d.date] || 0) + (+d.value || 0); });
+  const series = [];
+  const today = new Date(); today.setHours(0,0,0,0);
+  for (let i = days - 1; i >= 0; i--) {
+    const dt = new Date(today); dt.setDate(today.getDate() - i);
+    const ds = dt.toISOString().split('T')[0];
+    series.push({ date: ds, value: map[ds] || 0 });
+  }
+  return series;
+}
 async function loadExtLoad() {
   const bodies = {
     td: document.getElementById('extload-td-body'),
@@ -1174,34 +1188,195 @@ async function loadExtLoad() {
     const data = await sb.get('external_load_data', `?athlete_name=eq.${encodeURIComponent(currentProfile.name)}&order=date.desc&limit=400`);
     const byMetric = { total_distance: [], hml: [], hsr: [], sprint: [] };
     data.forEach(d => { if (byMetric[d.metric]) byMetric[d.metric].push(d); });
-    const sum = arr => arr.slice(0,7).reduce((s,d) => s + (+d.value || 0), 0);
-    const avg = arr => arr.slice(0,7).length ? Math.round(sum(arr) / arr.slice(0,7).length) : 0;
-    const tdWeekly = sum(byMetric.total_distance);
+    const sum7 = arr => arr.slice(0,7).reduce((s,d) => s + (+d.value || 0), 0);
+    const tdWeekly7 = sum7(byMetric.total_distance);
 
     Object.entries(EXT_METRICS).forEach(([tab, m]) => {
       const list = byMetric[m.key];
       const body = bodies[tab];
       if (!list.length) { body.innerHTML = '<div class="soon"><div class="soon-ico">📏</div><div class="soon-t">No entries yet</div><div class="soon-s">Log your first entry above</div></div>'; return; }
-      const weekly = sum(list);
-      const extra = tab === 'td'
-        ? { label: 'Entries', value: list.slice(0,7).length, sub: 'last 7 logged' }
-        : { label: '% of Total Dist.', value: (tdWeekly > 0 ? Math.round((weekly / tdWeekly) * 100) : 0) + '%', sub: 'last 7 entries' };
+
+      // ── Build 28-day daily series (rest days = 0) — required for valid EWMA ACWR, identical approach to sRPE ──
+      const series = buildExtDailySeries(list, 28);
+      const dailyValues = series.map(s => s.value);
+      const labels = series.map(s => cleanDate(s.date));
+      const acuteEWMA = ewmaSeries(dailyValues, 7);
+      const chronicEWMA = ewmaSeries(dailyValues, 28);
+      const acuteToday = acuteEWMA[acuteEWMA.length - 1];
+      const chronicToday = chronicEWMA[chronicEWMA.length - 1];
+      const acwr = chronicToday > 0 ? +(acuteToday / chronicToday).toFixed(2) : 0;
+      const zone = acwrZone(acwr);
+      const acwrHistory = acuteEWMA.map((a,i) => chronicEWMA[i] > 0 ? +(a / chronicEWMA[i]).toFixed(2) : 0);
+
+      // ── Weekly aggregates — same filtering rule as sRPE: monotony/stdDev only over days that actually had a logged value > 0 ──
+      const last7 = series.slice(-7);
+      const weeklyTotal = last7.reduce((s,d) => s + d.value, 0);
+      const avgDaily = Math.round(weeklyTotal / 7);
+      const loggedDays = last7.filter(d => d.value > 0).length;
+      const trainingValues = last7.filter(d => d.value > 0).map(d => d.value);
+      const stdDev = trainingValues.length > 1
+        ? Math.sqrt(trainingValues.reduce((s,v) => s + Math.pow(v - (trainingValues.reduce((a,b)=>a+b,0)/trainingValues.length), 2), 0) / trainingValues.length)
+        : 0;
+      const trainingMean = trainingValues.length ? trainingValues.reduce((a,b)=>a+b,0)/trainingValues.length : 0;
+      const monotony = stdDev > 0 ? +(trainingMean / stdDev).toFixed(2) : 0;
+      const strain = Math.round(weeklyTotal * monotony);
+      const latestEntry = list[0];
+      const isToday = latestEntry && latestEntry.date === new Date().toISOString().split('T')[0];
+      const monoColor = monotony < 1.5 ? 'var(--gn)' : monotony < 2 ? 'var(--am)' : 'var(--rd)';
+      const monoLabel = monotony < 1.5 ? 'Healthy' : monotony < 2 ? 'Moderate' : 'High risk';
+      const pctOfTD = tdWeekly7 > 0 ? Math.round((sum7(list) / tdWeekly7) * 100) : 0;
+
       body.innerHTML = `
-        <div class="cg3" style="margin-bottom:14px">
-          <div class="card hi"><div class="clbl">Weekly Total</div><div class="cval md">${weekly.toLocaleString()}</div><div class="csub">m · last 7 entries</div></div>
-          <div class="card"><div class="clbl">Avg / Entry</div><div class="cval md">${avg(list).toLocaleString()}</div><div class="csub">m</div></div>
-          <div class="card"><div class="clbl">${extra.label}</div><div class="cval md">${extra.value}</div><div class="csub">${extra.sub}</div></div>
+        <div class="hero" style="margin-bottom:14px">
+          <div class="hero-top">
+            <div>
+              <div class="hero-eyebrow">${m.label.toUpperCase()} · ACWR · EWMA</div>
+              <div class="hero-sub">Acute (7d) ÷ Chronic (28d)</div>
+            </div>
+            <div class="gbg ${zone.bg}"><div class="bdot"></div>${zone.label}</div>
+          </div>
+          <div class="hero-main">
+            <div class="hero-val" style="color:${zone.color}">${acwr}</div>
+            <div class="hero-unit">ratio</div>
+          </div>
+          <div class="acwr-track">
+            <div class="acwr-zone z-under"></div>
+            <div class="acwr-zone z-sweet"></div>
+            <div class="acwr-zone z-caution"></div>
+            <div class="acwr-zone z-danger"></div>
+            <div class="acwr-needle" id="ext-needle-${tab}"></div>
+          </div>
+          <div class="acwr-axis"><span>0.5</span><span>0.8</span><span>1.3</span><span>1.5</span><span>2.0+</span></div>
+          <div class="hero-row" style="margin-top:10px">
+            <div style="font-family:var(--m);font-size:10px;color:var(--t2)">Acute: <span style="color:var(--wh);font-weight:500">${Math.round(acuteToday)}</span> m/day</div>
+            <div style="font-family:var(--m);font-size:10px;color:var(--t2)">Chronic: <span style="color:var(--wh);font-weight:500">${Math.round(chronicToday)}</span> m/day</div>
+          </div>
+          ${tab !== 'td' ? `<div class="hero-row" style="margin-top:6px"><div style="font-family:var(--m);font-size:10px;color:var(--t2)">% of Total Distance, last 7 days: <span style="color:var(--wh);font-weight:500">${pctOfTD}%</span></div></div>` : ''}
+        </div>
+        <div class="cg3">
+          <div class="card hi">
+            <div class="clbl">${isToday ? "Today's Entry" : 'Last Entry'}</div>
+            <div class="cval">${latestEntry.value}</div>
+            <div class="csub">${cleanDate(latestEntry.date)} · m</div>
+          </div>
+          <div class="card">
+            <div class="clbl">Weekly Total</div>
+            <div class="cval md">${weeklyTotal.toLocaleString()}</div>
+            <div class="csub">${loggedDays}/7 days logged</div>
+          </div>
+          <div class="card">
+            <div class="clbl">Avg / Day</div>
+            <div class="cval md">${avgDaily.toLocaleString()}</div>
+            <div class="csub">7-day mean</div>
+          </div>
+        </div>
+        <div class="cg2">
+          <div class="card">
+            <div class="clbl">Monotony</div>
+            <div class="cval md" style="color:${monoColor}">${monotony}</div>
+            <div class="csub">${monoLabel}</div>
+          </div>
+          <div class="card">
+            <div class="clbl">Strain</div>
+            <div class="cval md">${strain}</div>
+            <div class="csub">load × monotony</div>
+          </div>
+        </div>
+        <div class="sh"><div class="shb"></div><div class="sht">ACWR Trend · 28 days</div></div>
+        <div class="ccrd">
+          <div class="chd">
+            <div class="ct">EWMA ratio · risk zones shaded</div>
+            <div class="cleg"><div class="cl"><div class="cll" style="background:var(--accent)"></div>ACWR</div></div>
+          </div>
+          <div style="position:relative;height:180px"><canvas id="ext-acwr-chart-${tab}"></canvas></div>
+        </div>
+        <div class="sh"><div class="shb"></div><div class="sht">Daily ${m.label} (m)</div></div>
+        <div class="ccrd">
+          <div class="chd"><div class="ct">Last 28 days · 0 = no entry / rest day</div></div>
+          <div style="position:relative;height:170px"><canvas id="ext-daily-chart-${tab}"></canvas></div>
+        </div>
+        <div class="refcrd">
+          <div class="ct">ACWR risk zones</div>
+          <div class="refgrid">
+            <div class="refrow"><div class="refdot" style="background:var(--am)"></div><span>&lt; 0.8 · Undertraining</span></div>
+            <div class="refrow"><div class="refdot" style="background:var(--gn)"></div><span>0.8 – 1.3 · Sweet spot</span></div>
+            <div class="refrow"><div class="refdot" style="background:var(--am)"></div><span>1.3 – 1.5 · Caution</span></div>
+            <div class="refrow"><div class="refdot" style="background:var(--rd)"></div><span>&gt; 1.5 · Danger</span></div>
+          </div>
         </div>
         <div class="sh"><div class="shb"></div><div class="sht">Entry Log</div></div>
         <div class="tcrd">
           <div class="thd" style="grid-template-columns:70px 70px 1fr 70px"><span>Date</span><span>Meters</span><span>Notes</span><span></span></div>
-          <div>${list.map(d => `
+          <div>${list.slice(0,50).map(d => `
             <div class="trow" style="grid-template-columns:70px 70px 1fr 70px">
               <span>${cleanDate(d.date)}</span><span>${d.value}</span><span>${d.notes || '—'}</span>
               <span><button class="abtn secondary small" onclick="editExtLoad('${tab}','${d.id}')">Edit</button> <button class="abtn danger small" onclick="deleteExtLoad('${d.id}')">✕</button></span>
             </div>`).join('')}
           </div>
         </div>`;
+
+      // Position ACWR needle + build charts (mirrors sRPE's chart setup exactly)
+      setTimeout(() => {
+        const needle = document.getElementById(`ext-needle-${tab}`);
+        if (needle) {
+          const pos = Math.min(Math.max(((acwr - 0.5) / 1.5) * 100, 2), 98);
+          needle.style.left = pos + '%';
+        }
+        const acwrZonePlugin = {
+          id: 'acwrZonesExt' + tab,
+          beforeDraw(chart) {
+            const {ctx, chartArea: ca, scales: {y}} = chart;
+            if (!ca) return;
+            const zones = [
+              { from: 0,   to: 0.8, color: 'rgba(245,179,51,0.06)' },
+              { from: 0.8, to: 1.3, color: 'rgba(76,217,123,0.08)' },
+              { from: 1.3, to: 1.5, color: 'rgba(245,179,51,0.06)' },
+              { from: 1.5, to: 2.5, color: 'rgba(255,82,82,0.07)' }
+            ];
+            zones.forEach(z => {
+              const yTop = y.getPixelForValue(z.to);
+              const yBot = y.getPixelForValue(z.from);
+              ctx.fillStyle = z.color;
+              ctx.fillRect(ca.left, yTop, ca.right - ca.left, yBot - yTop);
+            });
+          }
+        };
+        const acwrCanvas = document.getElementById(`ext-acwr-chart-${tab}`);
+        if (acwrCanvas) {
+          new Chart(acwrCanvas, {
+            type: 'line',
+            data: { labels, datasets: [{
+              label: 'ACWR', data: acwrHistory,
+              borderColor: '#2db85e', backgroundColor: 'rgba(45,184,94,0.08)',
+              pointRadius: acwrHistory.map((_,i) => i === acwrHistory.length-1 ? 5 : 0),
+              pointBackgroundColor: acwrHistory.map(r => acwrZone(r).color),
+              pointBorderColor: 'rgba(4,10,6,.85)', pointBorderWidth: 1.5,
+              tension: 0.35, fill: true, borderWidth: 2
+            }]},
+            options: {
+              ...cOpts(0.4, Math.max(2.0, ...acwrHistory.map(v => v + 0.2))),
+              plugins: { ...cOpts().plugins, legend: { display: false }, tooltip: {
+                backgroundColor: 'rgba(4,10,4,.97)', titleColor: '#ede8e2', bodyColor: '#a8a29d',
+                borderColor: 'rgba(255,255,255,.08)', borderWidth: 1, padding: 10, cornerRadius: 8,
+                titleFont: {family:'JetBrains Mono',size:11}, bodyFont: {family:'JetBrains Mono',size:10},
+                callbacks: { label: ctx => `ACWR: ${ctx.parsed.y} (${acwrZone(ctx.parsed.y).label})` }
+              }}
+            },
+            plugins: [acwrZonePlugin]
+          });
+        }
+        const dailyCanvas = document.getElementById(`ext-daily-chart-${tab}`);
+        if (dailyCanvas) {
+          new Chart(dailyCanvas, {
+            type: 'bar',
+            data: { labels, datasets: [{
+              label: m.label, data: dailyValues, borderRadius: 3,
+              backgroundColor: dailyValues.map(v => v === 0 ? 'rgba(255,255,255,0.04)' : 'rgba(76,217,123,.75)')
+            }]},
+            options: cOpts(0, Math.max(...dailyValues, 10) * 1.15)
+          });
+        }
+      }, 50);
     });
   } catch (e) {
     const err = '<div class="errbox">Error: ' + e.message + '</div>';
