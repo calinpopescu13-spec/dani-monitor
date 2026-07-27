@@ -570,45 +570,48 @@ body{min-height:100dvh;overflow-x:hidden}
     </div>
     <div class="spg on" id="spg-td">
       <div class="jform">
-        <div class="jftitle" id="ext-form-title">Log External Load</div>
-        <div class="jfrow">
-          <label class="jflbl" for="ext-date">Session Date</label>
-          <input class="ainput" id="ext-date" type="date">
-        </div>
-        <div class="jfrow">
-          <label class="jflbl" for="ext-td">Total Distance (m)</label>
-          <input class="ainput" id="ext-td" type="number" placeholder="e.g. 6500" min="0">
-        </div>
-        <div class="jfrow">
-          <label class="jflbl" for="ext-hsr">High Speed Running (m)</label>
-          <input class="ainput" id="ext-hsr" type="number" placeholder="e.g. 450" min="0">
-        </div>
-        <div class="jfrow">
-          <label class="jflbl" for="ext-sprint">Sprint Distance (m)</label>
-          <input class="ainput" id="ext-sprint" type="number" placeholder="e.g. 120" min="0">
-        </div>
-        <div class="jfrow">
-          <label class="jflbl" for="ext-hml">High Metabolic Load Dist. (m)</label>
-          <input class="ainput" id="ext-hml" type="number" placeholder="e.g. 900" min="0">
-        </div>
-        <div class="jfrow">
-          <label class="jflbl" for="ext-notes">Notes (optional)</label>
-          <textarea class="jfta" id="ext-notes" rows="2" placeholder="e.g. Match day, friendly, GPS unit #4"></textarea>
-        </div>
-        <button class="jfsub" id="ext-submit-btn" onclick="submitExtLoad()">Save Session</button>
-        <div class="jfmsg" id="ext-msg"></div>
+        <div class="jftitle" id="ext-td-title">Log Total Distance</div>
+        <div class="jfrow"><label class="jflbl" for="ext-td-date">Date</label><input class="ainput" id="ext-td-date" type="date"></div>
+        <div class="jfrow"><label class="jflbl" for="ext-td-value">Total Distance (m) <span class="jfhint">— 0 is fine (e.g. rest day)</span></label><input class="ainput" id="ext-td-value" type="number" placeholder="e.g. 6500" min="0"></div>
+        <div class="jfrow"><label class="jflbl" for="ext-td-notes">Notes (optional)</label><textarea class="jfta" id="ext-td-notes" rows="2" placeholder="e.g. Match day, friendly"></textarea></div>
+        <button class="jfsub" id="ext-td-submit-btn" onclick="submitExtLoad('td')">Save</button>
+        <div class="jfmsg" id="ext-td-msg"></div>
       </div>
       <div id="extload-td-body">
         <div class="sk-card"><div class="sk sk-line lg"></div><div class="sk sk-line"></div></div>
       </div>
     </div>
     <div class="spg" id="spg-hml">
+      <div class="jform">
+        <div class="jftitle" id="ext-hml-title">Log High Metabolic Load</div>
+        <div class="jfrow"><label class="jflbl" for="ext-hml-date">Date</label><input class="ainput" id="ext-hml-date" type="date"></div>
+        <div class="jfrow"><label class="jflbl" for="ext-hml-value">HML Distance (m) <span class="jfhint">— 0 is fine</span></label><input class="ainput" id="ext-hml-value" type="number" placeholder="e.g. 900" min="0"></div>
+        <div class="jfrow"><label class="jflbl" for="ext-hml-notes">Notes (optional)</label><textarea class="jfta" id="ext-hml-notes" rows="2" placeholder="e.g. Match day, friendly"></textarea></div>
+        <button class="jfsub" id="ext-hml-submit-btn" onclick="submitExtLoad('hml')">Save</button>
+        <div class="jfmsg" id="ext-hml-msg"></div>
+      </div>
       <div id="extload-hml-body"><div class="sk-card"><div class="sk sk-line lg"></div><div class="sk sk-line"></div></div></div>
     </div>
     <div class="spg" id="spg-hsr">
+      <div class="jform">
+        <div class="jftitle" id="ext-hsr-title">Log High Speed Running</div>
+        <div class="jfrow"><label class="jflbl" for="ext-hsr-date">Date</label><input class="ainput" id="ext-hsr-date" type="date"></div>
+        <div class="jfrow"><label class="jflbl" for="ext-hsr-value">HSR Distance (m) <span class="jfhint">— 0 is fine</span></label><input class="ainput" id="ext-hsr-value" type="number" placeholder="e.g. 450" min="0"></div>
+        <div class="jfrow"><label class="jflbl" for="ext-hsr-notes">Notes (optional)</label><textarea class="jfta" id="ext-hsr-notes" rows="2" placeholder="e.g. Match day, friendly"></textarea></div>
+        <button class="jfsub" id="ext-hsr-submit-btn" onclick="submitExtLoad('hsr')">Save</button>
+        <div class="jfmsg" id="ext-hsr-msg"></div>
+      </div>
       <div id="extload-hsr-body"><div class="sk-card"><div class="sk sk-line lg"></div><div class="sk sk-line"></div></div></div>
     </div>
     <div class="spg" id="spg-sprint">
+      <div class="jform">
+        <div class="jftitle" id="ext-sprint-title">Log Sprint Distance</div>
+        <div class="jfrow"><label class="jflbl" for="ext-sprint-date">Date</label><input class="ainput" id="ext-sprint-date" type="date"></div>
+        <div class="jfrow"><label class="jflbl" for="ext-sprint-value">Sprint Distance (m) <span class="jfhint">— 0 is fine</span></label><input class="ainput" id="ext-sprint-value" type="number" placeholder="e.g. 120" min="0"></div>
+        <div class="jfrow"><label class="jflbl" for="ext-sprint-notes">Notes (optional)</label><textarea class="jfta" id="ext-sprint-notes" rows="2" placeholder="e.g. Match day, friendly"></textarea></div>
+        <button class="jfsub" id="ext-sprint-submit-btn" onclick="submitExtLoad('sprint')">Save</button>
+        <div class="jfmsg" id="ext-sprint-msg"></div>
+      </div>
       <div id="extload-sprint-body"><div class="sk-card"><div class="sk sk-line lg"></div><div class="sk sk-line"></div></div></div>
     </div>
   </div>
@@ -1110,47 +1113,50 @@ function goExt(id, tabEl) {
   if(tabEl) tabEl.classList.add('on');
 }
 // ══════════════════════════════════════════════
-// EXTERNAL LOAD (GPS): Total Distance, HSR, Sprint, HML
+// EXTERNAL LOAD (GPS): Total Distance, HSR, Sprint, HML — each logged independently
 // ══════════════════════════════════════════════
-let extEditId = null;
-async function submitExtLoad() {
-  const date = document.getElementById('ext-date').value || new Date().toISOString().split('T')[0];
-  const td = parseFloat(document.getElementById('ext-td').value);
-  const hsr = parseFloat(document.getElementById('ext-hsr').value) || 0;
-  const sprint = parseFloat(document.getElementById('ext-sprint').value) || 0;
-  const hml = parseFloat(document.getElementById('ext-hml').value) || 0;
-  const notes = document.getElementById('ext-notes').value.trim();
-  if (!td || td <= 0) { showMsg('ext-msg', 'Total distance is required', true); return; }
-  const data = { athlete_name: currentProfile.name, date, total_distance: td, hsr_distance: hsr, sprint_distance: sprint, hml_distance: hml, notes: notes || null };
+const EXT_METRICS = {
+  td:     { key: 'total_distance', label: 'Total Distance' },
+  hml:    { key: 'hml',            label: 'High Metabolic Load' },
+  hsr:    { key: 'hsr',            label: 'High Speed Running' },
+  sprint: { key: 'sprint',         label: 'Sprint Distance' }
+};
+let extEditId = { td: null, hml: null, hsr: null, sprint: null };
+async function submitExtLoad(tab) {
+  const m = EXT_METRICS[tab];
+  const date = document.getElementById(`ext-${tab}-date`).value || new Date().toISOString().split('T')[0];
+  const raw = document.getElementById(`ext-${tab}-value`).value.trim();
+  const notes = document.getElementById(`ext-${tab}-notes`).value.trim();
+  // 0 is a perfectly valid value (rest day, no sprints that session, etc.) — only reject blank/non-numeric
+  if (raw === '' || isNaN(raw)) { showMsg(`ext-${tab}-msg`, 'Enter a value — 0 is fine', true); return; }
+  const value = parseFloat(raw);
+  const data = { athlete_name: currentProfile.name, date, metric: m.key, value, notes: notes || null };
   try {
-    const r = extEditId ? await sb.patch('external_load_data', extEditId, data) : await sb.post('external_load_data', data);
-    if (!r.ok) throw new Error('Save failed');
-    showMsg('ext-msg', extEditId ? 'Updated ✓' : 'Saved ✓');
-    cancelExtLoad();
+    const r = extEditId[tab] ? await sb.patch('external_load_data', extEditId[tab], data) : await sb.post('external_load_data', data);
+    if (!r.ok) throw new Error('Save failed (' + r.status + ')');
+    showMsg(`ext-${tab}-msg`, extEditId[tab] ? 'Updated ✓' : 'Saved ✓');
+    cancelExtLoad(tab);
     loadExtLoad();
-  } catch (e) { showMsg('ext-msg', 'Error: ' + e.message, true); }
+  } catch (e) { showMsg(`ext-${tab}-msg`, 'Error: ' + e.message, true); }
 }
-function cancelExtLoad() {
-  extEditId = null;
-  document.getElementById('ext-form-title').textContent = 'Log External Load';
-  document.getElementById('ext-submit-btn').textContent = 'Save Session';
-  ['ext-td','ext-hsr','ext-sprint','ext-hml','ext-notes'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('ext-date').value = new Date().toISOString().split('T')[0];
+function cancelExtLoad(tab) {
+  extEditId[tab] = null;
+  document.getElementById(`ext-${tab}-title`).textContent = 'Log ' + EXT_METRICS[tab].label;
+  document.getElementById(`ext-${tab}-submit-btn`).textContent = 'Save';
+  document.getElementById(`ext-${tab}-value`).value = '';
+  document.getElementById(`ext-${tab}-notes`).value = '';
+  document.getElementById(`ext-${tab}-date`).value = new Date().toISOString().split('T')[0];
 }
-async function editExtLoad(id) {
+async function editExtLoad(tab, id) {
   const data = await sb.get('external_load_data', `?id=eq.${id}`);
   const e = data[0]; if (!e) return;
-  extEditId = id;
-  document.getElementById('ext-form-title').textContent = 'Edit Session';
-  document.getElementById('ext-submit-btn').textContent = 'Update Session';
-  document.getElementById('ext-date').value = e.date || '';
-  document.getElementById('ext-td').value = e.total_distance || '';
-  document.getElementById('ext-hsr').value = e.hsr_distance || '';
-  document.getElementById('ext-sprint').value = e.sprint_distance || '';
-  document.getElementById('ext-hml').value = e.hml_distance || '';
-  document.getElementById('ext-notes').value = e.notes || '';
-  goExt('td', document.querySelector('#pg-extload .stab'));
-  document.getElementById('spg-td').scrollIntoView({behavior:'smooth'});
+  extEditId[tab] = id;
+  document.getElementById(`ext-${tab}-title`).textContent = 'Edit Entry';
+  document.getElementById(`ext-${tab}-submit-btn`).textContent = 'Update';
+  document.getElementById(`ext-${tab}-date`).value = e.date || '';
+  document.getElementById(`ext-${tab}-value`).value = e.value;
+  document.getElementById(`ext-${tab}-notes`).value = e.notes || '';
+  document.getElementById(`spg-${tab}`).scrollIntoView({behavior:'smooth'});
 }
 async function deleteExtLoad(id) {
   if (!confirm('Delete this entry?')) return;
@@ -1158,50 +1164,48 @@ async function deleteExtLoad(id) {
   catch (e) { alert('Error: ' + e.message); }
 }
 async function loadExtLoad() {
-  const tdBody = document.getElementById('extload-td-body');
-  const hmlBody = document.getElementById('extload-hml-body');
-  const hsrBody = document.getElementById('extload-hsr-body');
-  const sprintBody = document.getElementById('extload-sprint-body');
+  const bodies = {
+    td: document.getElementById('extload-td-body'),
+    hml: document.getElementById('extload-hml-body'),
+    hsr: document.getElementById('extload-hsr-body'),
+    sprint: document.getElementById('extload-sprint-body')
+  };
   try {
-    const data = await sb.get('external_load_data', `?athlete_name=eq.${encodeURIComponent(currentProfile.name)}&order=date.desc&limit=120`);
-    if (!data.length) {
-      const empty = '<div class="soon"><div class="soon-ico">📏</div><div class="soon-t">No sessions yet</div><div class="soon-s">Log your first session above</div></div>';
-      tdBody.innerHTML = empty; hmlBody.innerHTML = empty; hsrBody.innerHTML = empty; sprintBody.innerHTML = empty;
-      return;
-    }
-    const last7 = data.slice(0, 7);
-    const sum = (arr,k) => arr.reduce((s,d) => s + (+d[k]||0), 0);
-    const avg = (arr,k) => arr.length ? Math.round(sum(arr,k)/arr.length) : 0;
-    const pct = (part,whole) => whole > 0 ? Math.round((part/whole)*100) : 0;
-    const tdSum = sum(last7,'total_distance');
+    const data = await sb.get('external_load_data', `?athlete_name=eq.${encodeURIComponent(currentProfile.name)}&order=date.desc&limit=400`);
+    const byMetric = { total_distance: [], hml: [], hsr: [], sprint: [] };
+    data.forEach(d => { if (byMetric[d.metric]) byMetric[d.metric].push(d); });
+    const sum = arr => arr.slice(0,7).reduce((s,d) => s + (+d.value || 0), 0);
+    const avg = arr => arr.slice(0,7).length ? Math.round(sum(arr) / arr.slice(0,7).length) : 0;
+    const tdWeekly = sum(byMetric.total_distance);
 
-    const summaryCard = (weekly, perSession, extraLabel, extraValue, extraSub) => `
-      <div class="cg3" style="margin-bottom:14px">
-        <div class="card hi"><div class="clbl">Weekly Total</div><div class="cval md">${weekly.toLocaleString()}</div><div class="csub">m · last 7 sessions</div></div>
-        <div class="card"><div class="clbl">Avg / Session</div><div class="cval md">${perSession.toLocaleString()}</div><div class="csub">m</div></div>
-        <div class="card"><div class="clbl">${extraLabel}</div><div class="cval md">${extraValue}</div><div class="csub">${extraSub}</div></div>
-      </div>`;
-
-    tdBody.innerHTML = summaryCard(tdSum, avg(last7,'total_distance'), 'Sessions', last7.length, 'last 7 logged') + `
-      <div class="sh"><div class="shb"></div><div class="sht">Session Log</div></div>
-      <div class="tcrd">
-        <div class="thd" style="grid-template-columns:56px 62px 52px 52px 52px 1fr 66px">
-          <span>Date</span><span>TD (m)</span><span>HSR</span><span>Sprint</span><span>HML</span><span>Notes</span><span></span>
+    Object.entries(EXT_METRICS).forEach(([tab, m]) => {
+      const list = byMetric[m.key];
+      const body = bodies[tab];
+      if (!list.length) { body.innerHTML = '<div class="soon"><div class="soon-ico">📏</div><div class="soon-t">No entries yet</div><div class="soon-s">Log your first entry above</div></div>'; return; }
+      const weekly = sum(list);
+      const extra = tab === 'td'
+        ? { label: 'Entries', value: list.slice(0,7).length, sub: 'last 7 logged' }
+        : { label: '% of Total Dist.', value: (tdWeekly > 0 ? Math.round((weekly / tdWeekly) * 100) : 0) + '%', sub: 'last 7 entries' };
+      body.innerHTML = `
+        <div class="cg3" style="margin-bottom:14px">
+          <div class="card hi"><div class="clbl">Weekly Total</div><div class="cval md">${weekly.toLocaleString()}</div><div class="csub">m · last 7 entries</div></div>
+          <div class="card"><div class="clbl">Avg / Entry</div><div class="cval md">${avg(list).toLocaleString()}</div><div class="csub">m</div></div>
+          <div class="card"><div class="clbl">${extra.label}</div><div class="cval md">${extra.value}</div><div class="csub">${extra.sub}</div></div>
         </div>
-        <div>${data.map(d => `
-          <div class="trow" style="grid-template-columns:56px 62px 52px 52px 52px 1fr 66px">
-            <span>${cleanDate(d.date)}</span><span>${d.total_distance||0}</span><span>${d.hsr_distance||0}</span><span>${d.sprint_distance||0}</span><span>${d.hml_distance||0}</span><span>${d.notes||'—'}</span>
-            <span><button class="abtn secondary small" onclick="editExtLoad('${d.id}')">Edit</button> <button class="abtn danger small" onclick="deleteExtLoad('${d.id}')">✕</button></span>
-          </div>`).join('')}
-        </div>
-      </div>`;
-
-    hsrBody.innerHTML = summaryCard(sum(last7,'hsr_distance'), avg(last7,'hsr_distance'), '% of Total Dist.', pct(sum(last7,'hsr_distance'), tdSum) + '%', 'last 7 sessions');
-    sprintBody.innerHTML = summaryCard(sum(last7,'sprint_distance'), avg(last7,'sprint_distance'), '% of Total Dist.', pct(sum(last7,'sprint_distance'), tdSum) + '%', 'last 7 sessions');
-    hmlBody.innerHTML = summaryCard(sum(last7,'hml_distance'), avg(last7,'hml_distance'), '% of Total Dist.', pct(sum(last7,'hml_distance'), tdSum) + '%', 'last 7 sessions');
+        <div class="sh"><div class="shb"></div><div class="sht">Entry Log</div></div>
+        <div class="tcrd">
+          <div class="thd" style="grid-template-columns:70px 70px 1fr 70px"><span>Date</span><span>Meters</span><span>Notes</span><span></span></div>
+          <div>${list.map(d => `
+            <div class="trow" style="grid-template-columns:70px 70px 1fr 70px">
+              <span>${cleanDate(d.date)}</span><span>${d.value}</span><span>${d.notes || '—'}</span>
+              <span><button class="abtn secondary small" onclick="editExtLoad('${tab}','${d.id}')">Edit</button> <button class="abtn danger small" onclick="deleteExtLoad('${d.id}')">✕</button></span>
+            </div>`).join('')}
+          </div>
+        </div>`;
+    });
   } catch (e) {
     const err = '<div class="errbox">Error: ' + e.message + '</div>';
-    tdBody.innerHTML = err; hmlBody.innerHTML = err; hsrBody.innerHTML = err; sprintBody.innerHTML = err;
+    Object.values(bodies).forEach(b => b.innerHTML = err);
   }
 }
 function goWell(id, tabEl) {
@@ -3220,8 +3224,10 @@ async function bootApp() {
   loadSRPE();
   loadJournalEntries();
   loadExtLoad();
-  const extDateEl = document.getElementById('ext-date');
-  if (extDateEl && !extDateEl.value) extDateEl.value = new Date().toISOString().split('T')[0];
+  ['td','hml','hsr','sprint'].forEach(tab => {
+    const el = document.getElementById(`ext-${tab}-date`);
+    if (el && !el.value) el.value = new Date().toISOString().split('T')[0];
+  });
   // HRV section in Wellness tab
   try {
     const hrvData = await sb.get('hrv_data', `?athlete_name=eq.${currentProfile.name}&order=date.asc`);
