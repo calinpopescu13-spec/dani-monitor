@@ -950,6 +950,7 @@ function showScreen(id, prev) {
 }
 function backToProfiles() {
   currentProfile = null;
+  localStorage.removeItem('fps_device_athlete_id'); // forget this device / log out
   const prev = ['s2','s3','s-admin','s-adminpw'].find(id => document.getElementById(id).classList.contains('on'));
   showScreen('s1', prev);
   loadProfiles();
@@ -1075,6 +1076,7 @@ function tryLogin() {
   const err = document.getElementById('pw-err');
   if(val === currentProfile.password) {
     err.classList.remove('show');
+    localStorage.setItem('fps_device_athlete_id', currentProfile.id); // remember this device
     showScreen('s3', 's2');
     document.getElementById('tb-title').textContent = currentProfile.name;
     document.getElementById('tb-av').textContent = currentProfile.initials || currentProfile.name[0];
@@ -3414,7 +3416,32 @@ async function bootApp() {
     document.getElementById('hrv-body').innerHTML = `<div class="errbox">⚠ ${err.message}</div>`;
   }
 }
-loadProfiles();
+
+// ══════════════════════════════════════════════
+// AUTO-LOGIN — trust this device after a successful password entry
+// ══════════════════════════════════════════════
+async function initApp() {
+  const savedId = localStorage.getItem('fps_device_athlete_id');
+  if (savedId) {
+    try {
+      const rows = await sb.get('athletes', `?id=eq.${savedId}`);
+      if (rows && rows[0]) {
+        currentProfile = rows[0];
+        showScreen('s3', 's1');
+        document.getElementById('tb-title').textContent = currentProfile.name;
+        document.getElementById('tb-av').textContent = currentProfile.initials || currentProfile.name[0];
+        document.getElementById('tb-av').style.background = avatarGradient(currentProfile);
+        document.getElementById('tb-pname').textContent = currentProfile.name;
+        document.getElementById('j-title').textContent = `${currentProfile.name}'s Entry`;
+        bootApp();
+        return;
+      }
+    } catch (e) { /* network hiccup — fall back to normal login */ }
+    localStorage.removeItem('fps_device_athlete_id'); // athlete no longer exists — forget stale device
+  }
+  loadProfiles();
+}
+initApp();
 </script>
 </body>
 </html>
