@@ -3430,9 +3430,6 @@ function autoGrow(el) {
 document.addEventListener('input', (e) => {
   if (e.target.classList && e.target.classList.contains('jfta')) autoGrow(e.target);
 });
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.jfta').forEach(autoGrow);
-});
 
 // ══════════════════════════════════════════════
 // AUTO-LOGIN — trust this device after a successful password entry
