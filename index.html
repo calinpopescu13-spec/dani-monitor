@@ -314,8 +314,9 @@ body{min-height:100dvh;overflow-x:hidden}
 .jfscale.inv button.sel:nth-child(3){background:#c8c14a;border-color:#c8c14a;color:#1a1700}
 .jfscale.inv button.sel:nth-child(4){background:#f5b333;border-color:#f5b333;color:#1a1100}
 .jfscale.inv button.sel:nth-child(5){background:#ff5252;border-color:#ff5252;color:#fff}
-.jfta{width:100%;background:var(--sf2);border:1px solid var(--b);border-radius:var(--r1);padding:12px;font-family:var(--f);font-size:14px;color:var(--tx);outline:none;resize:none;transition:border-color .2s,box-shadow .2s;line-height:1.6}
+.jfta{width:100%;background:var(--sf2);border:1px solid var(--b);border-radius:var(--r1);padding:12px;font-family:var(--f);font-size:14px;color:var(--tx);outline:none;resize:none;transition:border-color .2s,box-shadow .2s;line-height:1.6;overflow:hidden}
 .jfta:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(45,184,94,.14)}
+.jfta::placeholder{color:var(--t3)}
 .jfsub{width:100%;padding:15px;background:var(--accent);border:none;border-radius:var(--r2);font-family:var(--bb);font-size:18px;letter-spacing:.1em;color:#062010;cursor:pointer;transition:background .15s,transform .1s;margin-top:4px;min-height:52px}
 .jfsub:hover{background:var(--accent-h)}.jfsub:active{transform:scale(.98)}
 .jfmsg{font-family:var(--m);font-size:11px;color:var(--gn);text-align:center;margin-top:8px;opacity:0;transition:opacity .3s;height:16px}
@@ -629,7 +630,7 @@ body{min-height:100dvh;overflow-x:hidden}
       </div>
       <div class="jfrow">
         <label class="jflbl" for="srpe-notes">Session Notes (optional)</label>
-        <textarea class="jfta" id="srpe-notes" rows="2" placeholder="e.g. Match day, gym, recovery"></textarea>
+        <textarea class="jfta" id="srpe-notes" rows="2" placeholder="What did you do in today's training?"></textarea>
       </div>
       <div class="au-preview" id="au-preview">
         <div class="au-label">Calculated Load</div>
@@ -667,7 +668,7 @@ body{min-height:100dvh;overflow-x:hidden}
         <div class="jfrow"><label class="jflbl">Sleep Quality <span class="jfhint">— how did you sleep?</span></label><div class="jfscale pos" id="sc-sleep"></div></div>
         <div class="jfrow"><label class="jflbl">Energy Level <span class="jfhint">— how energized do you feel?</span></label><div class="jfscale pos" id="sc-energy"></div></div>
         <div class="jfrow"><label class="jflbl">Muscle Soreness <span class="jfhint">— 1 = none, 5 = severe</span></label><div class="jfscale inv" id="sc-soreness"></div></div>
-        <div class="jfrow"><label class="jflbl" for="jnotes">Notes (optional)</label><textarea class="jfta" id="jnotes" rows="3" placeholder="How did training feel? Anything notable?"></textarea></div>
+        <div class="jfrow"><label class="jflbl" for="jnotes">Notes (optional)</label><textarea class="jfta" id="jnotes" rows="3" placeholder="How do you feel today?"></textarea></div>
         <button class="jfsub" onclick="submitJournal()">Save Entry</button>
         <div class="jfmsg" id="jmsg"></div>
       </div>
@@ -1147,6 +1148,7 @@ function cancelExtLoad(tab) {
   document.getElementById(`ext-${tab}-submit-btn`).textContent = 'Save';
   document.getElementById(`ext-${tab}-value`).value = '';
   document.getElementById(`ext-${tab}-notes`).value = '';
+  autoGrow(document.getElementById(`ext-${tab}-notes`));
   document.getElementById(`ext-${tab}-date`).value = new Date().toISOString().split('T')[0];
 }
 async function editExtLoad(tab, id) {
@@ -1757,6 +1759,7 @@ async function submitSRPE() {
     msg.className = 'jfmsg show';
     document.getElementById('srpe-duration').value = '';
     document.getElementById('srpe-notes').value = '';
+    autoGrow(document.getElementById('srpe-notes'));
     srpeRPE = 0;
     buildRPEScale();
     document.getElementById('rpe-legend').textContent = 'Tap to select';
@@ -2160,7 +2163,7 @@ async function submitJournal() {
       msg.textContent = 'Saved ✓ (synced to Drive)'; msg.className = 'jfmsg show';
     } catch(sheetsErr) { msg.textContent = 'Saved to app ✓'; msg.className = 'jfmsg show'; }
     setTimeout(()=>msg.classList.remove('show'),3500);
-    Object.keys(scores).forEach(k=>scores[k]=0); buildScales(); document.getElementById('jnotes').value = '';
+    Object.keys(scores).forEach(k=>scores[k]=0); buildScales(); document.getElementById('jnotes').value = ''; autoGrow(document.getElementById('jnotes'));
     loadJournalEntries();
   } catch(e) { msg.textContent='Error: '+e.message; msg.className='jfmsg err show'; setTimeout(()=>msg.classList.remove('show'),4000); }
 }
@@ -3416,6 +3419,20 @@ async function bootApp() {
     document.getElementById('hrv-body').innerHTML = `<div class="errbox">⚠ ${err.message}</div>`;
   }
 }
+
+// ══════════════════════════════════════════════
+// AUTO-GROW TEXTAREAS — every .jfta grows with its content instead of scrolling
+// ══════════════════════════════════════════════
+function autoGrow(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+document.addEventListener('input', (e) => {
+  if (e.target.classList && e.target.classList.contains('jfta')) autoGrow(e.target);
+});
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.jfta').forEach(autoGrow);
+});
 
 // ══════════════════════════════════════════════
 // AUTO-LOGIN — trust this device after a successful password entry
