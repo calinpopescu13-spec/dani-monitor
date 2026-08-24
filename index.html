@@ -665,7 +665,7 @@ body{min-height:100dvh;overflow-x:hidden}
       <div class="jform" id="journal-form">
         <div class="jftitle" id="j-title">Today's Entry</div>
         <div class="jfrow"><label class="jflbl">Mood <span class="jfhint">— how are you feeling?</span></label><div class="jfscale pos" id="sc-mood"></div></div>
-        <div class="jfrow"><label class="jflbl">Sleep Quality <span class="jfhint">— how did you sleep?</span></label><div class="jfscale pos" id="sc-sleep"></div></div>
+        <div class="jfrow"><label class="jflbl" for="sleep-hours">Hours of Sleep <span class="jfhint">— how many hours did you sleep?</span></label><input class="ainput" id="sleep-hours" type="number" placeholder="e.g. 7.5" min="0" max="24" step="0.5"></div>
         <div class="jfrow"><label class="jflbl">Energy Level <span class="jfhint">— how energized do you feel?</span></label><div class="jfscale pos" id="sc-energy"></div></div>
         <div class="jfrow"><label class="jflbl">Muscle Soreness <span class="jfhint">— 1 = none, 5 = severe</span></label><div class="jfscale inv" id="sc-soreness"></div></div>
         <div class="jfrow"><label class="jflbl" for="jnotes">Notes (optional)</label><textarea class="jfta" id="jnotes" rows="3" placeholder="How do you feel today?"></textarea></div>
@@ -788,7 +788,7 @@ body{min-height:100dvh;overflow-x:hidden}
             <div class="arow"><label class="albl">Mood (1–5) *</label><input class="ainput" type="number" id="av-j-mood" min="1" max="5"></div>
           </div>
           <div class="agrid2">
-            <div class="arow"><label class="albl">Sleep (1–5) *</label><input class="ainput" type="number" id="av-j-sleep" min="1" max="5"></div>
+            <div class="arow"><label class="albl">Sleep (hours) *</label><input class="ainput" type="number" id="av-j-sleep" min="0" max="24" step="0.5" placeholder="e.g. 7.5"></div>
             <div class="arow"><label class="albl">Energy (1–5) *</label><input class="ainput" type="number" id="av-j-energy" min="1" max="5"></div>
           </div>
           <div class="arow"><label class="albl">Soreness (1–5, 1=none) *</label><input class="ainput" type="number" id="av-j-soreness" min="1" max="5"></div>
@@ -2133,7 +2133,7 @@ function closeSV() { document.getElementById('sv').classList.remove('on'); docum
 // ══════════════════════════════════════════════
 // JOURNAL
 // ══════════════════════════════════════════════
-const scores = {mood:0,sleep:0,energy:0,soreness:0};
+const scores = {mood:0,energy:0,soreness:0};
 function toggleJournalForm() {
   const form = document.getElementById('journal-form');
   const btn = document.getElementById('journal-toggle-btn');
@@ -2141,7 +2141,7 @@ function toggleJournalForm() {
   else { form.style.display = 'none'; btn.textContent = 'Show Form'; }
 }
 function buildScales() {
-  ['mood','sleep','energy','soreness'].forEach(k => {
+  ['mood','energy','soreness'].forEach(k => {
     const w = document.getElementById('sc-'+k); w.innerHTML = '';
     for(let i=1;i<=5;i++) {
       const b=document.createElement('button'); b.textContent=i;
@@ -2152,8 +2152,10 @@ function buildScales() {
 }
 async function submitJournal() {
   const msg = document.getElementById('jmsg');
-  if(!scores.mood||!scores.sleep||!scores.energy||!scores.soreness) { msg.textContent='Please fill in all scores'; msg.className='jfmsg err show'; setTimeout(()=>msg.classList.remove('show'),3000); return; }
-  const entry = { date:new Date().toISOString().split('T')[0], athlete:currentProfile?.name||'', mood:scores.mood, sleep:scores.sleep, energy:scores.energy, soreness:scores.soreness, notes:document.getElementById('jnotes').value.trim() };
+  const sleepEl = document.getElementById('sleep-hours');
+  const sleepHours = sleepEl.value.trim();
+  if(!scores.mood||sleepHours===''||isNaN(sleepHours)||!scores.energy||!scores.soreness) { msg.textContent='Please fill in all fields'; msg.className='jfmsg err show'; setTimeout(()=>msg.classList.remove('show'),3000); return; }
+  const entry = { date:new Date().toISOString().split('T')[0], athlete:currentProfile?.name||'', mood:scores.mood, sleep:parseFloat(sleepHours), energy:scores.energy, soreness:scores.soreness, notes:document.getElementById('jnotes').value.trim() };
   msg.textContent = 'Saving...'; msg.className = 'jfmsg show';
   try {
     const r = await sb.post('journal', entry);
@@ -2163,7 +2165,7 @@ async function submitJournal() {
       msg.textContent = 'Saved ✓ (synced to Drive)'; msg.className = 'jfmsg show';
     } catch(sheetsErr) { msg.textContent = 'Saved to app ✓'; msg.className = 'jfmsg show'; }
     setTimeout(()=>msg.classList.remove('show'),3500);
-    Object.keys(scores).forEach(k=>scores[k]=0); buildScales(); document.getElementById('jnotes').value = ''; autoGrow(document.getElementById('jnotes'));
+    Object.keys(scores).forEach(k=>scores[k]=0); buildScales(); sleepEl.value=''; document.getElementById('jnotes').value = ''; autoGrow(document.getElementById('jnotes'));
     loadJournalEntries();
   } catch(e) { msg.textContent='Error: '+e.message; msg.className='jfmsg err show'; setTimeout(()=>msg.classList.remove('show'),4000); }
 }
@@ -2184,7 +2186,6 @@ async function loadJournalEntries() {
           <div style="display:flex;gap:8px;align-items:center">
             <div class="jedots">
               <div class="jedot" style="background:${dc(d.mood)}"></div>
-              <div class="jedot" style="background:${dc(d.sleep)}"></div>
               <div class="jedot" style="background:${dc(d.energy)}"></div>
               <div class="jedot" style="background:${dcInv(d.soreness)}"></div>
             </div>
@@ -2193,7 +2194,7 @@ async function loadJournalEntries() {
         </div>
         <div class="jescores">
           <div class="jescore"><div class="jeval">${d.mood}</div><div class="jelbl">Mood</div></div>
-          <div class="jescore"><div class="jeval">${d.sleep}</div><div class="jelbl">Sleep</div></div>
+          <div class="jescore"><div class="jeval">${d.sleep}h</div><div class="jelbl">Sleep</div></div>
           <div class="jescore"><div class="jeval">${d.energy}</div><div class="jelbl">Energy</div></div>
           <div class="jescore"><div class="jeval">${d.soreness}</div><div class="jelbl">Soreness</div></div>
         </div>
@@ -3194,7 +3195,7 @@ async function loadAVJournal() {
         </div>
         <div class="av-list-stats">
           <div class="av-stat"><div class="av-stat-val" style="color:${dc(d.mood)}">${d.mood}</div><div class="av-stat-lbl">Mood</div></div>
-          <div class="av-stat"><div class="av-stat-val" style="color:${dc(d.sleep)}">${d.sleep}</div><div class="av-stat-lbl">Sleep</div></div>
+          <div class="av-stat"><div class="av-stat-val">${d.sleep}h</div><div class="av-stat-lbl">Sleep</div></div>
           <div class="av-stat"><div class="av-stat-val" style="color:${dc(d.energy)}">${d.energy}</div><div class="av-stat-lbl">Energy</div></div>
           <div class="av-stat"><div class="av-stat-val" style="color:${dcInv(d.soreness)}">${d.soreness}</div><div class="av-stat-lbl">Soreness</div></div>
         </div>
@@ -3208,7 +3209,7 @@ async function saveAVJournal() {
   if (!avAthlete) return;
   const date = document.getElementById('av-j-date').value;
   const mood = parseInt(document.getElementById('av-j-mood').value);
-  const sleep = parseInt(document.getElementById('av-j-sleep').value);
+  const sleep = parseFloat(document.getElementById('av-j-sleep').value);
   const energy = parseInt(document.getElementById('av-j-energy').value);
   const soreness = parseInt(document.getElementById('av-j-soreness').value);
   const notes = document.getElementById('av-j-notes').value.trim();
