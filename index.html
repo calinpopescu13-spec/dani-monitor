@@ -672,6 +672,14 @@ body{min-height:100dvh;overflow-x:hidden}
         <button class="jfsub" onclick="submitJournal()">Save Entry</button>
         <div class="jfmsg" id="jmsg"></div>
       </div>
+      <div class="jform">
+        <div class="jftitle" style="font-size:16px">Log a Nap</div>
+        <div style="font-family:var(--m);font-size:11px;color:var(--t2);line-height:1.6;margin-bottom:12px">Napped after already saving today's entry? Add it here — it gets added on top of today's sleep total.</div>
+        <div class="jfrow"><label class="jflbl" for="add-nap-hours">Nap Length (hours)</label><input class="ainput" id="add-nap-hours" type="number" placeholder="e.g. 1" min="0" max="12" step="0.5"></div>
+        <button class="jfsub" onclick="addNap()">Add Nap</button>
+        <div class="jfmsg" id="nap-msg"></div>
+      </div>
+      <div id="sleep-avg-card"></div>
       <div class="sh"><div class="shb"></div><div class="sht">Previous Entries</div></div>
       <div id="journal-entries">
         <div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div>
@@ -864,9 +872,9 @@ body{min-height:100dvh;overflow-x:hidden}
         <div class="arow"><label class="albl">Keywords (comma separated)</label><input class="ainput" id="sf-tags" placeholder="Foam Rolling, Stretching"></div>
       </div>
       <div class="arow">
-        <label class="albl">Assign To Athlete</label>
-        <select class="aselect" id="sf-assigned-to"><option value="all">All Athletes</option></select>
-        <div style="font-family:var(--m);font-size:10px;color:var(--t3);margin-top:4px">Who should see this training session?</div>
+        <label class="albl">Assign To Athletes</label>
+        <div class="filter-row" id="sf-assigned-chips"></div>
+        <div style="font-family:var(--m);font-size:10px;color:var(--t3);margin-top:4px">Tap "All Athletes", or select one or more specific athletes.</div>
       </div>
       <div class="divider"></div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
@@ -1418,7 +1426,7 @@ function showMsg(id, text, isErr=false) {
   const el = document.getElementById(id);
   el.textContent = text;
   el.className = 'amsg show' + (isErr?' err':'');
-  setTimeout(() => el.classList.remove('show'), 3000);
+  setTimeout(() => el.classList.remove('show'), isErr ? 7000 : 3000);
 }
 // ══════════════════════════════════════════════
 // HRV MATH — Z-score against lifetime mean, 60-day rolling σ
@@ -2052,7 +2060,8 @@ function renderSessions() {
   const athleteName = currentProfile?.name || '';
   let filtered = allSessions.filter(s => {
     const assignedTo = s.assigned_to || 'all';
-    if(!(assignedTo === 'all' || assignedTo === athleteName)) return false;
+    const assignedList = assignedTo === 'all' ? null : assignedTo.split(',').map(x=>x.trim());
+    if(!(assignedTo === 'all' || (assignedList && assignedList.includes(athleteName)))) return false;
     const tok = activeFilter==='All' || s.type===activeFilter;
     const tags = Array.isArray(s.tags) ? s.tags : [];
     const sok = !q || [s.title,s.tag,s.type,...tags].some(x => x && x.toLowerCase().includes(q));
@@ -2169,11 +2178,65 @@ async function submitJournal() {
     loadJournalEntries();
   } catch(e) { msg.textContent='Error: '+e.message; msg.className='jfmsg err show'; setTimeout(()=>msg.classList.remove('show'),4000); }
 }
+async function addNap() {
+  const msg = document.getElementById('nap-msg');
+  const napEl = document.getElementById('add-nap-hours');
+  const napVal = napEl.value.trim();
+  if (napVal === '' || isNaN(napVal) || parseFloat(napVal) <= 0) { msg.textContent = 'Enter a valid nap length'; msg.className = 'jfmsg err show'; setTimeout(() => msg.classList.remove('show'), 3000); return; }
+  const today = new Date().toISOString().split('T')[0];
+  const athleteName = encodeURIComponent(currentProfile?.name || '');
+  msg.textContent = 'Adding...'; msg.className = 'jfmsg show';
+  try {
+    const rows = await sb.get('journal', `?athlete=eq.${athleteName}&date=eq.${today}&limit=1`);
+    const todayEntry = rows && rows[0];
+    if (!todayEntry) {
+      msg.textContent = "No entry for today yet — save today's journal entry first, then add the nap";
+      msg.className = 'jfmsg err show';
+      setTimeout(() => msg.classList.remove('show'), 4500);
+      return;
+    }
+    const newSleep = (+todayEntry.sleep || 0) + parseFloat(napVal);
+    const r = await sb.patch('journal', todayEntry.id, { sleep: newSleep });
+    if (!r.ok) throw new Error('Database error ' + r.status);
+    msg.textContent = `Nap added ✓ — today's total is now ${newSleep}h`;
+    msg.className = 'jfmsg show';
+    napEl.value = '';
+    setTimeout(() => msg.classList.remove('show'), 3500);
+    loadJournalEntries();
+  } catch (e) { msg.textContent = 'Error: ' + e.message; msg.className = 'jfmsg err show'; setTimeout(() => msg.classList.remove('show'), 4000); }
+}
+async function loadSleepAvg() {
+  const el = document.getElementById('sleep-avg-card');
+  if (!el) return;
+  try {
+    const athleteName = encodeURIComponent(currentProfile?.name || '');
+    const data = await sb.get('journal', `?athlete=eq.${athleteName}&order=date.desc&limit=30`);
+    const map = {};
+    data.forEach(d => { if (map[d.date] === undefined) map[d.date] = +d.sleep || 0; });
+    const today = new Date(); today.setHours(0,0,0,0);
+    const last7 = [];
+    for (let i = 6; i >= 0; i--) {
+      const dt = new Date(today); dt.setDate(today.getDate() - i);
+      const ds = dt.toISOString().split('T')[0];
+      last7.push(map[ds] !== undefined ? map[ds] : null);
+    }
+    const logged = last7.filter(v => v !== null);
+    if (!logged.length) { el.innerHTML = ''; return; }
+    const avg = logged.reduce((s,v) => s+v, 0) / logged.length;
+    el.innerHTML = `
+      <div class="card hi" style="margin-bottom:16px">
+        <div class="clbl">7-Day Avg Sleep <span style="font-family:var(--f);font-size:10px;color:var(--t3);text-transform:none;letter-spacing:0">(sleep + naps)</span></div>
+        <div class="cval">${avg.toFixed(1)}h</div>
+        <div class="csub">${logged.length}/7 days logged</div>
+      </div>`;
+  } catch (e) { el.innerHTML = ''; }
+}
 async function loadJournalEntries() {
   const el = document.getElementById('journal-entries');
   try {
     const athleteName = encodeURIComponent(currentProfile?.name || '');
     const data = await sb.get('journal', `?athlete=eq.${athleteName}&order=date.desc&limit=30`);
+    loadSleepAvg();
     if(!data.length) { el.innerHTML='<div class="soon"><div class="soon-t">No entries yet</div><div class="soon-s">Fill in today\'s form above</div></div>'; return null; }
     el.innerHTML = '';
     data.forEach((d,i) => {
@@ -2677,31 +2740,31 @@ async function saveSession() {
   const title = document.getElementById('sf-title').value.trim();
   const date  = document.getElementById('sf-date').value;
   if(!title||!date) { showMsg('session-msg','Title and date are required',true); return; }
-  const tagsRaw = document.getElementById('sf-tags').value;
-  const tags = tagsRaw ? tagsRaw.split(',').map(t=>t.trim()).filter(Boolean) : [];
-  const data = {
-    title, date,
-    tag: document.getElementById('sf-tag').value.trim(),
-    duration: document.getElementById('sf-duration').value.trim(),
-    type: document.getElementById('sf-type').value,
-    tags,
-    assigned_to: document.getElementById('sf-assigned-to').value || 'all',
-    phases: collectPhases()
-  };
   try {
+    const tagsRaw = document.getElementById('sf-tags').value;
+    const tags = tagsRaw ? tagsRaw.split(',').map(t=>t.trim()).filter(Boolean) : [];
+    const data = {
+      title, date,
+      tag: document.getElementById('sf-tag').value.trim(),
+      duration: document.getElementById('sf-duration').value.trim(),
+      type: document.getElementById('sf-type').value,
+      tags,
+      assigned_to: sfAssignedAthletes[0] === 'all' ? 'all' : sfAssignedAthletes.join(','),
+      phases: collectPhases()
+    };
     const r = editingSessionId ? await sb.patch('sessions', editingSessionId, data) : await sb.post('sessions', data);
-    if(!r.ok) throw new Error('Save failed '+r.status);
+    if(!r.ok) { const errBody = await r.text().catch(()=>''); throw new Error('Save failed ('+r.status+') '+errBody); }
     showMsg('session-msg', editingSessionId ? 'Session updated ✓' : 'Session saved ✓');
     cancelSessionEdit();
     loadAdminSessions();
     loadSessions();
-  } catch(e) { showMsg('session-msg','Error: '+e.message,true); }
+  } catch(e) { console.error('saveSession failed:', e); showMsg('session-msg','Error: '+e.message,true); }
 }
 function cancelSessionEdit() {
   editingSessionId = null;
   document.getElementById('session-form-title').textContent = 'New Session';
   ['sf-title','sf-date','sf-tag','sf-duration','sf-tags'].forEach(id => { document.getElementById(id).value = ''; });
-  document.getElementById('sf-assigned-to').value = 'all';
+  sfAssignedAthletes = ['all']; renderAssignedChips();
   document.getElementById('sf-type').value = 'Activation';
   document.getElementById('phases-container').innerHTML = '';
   phaseCount = 0;
@@ -2718,7 +2781,7 @@ async function loadAdminSessions() {
       div.innerHTML = `
         <div class="alist-info">
           <div class="alist-name">${s.title}</div>
-          <div class="alist-sub">${s.date} · ${s.type||''} · ${s.duration||''}</div>
+          <div class="alist-sub">${s.date} · ${s.type||''} · ${s.duration||''} · ${(!s.assigned_to || s.assigned_to === 'all') ? 'All athletes' : s.assigned_to.split(',').join(', ')}</div>
         </div>
         <div class="alist-actions">
           <button class="abtn secondary small" onclick="editSession('${s.id}')">Edit</button>
@@ -2739,7 +2802,10 @@ async function editSession(id) {
   document.getElementById('sf-duration').value = s.duration||'';
   document.getElementById('sf-type').value     = s.type||'Activation';
   document.getElementById('sf-tags').value     = Array.isArray(s.tags)?s.tags.join(', '):'';
-  document.getElementById('sf-assigned-to').value = s.assigned_to||'all';
+  sfAssignedAthletes = (s.assigned_to && s.assigned_to !== 'all')
+    ? s.assigned_to.split(',').map(x=>x.trim()).filter(Boolean)
+    : ['all'];
+  renderAssignedChips();
   document.getElementById('phases-container').innerHTML = '';
   phaseCount = 0;
   (s.phases||[]).forEach(ph => {
@@ -2906,11 +2972,36 @@ async function syncAllAthletes() {
   setTimeout(() => loadAdminAthletes(), 30000);
 }
 
+let sfAssignedAthletes = ['all']; // 'all', or an array of specific athlete names
+let _sessionAthletesCache = [];
 function populateSessionAthleteDropdown(athletes) {
-  const dropdown = document.getElementById('sf-assigned-to');
-  if(!dropdown) return;
-  dropdown.innerHTML = '<option value="all">All Athletes</option>';
-  athletes.forEach(a => { const o = document.createElement('option'); o.value = a.name; o.textContent = a.name; dropdown.appendChild(o); });
+  _sessionAthletesCache = athletes;
+  renderAssignedChips();
+}
+function renderAssignedChips() {
+  const wrap = document.getElementById('sf-assigned-chips');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  const allChip = document.createElement('button');
+  allChip.type = 'button';
+  allChip.className = 'fchip' + (sfAssignedAthletes[0] === 'all' ? ' on' : '');
+  allChip.textContent = 'All Athletes';
+  allChip.onclick = () => { sfAssignedAthletes = ['all']; renderAssignedChips(); };
+  wrap.appendChild(allChip);
+  _sessionAthletesCache.forEach(a => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'fchip' + (sfAssignedAthletes.includes(a.name) ? ' on' : '');
+    chip.textContent = a.name;
+    chip.onclick = () => {
+      if (sfAssignedAthletes[0] === 'all') sfAssignedAthletes = [];
+      const idx = sfAssignedAthletes.indexOf(a.name);
+      if (idx > -1) sfAssignedAthletes.splice(idx, 1); else sfAssignedAthletes.push(a.name);
+      if (!sfAssignedAthletes.length) sfAssignedAthletes = ['all'];
+      renderAssignedChips();
+    };
+    wrap.appendChild(chip);
+  });
 }
 function populateHRVAthleteDropdown(athletes) {
   // Legacy compatibility — now also populates the unified Athlete View selector
