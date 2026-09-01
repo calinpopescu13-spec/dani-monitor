@@ -665,7 +665,13 @@ body{min-height:100dvh;overflow-x:hidden}
       <div class="jform" id="journal-form">
         <div class="jftitle" id="j-title">Today's Entry</div>
         <div class="jfrow"><label class="jflbl">Mood <span class="jfhint">— how are you feeling?</span></label><div class="jfscale pos" id="sc-mood"></div></div>
-        <div class="jfrow"><label class="jflbl" for="sleep-hours">Hours of Sleep <span class="jfhint">— how many hours did you sleep?</span></label><input class="ainput" id="sleep-hours" type="number" placeholder="e.g. 7.5" min="0" max="24" step="0.5"></div>
+        <div class="jfrow">
+          <label class="jflbl">Hours of Sleep <span class="jfhint">— how many hours did you sleep?</span></label>
+          <div class="agrid2">
+            <input class="ainput" id="sleep-hours-h" type="number" placeholder="Hours" min="0" max="24" step="1">
+            <input class="ainput" id="sleep-hours-m" type="number" placeholder="Minutes" min="0" max="59" step="5">
+          </div>
+        </div>
         <div class="jfrow"><label class="jflbl">Energy Level <span class="jfhint">— how energized do you feel?</span></label><div class="jfscale pos" id="sc-energy"></div></div>
         <div class="jfrow"><label class="jflbl">Muscle Soreness <span class="jfhint">— 1 = none, 5 = severe</span></label><div class="jfscale inv" id="sc-soreness"></div></div>
         <div class="jfrow"><label class="jflbl" for="jnotes">Notes (optional)</label><textarea class="jfta" id="jnotes" rows="3" placeholder="How do you feel today?"></textarea></div>
@@ -675,7 +681,13 @@ body{min-height:100dvh;overflow-x:hidden}
       <div class="jform">
         <div class="jftitle" style="font-size:16px">Log a Nap</div>
         <div style="font-family:var(--m);font-size:11px;color:var(--t2);line-height:1.6;margin-bottom:12px">Napped after already saving today's entry? Add it here — it gets added on top of today's sleep total.</div>
-        <div class="jfrow"><label class="jflbl" for="add-nap-hours">Nap Length (hours)</label><input class="ainput" id="add-nap-hours" type="number" placeholder="e.g. 1" min="0" max="12" step="0.5"></div>
+        <div class="jfrow">
+          <label class="jflbl">Nap Length</label>
+          <div class="agrid2">
+            <input class="ainput" id="nap-hours-h" type="number" placeholder="Hours" min="0" max="12" step="1">
+            <input class="ainput" id="nap-hours-m" type="number" placeholder="Minutes" min="0" max="59" step="5">
+          </div>
+        </div>
         <button class="jfsub" onclick="addNap()">Add Nap</button>
         <div class="jfmsg" id="nap-msg"></div>
       </div>
@@ -1422,6 +1434,19 @@ function parseSD(ds) {
   const d = new Date(ds+'T00:00:00');
   return { day: String(d.getDate()).padStart(2,'0'), mon: d.toLocaleDateString('en-GB',{month:'short'}).toUpperCase(), my: d.toLocaleDateString('en-GB',{month:'long',year:'numeric'}) };
 }
+// Converts separate hours + minutes inputs into a single decimal (for storage)
+function hmToDecimal(h, m) {
+  const hh = parseFloat(h) || 0;
+  const mm = parseFloat(m) || 0;
+  return hh + (mm / 60);
+}
+// Converts a stored decimal back into a clock-style "5h 54m" string (for display)
+function decimalToHM(dec) {
+  const totalMin = Math.round((+dec || 0) * 60);
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  return m > 0 ? `${h}h ${m}m` : `${h}h`;
+}
 function showMsg(id, text, isErr=false) {
   const el = document.getElementById(id);
   el.textContent = text;
@@ -2161,10 +2186,12 @@ function buildScales() {
 }
 async function submitJournal() {
   const msg = document.getElementById('jmsg');
-  const sleepEl = document.getElementById('sleep-hours');
-  const sleepHours = sleepEl.value.trim();
-  if(!scores.mood||sleepHours===''||isNaN(sleepHours)||!scores.energy||!scores.soreness) { msg.textContent='Please fill in all fields'; msg.className='jfmsg err show'; setTimeout(()=>msg.classList.remove('show'),3000); return; }
-  const entry = { date:new Date().toISOString().split('T')[0], athlete:currentProfile?.name||'', mood:scores.mood, sleep:parseFloat(sleepHours), energy:scores.energy, soreness:scores.soreness, notes:document.getElementById('jnotes').value.trim() };
+  const sleepHEl = document.getElementById('sleep-hours-h');
+  const sleepMEl = document.getElementById('sleep-hours-m');
+  const sleepH = sleepHEl.value.trim();
+  if(!scores.mood||sleepH===''||isNaN(sleepH)||!scores.energy||!scores.soreness) { msg.textContent='Please fill in all fields'; msg.className='jfmsg err show'; setTimeout(()=>msg.classList.remove('show'),3000); return; }
+  const sleepDecimal = hmToDecimal(sleepH, sleepMEl.value.trim());
+  const entry = { date:new Date().toISOString().split('T')[0], athlete:currentProfile?.name||'', mood:scores.mood, sleep:sleepDecimal, energy:scores.energy, soreness:scores.soreness, notes:document.getElementById('jnotes').value.trim() };
   msg.textContent = 'Saving...'; msg.className = 'jfmsg show';
   try {
     const r = await sb.post('journal', entry);
@@ -2174,15 +2201,16 @@ async function submitJournal() {
       msg.textContent = 'Saved ✓ (synced to Drive)'; msg.className = 'jfmsg show';
     } catch(sheetsErr) { msg.textContent = 'Saved to app ✓'; msg.className = 'jfmsg show'; }
     setTimeout(()=>msg.classList.remove('show'),3500);
-    Object.keys(scores).forEach(k=>scores[k]=0); buildScales(); sleepEl.value=''; document.getElementById('jnotes').value = ''; autoGrow(document.getElementById('jnotes'));
+    Object.keys(scores).forEach(k=>scores[k]=0); buildScales(); sleepHEl.value=''; sleepMEl.value=''; document.getElementById('jnotes').value = ''; autoGrow(document.getElementById('jnotes'));
     loadJournalEntries();
   } catch(e) { msg.textContent='Error: '+e.message; msg.className='jfmsg err show'; setTimeout(()=>msg.classList.remove('show'),4000); }
 }
 async function addNap() {
   const msg = document.getElementById('nap-msg');
-  const napEl = document.getElementById('add-nap-hours');
-  const napVal = napEl.value.trim();
-  if (napVal === '' || isNaN(napVal) || parseFloat(napVal) <= 0) { msg.textContent = 'Enter a valid nap length'; msg.className = 'jfmsg err show'; setTimeout(() => msg.classList.remove('show'), 3000); return; }
+  const napHEl = document.getElementById('nap-hours-h');
+  const napMEl = document.getElementById('nap-hours-m');
+  const napDecimal = hmToDecimal(napHEl.value.trim(), napMEl.value.trim());
+  if (napDecimal <= 0) { msg.textContent = 'Enter a valid nap length'; msg.className = 'jfmsg err show'; setTimeout(() => msg.classList.remove('show'), 3000); return; }
   const today = new Date().toISOString().split('T')[0];
   const athleteName = encodeURIComponent(currentProfile?.name || '');
   msg.textContent = 'Adding...'; msg.className = 'jfmsg show';
@@ -2195,12 +2223,12 @@ async function addNap() {
       setTimeout(() => msg.classList.remove('show'), 4500);
       return;
     }
-    const newSleep = (+todayEntry.sleep || 0) + parseFloat(napVal);
+    const newSleep = (+todayEntry.sleep || 0) + napDecimal;
     const r = await sb.patch('journal', todayEntry.id, { sleep: newSleep });
     if (!r.ok) throw new Error('Database error ' + r.status);
-    msg.textContent = `Nap added ✓ — today's total is now ${newSleep}h`;
+    msg.textContent = `Nap added ✓ — today's total is now ${decimalToHM(newSleep)}`;
     msg.className = 'jfmsg show';
-    napEl.value = '';
+    napHEl.value = ''; napMEl.value = '';
     setTimeout(() => msg.classList.remove('show'), 3500);
     loadJournalEntries();
   } catch (e) { msg.textContent = 'Error: ' + e.message; msg.className = 'jfmsg err show'; setTimeout(() => msg.classList.remove('show'), 4000); }
@@ -2226,7 +2254,7 @@ async function loadSleepAvg() {
     el.innerHTML = `
       <div class="card hi" style="margin-bottom:16px">
         <div class="clbl">7-Day Avg Sleep <span style="font-family:var(--f);font-size:10px;color:var(--t3);text-transform:none;letter-spacing:0">(sleep + naps)</span></div>
-        <div class="cval">${avg.toFixed(1)}h</div>
+        <div class="cval">${decimalToHM(avg)}</div>
         <div class="csub">${logged.length}/7 days logged</div>
       </div>`;
   } catch (e) { el.innerHTML = ''; }
@@ -2257,7 +2285,7 @@ async function loadJournalEntries() {
         </div>
         <div class="jescores">
           <div class="jescore"><div class="jeval">${d.mood}</div><div class="jelbl">Mood</div></div>
-          <div class="jescore"><div class="jeval">${d.sleep}h</div><div class="jelbl">Sleep</div></div>
+          <div class="jescore"><div class="jeval" style="font-size:16px">${decimalToHM(d.sleep)}</div><div class="jelbl">Sleep</div></div>
           <div class="jescore"><div class="jeval">${d.energy}</div><div class="jelbl">Energy</div></div>
           <div class="jescore"><div class="jeval">${d.soreness}</div><div class="jelbl">Soreness</div></div>
         </div>
@@ -3286,7 +3314,7 @@ async function loadAVJournal() {
         </div>
         <div class="av-list-stats">
           <div class="av-stat"><div class="av-stat-val" style="color:${dc(d.mood)}">${d.mood}</div><div class="av-stat-lbl">Mood</div></div>
-          <div class="av-stat"><div class="av-stat-val">${d.sleep}h</div><div class="av-stat-lbl">Sleep</div></div>
+          <div class="av-stat"><div class="av-stat-val" style="font-size:14px">${decimalToHM(d.sleep)}</div><div class="av-stat-lbl">Sleep</div></div>
           <div class="av-stat"><div class="av-stat-val" style="color:${dc(d.energy)}">${d.energy}</div><div class="av-stat-lbl">Energy</div></div>
           <div class="av-stat"><div class="av-stat-val" style="color:${dcInv(d.soreness)}">${d.soreness}</div><div class="av-stat-lbl">Soreness</div></div>
         </div>
