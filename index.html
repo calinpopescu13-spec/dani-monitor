@@ -356,7 +356,7 @@ body{min-height:100dvh;overflow-x:hidden}
 .av-stat{text-align:center}
 .av-stat-val{font-family:var(--bb);font-size:18px;line-height:1;color:var(--wh)}
 .av-stat-lbl{font-family:var(--m);font-size:9px;letter-spacing:.06em;color:var(--t2);text-transform:uppercase;margin-top:3px}
-.av-list-note{font-family:var(--f);font-size:13px;color:var(--t2);line-height:1.5;border-top:1px solid var(--b);padding-top:8px;margin-top:6px}
+.av-list-note{font-family:var(--f);font-size:13px;color:var(--t2);line-height:1.5;border-top:1px solid var(--b);padding-top:8px;margin-top:6px;white-space:pre-wrap;word-break:break-word}
 /* ══ Dashboard builder ══ */
 .db-list{display:flex;flex-direction:column;gap:8px}
 .db-row{display:flex;align-items:stretch;gap:10px;background:var(--sf2);border:1px solid var(--b);border-radius:var(--r2);padding:10px;cursor:grab;transition:border-color .15s,background .15s,opacity .2s}
@@ -449,6 +449,9 @@ body{min-height:100dvh;overflow-x:hidden}
 .au-unit{font-family:var(--m);font-size:11px;color:var(--t2);margin-left:4px}
 .au-preview.active{border-color:rgba(45,184,94,.35);background:linear-gradient(135deg,rgba(45,184,94,.06),var(--sf2))}
 .au-preview.active .au-value{color:var(--rp3)}
+/* full session notes under each Session Log row */
+.srpe-note{grid-column:1/-1;margin-top:8px;padding:8px 10px;background:var(--sf2);border-left:2px solid var(--accent);border-radius:0 var(--r1) var(--r1) 0;font-family:var(--f);font-size:13px;color:var(--tx);line-height:1.55;white-space:pre-wrap;word-break:break-word}
+#srpe-notes{min-height:110px}
 /* ══ ACWR gauge ══ */
 .acwr-track{position:relative;height:7px;border-radius:999px;overflow:hidden;display:flex;margin-bottom:6px}
 .acwr-zone{height:100%}
@@ -629,8 +632,8 @@ body{min-height:100dvh;overflow-x:hidden}
         <div class="rpe-legend" id="rpe-legend">Tap to select</div>
       </div>
       <div class="jfrow">
-        <label class="jflbl" for="srpe-notes">Session Notes (optional)</label>
-        <textarea class="jfta" id="srpe-notes" rows="2" placeholder="What did you do in today's training?"></textarea>
+        <label class="jflbl" for="srpe-notes">Session Notes (optional) <span class="jfhint">— write as much as you want</span></label>
+        <textarea class="jfta" id="srpe-notes" rows="4" maxlength="3000" placeholder="What did you do in today's training?"></textarea>
       </div>
       <div class="au-preview" id="au-preview">
         <div class="au-label">Calculated Load</div>
@@ -851,7 +854,7 @@ body{min-height:100dvh;overflow-x:hidden}
             <div class="arow"><label class="albl">RPE (1–10) *</label><input class="ainput" type="number" id="av-s-rpe" placeholder="1-10" min="1" max="10"></div>
             <div class="arow"><label class="albl">AU (auto-calc)</label><input class="ainput" id="av-s-au" placeholder="Duration × RPE" disabled style="opacity:.6"></div>
           </div>
-          <div class="arow"><label class="albl">Notes (optional)</label><input class="ainput" id="av-s-notes" placeholder="e.g. Match day, gym"></div>
+          <div class="arow"><label class="albl">Notes (optional)</label><textarea class="atextarea" id="av-s-notes" rows="4" style="resize:vertical" placeholder="Session notes"></textarea></div>
           <button class="abtn" style="width:100%" onclick="saveAVSRPE()">Save Session</button>
           <div class="amsg" id="av-s-msg"></div>
         </div>
@@ -1960,8 +1963,8 @@ async function loadSRPE() {
       </div>
       <div class="sh"><div class="shb"></div><div class="sht">Session Log</div></div>
       <div class="tcrd">
-        <div class="thd" style="grid-template-columns:62px 50px 38px 60px 1fr">
-          <span>Date</span><span>Min</span><span>RPE</span><span>AU</span><span>Notes</span>
+        <div class="thd" style="grid-template-columns:62px 50px 38px 1fr">
+          <span>Date</span><span>Min</span><span>RPE</span><span>AU</span>
         </div>
         <div id="srpe-table"></div>
       </div>
@@ -2041,19 +2044,19 @@ async function loadSRPE() {
       },
       options: cOpts(0, Math.max(...dailyAU, 100) * 1.15)
     });
-    // Session log table — only days with actual sessions
+    // Session log table — only days with actual sessions; full notes shown under each row
     const tbl = document.getElementById('srpe-table');
     [...data].reverse().slice(0, 30).forEach((d, i) => {
       const row = document.createElement('div');
       row.className = 'trow' + (i === 0 ? ' now' : '');
-      row.style.gridTemplateColumns = '62px 50px 38px 60px 1fr';
+      row.style.gridTemplateColumns = '62px 50px 38px 1fr';
       const auColor = d.au < 300 ? 'cgn' : d.au < 600 ? 'ca' : 'cr';
       row.innerHTML = `
         <span class="tda">${cleanDate(d.date)}</span>
         <span class="tva" style="font-size:13px">${d.duration}</span>
         <span class="tva" style="font-size:13px">${d.rpe}</span>
         <span class="tpa ${auColor}">${d.au}</span>
-        <span class="tsa" style="color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d.notes || '—'}</span>
+        ${d.notes ? `<div class="srpe-note">${escapeHtml(d.notes)}</div>` : ''}
       `;
       tbl.appendChild(row);
     });
@@ -3455,7 +3458,7 @@ async function loadAVSRPE() {
           <div class="av-stat"><div class="av-stat-val">${d.rpe}</div><div class="av-stat-lbl">RPE</div></div>
           <div class="av-stat"><div class="av-stat-val" style="color:${auColor}">${d.au}</div><div class="av-stat-lbl">AU</div></div>
         </div>
-        ${d.notes ? `<div class="av-list-note">${d.notes}</div>` : ''}
+        ${d.notes ? `<div class="av-list-note">${escapeHtml(d.notes)}</div>` : ''}
       `;
       list.appendChild(div);
     });
