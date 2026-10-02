@@ -620,31 +620,48 @@ body{min-height:100dvh;overflow-x:hidden}
     </div>
   </div>
   <div class="pg" id="pg-intload">
-    <div class="jform">
-      <div class="jftitle">Today's Session sRPE</div>
-      <div class="jfrow">
-        <label class="jflbl" for="srpe-duration">Training Duration (minutes)</label>
-        <input class="ainput" id="srpe-duration" type="number" placeholder="e.g. 75" min="1" max="300">
-      </div>
-      <div class="jfrow">
-        <label class="jflbl">Rate of Perceived Exertion (1–10)</label>
-        <div class="rpe-scale" id="rpe-scale"></div>
-        <div class="rpe-legend" id="rpe-legend">Tap to select</div>
-      </div>
-      <div class="jfrow">
-        <label class="jflbl" for="srpe-notes">Session Notes (optional) <span class="jfhint">— write as much as you want</span></label>
-        <textarea class="jfta" id="srpe-notes" rows="4" maxlength="3000" placeholder="What did you do in today's training?"></textarea>
-      </div>
-      <div class="au-preview" id="au-preview">
-        <div class="au-label">Calculated Load</div>
-        <div class="au-value" id="au-value">— <span class="au-unit">AU</span></div>
-      </div>
-      <button class="jfsub" onclick="submitSRPE()">Save Session Load</button>
-      <div class="jfmsg" id="srpe-msg"></div>
+    <div class="subtabs">
+      <button class="stab on" onclick="goInt('srpe',this)">sRPE</button>
+      <button class="stab"    onclick="goInt('hr85',this)">Min ≥85% HR</button>
     </div>
-    <div id="srpe-body">
-      <div class="sk-card"><div class="sk sk-line lg"></div><div class="sk sk-line"></div></div>
-      <div class="sk sk-block"></div>
+    <div class="spg on" id="spg-isrpe">
+      <div class="jform">
+        <div class="jftitle">Today's Session sRPE</div>
+        <div class="jfrow">
+          <label class="jflbl" for="srpe-duration">Training Duration (minutes)</label>
+          <input class="ainput" id="srpe-duration" type="number" placeholder="e.g. 75" min="1" max="300">
+        </div>
+        <div class="jfrow">
+          <label class="jflbl">Rate of Perceived Exertion (1–10)</label>
+          <div class="rpe-scale" id="rpe-scale"></div>
+          <div class="rpe-legend" id="rpe-legend">Tap to select</div>
+        </div>
+        <div class="jfrow">
+          <label class="jflbl" for="srpe-notes">Session Notes (optional) <span class="jfhint">— write as much as you want</span></label>
+          <textarea class="jfta" id="srpe-notes" rows="4" maxlength="3000" placeholder="What did you do in today's training?"></textarea>
+        </div>
+        <div class="au-preview" id="au-preview">
+          <div class="au-label">Calculated Load</div>
+          <div class="au-value" id="au-value">— <span class="au-unit">AU</span></div>
+        </div>
+        <button class="jfsub" onclick="submitSRPE()">Save Session Load</button>
+        <div class="jfmsg" id="srpe-msg"></div>
+      </div>
+      <div id="srpe-body">
+        <div class="sk-card"><div class="sk sk-line lg"></div><div class="sk sk-line"></div></div>
+        <div class="sk sk-block"></div>
+      </div>
+    </div>
+    <div class="spg" id="spg-hr85">
+      <div class="jform">
+        <div class="jftitle" id="ext-hr85-title">Log Minutes ≥85% HRmax</div>
+        <div class="jfrow"><label class="jflbl" for="ext-hr85-date">Date</label><input class="ainput" id="ext-hr85-date" type="date"></div>
+        <div class="jfrow"><label class="jflbl" for="ext-hr85-value">Minutes at or above 85% HRmax <span class="jfhint">— 0 is fine</span></label><input class="ainput" id="ext-hr85-value" type="number" placeholder="e.g. 18" min="0" step="0.5"></div>
+        <div class="jfrow"><label class="jflbl" for="ext-hr85-notes">Notes (optional)</label><textarea class="jfta" id="ext-hr85-notes" rows="2" placeholder="e.g. Match day, small-sided games"></textarea></div>
+        <button class="jfsub" id="ext-hr85-submit-btn" onclick="submitExtLoad('hr85')">Save</button>
+        <div class="jfmsg" id="ext-hr85-msg"></div>
+      </div>
+      <div id="intload-hr85-body"><div class="sk-card"><div class="sk sk-line lg"></div><div class="sk sk-line"></div></div></div>
     </div>
   </div>
   <div class="pg" id="pg-training">
@@ -1138,18 +1155,32 @@ function goExt(id, tabEl) {
   document.querySelectorAll('#pg-extload .stab').forEach(t => t.classList.remove('on'));
   if(tabEl) tabEl.classList.add('on');
 }
+// Internal Load sub-tabs: sRPE / Minutes ≥85% HRmax
+function goInt(id, tabEl) {
+  document.querySelectorAll('#pg-intload .spg').forEach(p => p.classList.remove('on'));
+  const target = document.getElementById(id === 'srpe' ? 'spg-isrpe' : 'spg-' + id);
+  if(target) target.classList.add('on');
+  document.querySelectorAll('#pg-intload .stab').forEach(t => t.classList.remove('on'));
+  if(tabEl) tabEl.classList.add('on');
+}
 // ══════════════════════════════════════════════
-// EXTERNAL LOAD (GPS): Total Distance, HSR, Sprint, HML — each logged independently
+// LOAD METRICS — External (GPS): Total Distance, HSR, Sprint, HML
+//              + Internal: Minutes ≥85% HRmax
+// Each logged independently into external_load_data (metric column), same ACWR / monotony / strain math.
 // ══════════════════════════════════════════════
 const EXT_METRICS = {
-  td:     { key: 'total_distance', label: 'Total Distance' },
-  hml:    { key: 'hml',            label: 'High Metabolic Load' },
-  hsr:    { key: 'hsr',            label: 'High Speed Running' },
-  sprint: { key: 'sprint',         label: 'Sprint Distance' }
+  td:     { key: 'total_distance', label: 'Total Distance',      unit: 'm' },
+  hml:    { key: 'hml',            label: 'High Metabolic Load', unit: 'm' },
+  hsr:    { key: 'hsr',            label: 'High Speed Running',  unit: 'm' },
+  sprint: { key: 'sprint',         label: 'Sprint Distance',     unit: 'm' }
 };
-let extEditId = { td: null, hml: null, hsr: null, sprint: null };
+const INT_METRICS = {
+  hr85:   { key: 'hr85',           label: 'Minutes ≥85% HRmax',  unit: 'min' }
+};
+const LOAD_METRICS = { ...EXT_METRICS, ...INT_METRICS };
+let extEditId = { td: null, hml: null, hsr: null, sprint: null, hr85: null };
 async function submitExtLoad(tab) {
-  const m = EXT_METRICS[tab];
+  const m = LOAD_METRICS[tab];
   const date = document.getElementById(`ext-${tab}-date`).value || new Date().toISOString().split('T')[0];
   const raw = document.getElementById(`ext-${tab}-value`).value.trim();
   const notes = document.getElementById(`ext-${tab}-notes`).value.trim();
@@ -1167,7 +1198,7 @@ async function submitExtLoad(tab) {
 }
 function cancelExtLoad(tab) {
   extEditId[tab] = null;
-  document.getElementById(`ext-${tab}-title`).textContent = 'Log ' + EXT_METRICS[tab].label;
+  document.getElementById(`ext-${tab}-title`).textContent = 'Log ' + LOAD_METRICS[tab].label;
   document.getElementById(`ext-${tab}-submit-btn`).textContent = 'Save';
   document.getElementById(`ext-${tab}-value`).value = '';
   document.getElementById(`ext-${tab}-notes`).value = '';
@@ -1192,7 +1223,7 @@ async function deleteExtLoad(id) {
 }
 function buildExtDailySeries(list, days) {
   // Same approach as buildDailySeries (used for sRPE), generalized to any 'value' field.
-  // Missing days AND explicit 0-distance entries both correctly collapse to 0 — no double counting.
+  // Missing days AND explicit 0 entries both correctly collapse to 0 — no double counting.
   const map = {};
   list.forEach(d => { map[d.date] = (map[d.date] || 0) + (+d.value || 0); });
   const series = [];
@@ -1209,19 +1240,21 @@ async function loadExtLoad() {
     td: document.getElementById('extload-td-body'),
     hml: document.getElementById('extload-hml-body'),
     hsr: document.getElementById('extload-hsr-body'),
-    sprint: document.getElementById('extload-sprint-body')
+    sprint: document.getElementById('extload-sprint-body'),
+    hr85: document.getElementById('intload-hr85-body')
   };
   try {
-    const data = await sb.get('external_load_data', `?athlete_name=eq.${encodeURIComponent(currentProfile.name)}&order=date.desc&limit=400`);
-    const byMetric = { total_distance: [], hml: [], hsr: [], sprint: [] };
+    const data = await sb.get('external_load_data', `?athlete_name=eq.${encodeURIComponent(currentProfile.name)}&order=date.desc&limit=500`);
+    const byMetric = { total_distance: [], hml: [], hsr: [], sprint: [], hr85: [] };
     data.forEach(d => { if (byMetric[d.metric]) byMetric[d.metric].push(d); });
     const sum7 = arr => arr.slice(0,7).reduce((s,d) => s + (+d.value || 0), 0);
     const tdWeekly7 = sum7(byMetric.total_distance);
 
-    Object.entries(EXT_METRICS).forEach(([tab, m]) => {
+    Object.entries(LOAD_METRICS).forEach(([tab, m]) => {
       const list = byMetric[m.key];
       const body = bodies[tab];
-      if (!list.length) { body.innerHTML = '<div class="soon"><div class="soon-ico">📏</div><div class="soon-t">No entries yet</div><div class="soon-s">Log your first entry above</div></div>'; return; }
+      const u = m.unit;
+      if (!list.length) { body.innerHTML = `<div class="soon"><div class="soon-ico">${u === 'min' ? '❤️' : '📏'}</div><div class="soon-t">No entries yet</div><div class="soon-s">Log your first entry above</div></div>`; return; }
 
       // ── Build 28-day daily series (rest days = 0) — required for valid EWMA ACWR, identical approach to sRPE ──
       const series = buildExtDailySeries(list, 28);
@@ -1252,6 +1285,7 @@ async function loadExtLoad() {
       const monoColor = monotony < 1.5 ? 'var(--gn)' : monotony < 2 ? 'var(--am)' : 'var(--rd)';
       const monoLabel = monotony < 1.5 ? 'Healthy' : monotony < 2 ? 'Moderate' : 'High risk';
       const pctOfTD = tdWeekly7 > 0 ? Math.round((sum7(list) / tdWeekly7) * 100) : 0;
+      const showPctTD = tab !== 'td' && u === 'm';
 
       body.innerHTML = `
         <div class="hero" style="margin-bottom:14px">
@@ -1275,16 +1309,16 @@ async function loadExtLoad() {
           </div>
           <div class="acwr-axis"><span>0.5</span><span>0.8</span><span>1.3</span><span>1.5</span><span>2.0+</span></div>
           <div class="hero-row" style="margin-top:10px">
-            <div style="font-family:var(--m);font-size:10px;color:var(--t2)">Acute: <span style="color:var(--wh);font-weight:500">${Math.round(acuteToday)}</span> m/day</div>
-            <div style="font-family:var(--m);font-size:10px;color:var(--t2)">Chronic: <span style="color:var(--wh);font-weight:500">${Math.round(chronicToday)}</span> m/day</div>
+            <div style="font-family:var(--m);font-size:10px;color:var(--t2)">Acute: <span style="color:var(--wh);font-weight:500">${Math.round(acuteToday)}</span> ${u}/day</div>
+            <div style="font-family:var(--m);font-size:10px;color:var(--t2)">Chronic: <span style="color:var(--wh);font-weight:500">${Math.round(chronicToday)}</span> ${u}/day</div>
           </div>
-          ${tab !== 'td' ? `<div class="hero-row" style="margin-top:6px"><div style="font-family:var(--m);font-size:10px;color:var(--t2)">% of Total Distance, last 7 days: <span style="color:var(--wh);font-weight:500">${pctOfTD}%</span></div></div>` : ''}
+          ${showPctTD ? `<div class="hero-row" style="margin-top:6px"><div style="font-family:var(--m);font-size:10px;color:var(--t2)">% of Total Distance, last 7 days: <span style="color:var(--wh);font-weight:500">${pctOfTD}%</span></div></div>` : ''}
         </div>
         <div class="cg3">
           <div class="card hi">
             <div class="clbl">${isToday ? "Today's Entry" : 'Last Entry'}</div>
             <div class="cval">${latestEntry.value}</div>
-            <div class="csub">${cleanDate(latestEntry.date)} · m</div>
+            <div class="csub">${cleanDate(latestEntry.date)} · ${u}</div>
           </div>
           <div class="card">
             <div class="clbl">Weekly Total</div>
@@ -1312,28 +1346,19 @@ async function loadExtLoad() {
         <div class="sh"><div class="shb"></div><div class="sht">ACWR Trend · 28 days</div></div>
         <div class="ccrd">
           <div class="chd">
-            <div class="ct">EWMA ratio · risk zones shaded</div>
+            <div class="ct">EWMA ratio</div>
             <div class="cleg"><div class="cl"><div class="cll" style="background:var(--accent)"></div>ACWR</div></div>
           </div>
           <div style="position:relative;height:180px"><canvas id="ext-acwr-chart-${tab}"></canvas></div>
         </div>
-        <div class="sh"><div class="shb"></div><div class="sht">Daily ${m.label} (m)</div></div>
+        <div class="sh"><div class="shb"></div><div class="sht">Daily ${m.label} (${u})</div></div>
         <div class="ccrd">
           <div class="chd"><div class="ct">Last 28 days · 0 = no entry / rest day</div></div>
           <div style="position:relative;height:170px"><canvas id="ext-daily-chart-${tab}"></canvas></div>
         </div>
-        <div class="refcrd">
-          <div class="ct">ACWR risk zones</div>
-          <div class="refgrid">
-            <div class="refrow"><div class="refdot" style="background:var(--am)"></div><span>&lt; 0.8 · Undertraining</span></div>
-            <div class="refrow"><div class="refdot" style="background:var(--gn)"></div><span>0.8 – 1.3 · Sweet spot</span></div>
-            <div class="refrow"><div class="refdot" style="background:var(--am)"></div><span>1.3 – 1.5 · Caution</span></div>
-            <div class="refrow"><div class="refdot" style="background:var(--rd)"></div><span>&gt; 1.5 · Danger</span></div>
-          </div>
-        </div>
         <div class="sh"><div class="shb"></div><div class="sht">Entry Log</div></div>
         <div class="tcrd">
-          <div class="thd" style="grid-template-columns:70px 70px 1fr 70px"><span>Date</span><span>Meters</span><span>Notes</span><span></span></div>
+          <div class="thd" style="grid-template-columns:70px 70px 1fr 70px"><span>Date</span><span>${u === 'min' ? 'Minutes' : 'Meters'}</span><span>Notes</span><span></span></div>
           <div>${list.slice(0,50).map(d => `
             <div class="trow" style="grid-template-columns:70px 70px 1fr 70px">
               <span>${cleanDate(d.date)}</span><span>${d.value}</span><span>${d.notes || '—'}</span>
@@ -1349,25 +1374,6 @@ async function loadExtLoad() {
           const pos = Math.min(Math.max(((acwr - 0.5) / 1.5) * 100, 2), 98);
           needle.style.left = pos + '%';
         }
-        const acwrZonePlugin = {
-          id: 'acwrZonesExt' + tab,
-          beforeDraw(chart) {
-            const {ctx, chartArea: ca, scales: {y}} = chart;
-            if (!ca) return;
-            const zones = [
-              { from: 0,   to: 0.8, color: 'rgba(245,179,51,0.06)' },
-              { from: 0.8, to: 1.3, color: 'rgba(76,217,123,0.08)' },
-              { from: 1.3, to: 1.5, color: 'rgba(245,179,51,0.06)' },
-              { from: 1.5, to: 2.5, color: 'rgba(255,82,82,0.07)' }
-            ];
-            zones.forEach(z => {
-              const yTop = y.getPixelForValue(z.to);
-              const yBot = y.getPixelForValue(z.from);
-              ctx.fillStyle = z.color;
-              ctx.fillRect(ca.left, yTop, ca.right - ca.left, yBot - yTop);
-            });
-          }
-        };
         const acwrCanvas = document.getElementById(`ext-acwr-chart-${tab}`);
         if (acwrCanvas) {
           new Chart(acwrCanvas, {
@@ -1386,10 +1392,9 @@ async function loadExtLoad() {
                 backgroundColor: 'rgba(4,10,4,.97)', titleColor: '#ede8e2', bodyColor: '#a8a29d',
                 borderColor: 'rgba(255,255,255,.08)', borderWidth: 1, padding: 10, cornerRadius: 8,
                 titleFont: {family:'JetBrains Mono',size:11}, bodyFont: {family:'JetBrains Mono',size:10},
-                callbacks: { label: ctx => `ACWR: ${ctx.parsed.y} (${acwrZone(ctx.parsed.y).label})` }
+                callbacks: { label: ctx => `ACWR: ${ctx.parsed.y}` }
               }}
-            },
-            plugins: [acwrZonePlugin]
+            }
           });
         }
         const dailyCanvas = document.getElementById(`ext-daily-chart-${tab}`);
@@ -1940,7 +1945,7 @@ async function loadSRPE() {
       <div class="sh"><div class="shb"></div><div class="sht">ACWR Trend · 28 days</div></div>
       <div class="ccrd">
         <div class="chd">
-          <div class="ct">EWMA ratio · risk zones shaded</div>
+          <div class="ct">EWMA ratio</div>
           <div class="cleg">
             <div class="cl"><div class="cll" style="background:var(--accent)"></div>ACWR</div>
           </div>
@@ -1951,15 +1956,6 @@ async function loadSRPE() {
       <div class="ccrd">
         <div class="chd"><div class="ct">Last 28 days · 0 = rest day</div></div>
         <div style="position:relative;height:170px"><canvas id="srpeChart"></canvas></div>
-      </div>
-      <div class="refcrd">
-        <div class="ct">ACWR risk zones</div>
-        <div class="refgrid">
-          <div class="refrow"><div class="refdot" style="background:var(--am)"></div><span>&lt; 0.8 · Undertraining</span></div>
-          <div class="refrow"><div class="refdot" style="background:var(--gn)"></div><span>0.8 – 1.3 · Sweet spot</span></div>
-          <div class="refrow"><div class="refdot" style="background:var(--am)"></div><span>1.3 – 1.5 · Caution</span></div>
-          <div class="refrow"><div class="refdot" style="background:var(--rd)"></div><span>&gt; 1.5 · Danger</span></div>
-        </div>
       </div>
       <div class="sh"><div class="shb"></div><div class="sht">Session Log</div></div>
       <div class="tcrd">
@@ -1977,26 +1973,7 @@ async function loadSRPE() {
         needle.style.left = pos + '%';
       }
     }, 200);
-    // ACWR trend chart with zone background
-    const acwrZonePlugin = {
-      id: 'acwrZones',
-      beforeDraw(chart) {
-        const {ctx, chartArea: ca, scales: {y}} = chart;
-        if(!ca) return;
-        const zones = [
-          { from: 0,    to: 0.8,  color: 'rgba(245,179,51,0.06)' },
-          { from: 0.8,  to: 1.3,  color: 'rgba(76,217,123,0.08)' },
-          { from: 1.3,  to: 1.5,  color: 'rgba(245,179,51,0.06)' },
-          { from: 1.5,  to: 2.5,  color: 'rgba(255,82,82,0.07)'  }
-        ];
-        zones.forEach(z => {
-          const yTop = y.getPixelForValue(z.to);
-          const yBot = y.getPixelForValue(z.from);
-          ctx.fillStyle = z.color;
-          ctx.fillRect(ca.left, yTop, ca.right - ca.left, yBot - yTop);
-        });
-      }
-    };
+    // ACWR trend chart
     new Chart(document.getElementById('acwrChart'), {
       type: 'line',
       data: {
@@ -2024,11 +2001,10 @@ async function loadSRPE() {
             backgroundColor: 'rgba(4,10,4,.97)', titleColor: '#ede8e2', bodyColor: '#a8a29d',
             borderColor: 'rgba(255,255,255,.08)', borderWidth: 1, padding: 10, cornerRadius: 8,
             titleFont: {family:'JetBrains Mono',size:11}, bodyFont: {family:'JetBrains Mono',size:10},
-            callbacks: { label: ctx => `ACWR: ${ctx.parsed.y} (${acwrZone(ctx.parsed.y).label})` }
+            callbacks: { label: ctx => `ACWR: ${ctx.parsed.y}` }
           }
         }
-      },
-      plugins: [acwrZonePlugin]
+      }
     });
     // Daily AU chart
     new Chart(document.getElementById('srpeChart'), {
@@ -3527,7 +3503,7 @@ async function bootApp() {
   loadSRPE();
   loadJournalEntries();
   loadExtLoad();
-  ['td','hml','hsr','sprint'].forEach(tab => {
+  ['td','hml','hsr','sprint','hr85'].forEach(tab => {
     const el = document.getElementById(`ext-${tab}-date`);
     if (el && !el.value) el.value = new Date().toISOString().split('T')[0];
   });
