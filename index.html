@@ -3556,5 +3556,163 @@ async function initApp() {
 }
 initApp();
 </script>
+<!-- ═══════════════════════════════════════════════════════════
+     DICTARE VOCALĂ (română) pentru Session Notes la Internal Load
+     ═══════════════════════════════════════════════════════════ -->
+<style>
+.mic-wrap{position:relative}
+.mic-wrap .jfta{padding-right:58px}
+.mic-btn{position:absolute;right:8px;bottom:8px;width:42px;height:42px;border-radius:50%;border:1px solid var(--b2);background:var(--sf3);color:var(--rp3);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s,color .2s,border-color .2s;-webkit-tap-highlight-color:transparent}
+.mic-btn svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.mic-btn:hover{border-color:rgba(45,184,94,.5)}
+.mic-btn.rec{background:var(--rd);border-color:var(--rd);color:#fff;animation:micPulse 1.4s ease infinite}
+@keyframes micPulse{0%{box-shadow:0 0 0 0 rgba(255,82,82,.5)}70%{box-shadow:0 0 0 12px rgba(255,82,82,0)}100%{box-shadow:0 0 0 0 rgba(255,82,82,0)}}
+.mic-status{font-family:var(--m);font-size:10px;color:var(--t3);margin-top:6px;min-height:14px;letter-spacing:.04em;line-height:1.5}
+.mic-status.on{color:var(--rd)}
+.mic-status.err{color:var(--am)}
+</style>
+<script>
+(function () {
+  // Câmpurile care primesc microfon. Adaugă 'jnotes' ca să-l ai și la jurnal.
+  const MIC_TARGETS = ['srpe-notes'];
+
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return; // browser fără suport (ex. Firefox) → butonul nu apare deloc
+
+  let active = null;
+
+  const join = (a, b) => !b ? a : (a ? a + ' ' + b : b);
+  // fiecare frază dictată: prima literă mare + punct la final
+  const tidy = (t) => {
+    t = t.trim();
+    if (!t) return '';
+    t = t.charAt(0).toUpperCase() + t.slice(1);
+    return /[.!?…]$/.test(t) ? t : t + '.';
+  };
+
+  function stopActive(discard) {
+    if (!active) return;
+    active.userStopped = true;
+    if (discard) active.discard = true;
+    try { active.rec && active.rec.stop(); } catch (e) {}
+  }
+
+  function attach(id) {
+    const ta = document.getElementById(id);
+    if (!ta || ta.dataset.mic) return;
+    ta.dataset.mic = '1';
+
+    const wrap = document.createElement('div');
+    wrap.className = 'mic-wrap';
+    ta.parentNode.insertBefore(wrap, ta);
+    wrap.appendChild(ta);
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'mic-btn';
+    btn.title = 'Dictează în română';
+    btn.setAttribute('aria-label', 'Dictează în română');
+    btn.innerHTML = '<svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0"/><path d="M12 18v3"/></svg>';
+    wrap.appendChild(btn);
+
+    const status = document.createElement('div');
+    status.className = 'mic-status';
+    status.textContent = 'Apasă 🎤 și povestește antrenamentul — se scrie singur.';
+    wrap.after(status);
+
+    btn.addEventListener('click', () => {
+      if (active && active.btn === btn) { stopActive(false); return; }
+      stopActive(false);
+      start(ta, btn, status);
+    });
+  }
+
+  function start(ta, btn, status) {
+    const max = parseInt(ta.getAttribute('maxlength'), 10) || Infinity;
+    const st = { btn, status, ta, rec: null, userStopped: false, discard: false, errMsg: '', done: false };
+    active = st;
+    let committed = ta.value.replace(/\s+$/, '');
+
+    const show = (t) => {
+      ta.value = t.slice(0, max);
+      if (typeof autoGrow === 'function') autoGrow(ta);
+    };
+
+    btn.classList.add('rec');
+    status.className = 'mic-status on';
+    status.textContent = '● Ascult… vorbește în română. Apasă din nou ca să oprești.';
+
+    function finish() {
+      if (st.done) return;
+      st.done = true;
+      if (active === st) active = null;
+      btn.classList.remove('rec');
+      if (st.errMsg) {
+        status.className = 'mic-status err';
+        status.textContent = st.errMsg;
+      } else {
+        status.className = 'mic-status';
+        status.textContent = 'Gata. Verifică textul și corectează dacă e nevoie.';
+      }
+    }
+
+    // Câte o frază pe sesiune, repornit automat până apeși stop.
+    // (modul „continuous” dublează textul pe unele telefoane Android)
+    function run() {
+      const rec = new SR();
+      st.rec = rec;
+      rec.lang = 'ro-RO';
+      rec.continuous = false;
+      rec.interimResults = true;
+      rec.maxAlternatives = 1;
+      let finalChunk = '';
+
+      rec.onresult = (e) => {
+        if (st.discard) return;
+        let fin = '', interim = '';
+        for (let i = 0; i < e.results.length; i++) {
+          const t = e.results[i][0].transcript.trim();
+          if (e.results[i].isFinal) fin = join(fin, t);
+          else interim = join(interim, t);
+        }
+        finalChunk = fin;
+        show(join(committed, join(fin, interim)));
+      };
+
+      rec.onerror = (e) => {
+        st.userStopped = true;
+        if (e.error === 'no-speech') st.errMsg = 'Nu am auzit nimic. Apasă 🎤 și încearcă din nou.';
+        else if (e.error === 'not-allowed' || e.error === 'service-not-allowed') st.errMsg = 'Microfonul e blocat. Permite accesul la microfon pentru site în setările browserului.';
+        else if (e.error === 'network') st.errMsg = 'Fără internet — dictarea are nevoie de conexiune.';
+        else if (e.error !== 'aborted') st.errMsg = 'Dictarea s-a oprit (' + e.error + '). Încearcă din nou.';
+      };
+
+      rec.onend = () => {
+        if (st.discard) { finish(); return; }
+        committed = join(committed, tidy(finalChunk));
+        show(committed);
+        if (st.userStopped) { finish(); return; }
+        try { run(); } catch (err) { finish(); }
+      };
+
+      rec.start();
+    }
+
+    try { run(); } catch (err) { st.errMsg = 'Nu am putut porni microfonul.'; finish(); }
+  }
+
+  // La „Save” oprim dictarea fără să mai scriem nimic în câmpul golit
+  document.addEventListener('click', (e) => {
+    if (active && e.target.closest && e.target.closest('.jfsub')) stopActive(true);
+  }, true);
+  // Dacă aplicația trece în fundal, oprim microfonul
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stopActive(false);
+  });
+
+  MIC_TARGETS.forEach(attach);
+})();
+</script>
+<!-- ═══ SFÂRȘIT DICTARE VOCALĂ ═══ -->
 </body>
 </html>
