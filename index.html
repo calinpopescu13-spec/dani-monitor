@@ -3,10 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0c0b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FPS">
 <title>Football Performance Society</title>
 <meta property="og:title" content="Football Performance Society">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>try{var d=window.Chart&&Chart.defaults;if(d){d.font=d.font||{};d.font.family="'Barlow',system-ui,-apple-system,sans-serif";d.font.size=12;d.font.weight=500;d.color="#9aa19b";d.borderColor="rgba(255,255,255,0.07)";}}catch(e){}</script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -356,7 +362,7 @@ body{min-height:100dvh;overflow-x:hidden}
 .jform{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:16px;margin-bottom:12px}
 .jftitle{font-family:var(--bb);font-size:20px;letter-spacing:.06em;color:var(--wh);margin-bottom:14px}
 .jfrow{margin-bottom:14px}
-.jflbl{font-family:var(--m);font-size:10px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase;margin-bottom:8px;display:block}
+.jflbl{font-family:var(--f);font-size:13px;font-weight:500;letter-spacing:0;color:var(--t2);margin-bottom:8px;display:block}
 .jfhint{font-family:var(--f);font-size:11px;color:var(--t3);text-transform:none;letter-spacing:0;font-weight:400;margin-left:2px}
 .jfscale{display:flex;gap:6px}
 .jfscale button{flex:1;padding:12px 4px;background:var(--sf2);border:1px solid var(--b);border-radius:var(--r1);font-family:var(--bb);font-size:16px;color:var(--t2);cursor:pointer;transition:all .15s;min-height:44px}
@@ -436,7 +442,7 @@ body{min-height:100dvh;overflow-x:hidden}
 .aform{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:16px;margin-bottom:14px}
 .aform-title{font-family:var(--bb);font-size:18px;letter-spacing:.06em;color:var(--wh);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
 .arow{margin-bottom:12px}
-.albl{font-family:var(--m);font-size:10px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase;margin-bottom:6px;display:block}
+.albl{font-family:var(--f);font-size:13px;font-weight:500;letter-spacing:0;color:var(--t2);margin-bottom:6px;display:block}
 .ainput,.aselect,.atextarea{width:100%;background:var(--sf2);border:1px solid var(--b);border-radius:var(--r1);padding:11px 12px;font-family:var(--f);font-size:14px;color:var(--tx);outline:none;transition:border-color .2s,box-shadow .2s;min-height:40px}
 .aselect{cursor:pointer}
 .atextarea{resize:none;line-height:1.6;min-height:auto}
@@ -503,7 +509,7 @@ body{min-height:100dvh;overflow-x:hidden}
 .rpe-scale button.sel:nth-child(9),.rpe-scale button.sel:nth-child(10){background:#ff5252;color:#fff}
 .rpe-legend{font-family:var(--m);font-size:11px;color:var(--t2);margin-top:8px;text-align:center;min-height:16px;letter-spacing:.04em}
 .au-preview{background:var(--sf2);border:1px solid var(--b);border-radius:var(--r2);padding:14px 16px;margin:12px 0 6px;display:flex;align-items:center;justify-content:space-between}
-.au-label{font-family:var(--m);font-size:10px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase}
+.au-label{font-family:var(--f);font-size:13px;font-weight:500;letter-spacing:0;color:var(--t2)}
 .au-value{font-family:var(--bb);font-size:34px;line-height:1;color:var(--wh);letter-spacing:.01em}
 .au-unit{font-family:var(--m);font-size:11px;color:var(--t2);margin-left:4px}
 .au-preview.active{border-color:rgba(63,178,127,.35);background:linear-gradient(135deg,rgba(63,178,127,.06),var(--sf2))}
@@ -523,7 +529,7 @@ body{min-height:100dvh;overflow-x:hidden}
 .divider{height:1px;background:var(--b);margin:14px 0}
 .stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:10px}
 .stat-card{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:14px;text-align:center}
-.stat-label{font-family:var(--m);font-size:10px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase;margin-bottom:6px}
+.stat-label{font-family:var(--f);font-size:13px;font-weight:500;letter-spacing:0;color:var(--t2);margin-bottom:6px}
 .stat-value{font-family:var(--bb);font-size:28px;letter-spacing:.01em;line-height:1;color:var(--wh)}
 .stat-sub{font-family:var(--m);font-size:10px;color:var(--t3);margin-top:4px}
 .goal-item{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:14px;margin-bottom:10px}
@@ -598,6 +604,50 @@ html{font-size:16px}
 .alist-item.sel{border-color:var(--accent);background:rgba(63,178,127,.08)}
 .asess-chips{margin-bottom:12px}
 .asess-n{margin-left:4px;opacity:.6;font-weight:600}
+/* ══ PHONE POLISH — app-like feel on mobile ══ */
+html{color-scheme:dark}
+body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent}
+.screen{-webkit-overflow-scrolling:touch}
+button,.tab,.stab,.fchip,.bn,.admin-tab,.scard,.alist-item,.sht,.dash-stat{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+/* status-bar safe area (home-screen app) */
+.topbar,.admin-topbar,.svtop{height:calc(56px + env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px)}
+/* press feedback instead of hover */
+.abtn:active,.jfsub:active,.pw-btn:active,.sx-btn:active,.add-ex-btn:active,.add-phase-btn:active,.stab:active,.fchip:active{transform:scale(.98)}
+.scard:active,.sx-ex:active,.alist-item.selmode:active{background:var(--sf2)}
+/* form controls: 16px keeps iOS from zooming in on focus; 48px tap height */
+.ainput,.aselect,.atextarea,.jfta,.tsearch,.pw-input,.pb-name-input,.db-label-input{font-size:16px;border-radius:var(--r2)}
+.ainput,.aselect,.atextarea,.jfta,.tsearch{padding:13px 14px;min-height:48px}
+.atextarea,.jfta{min-height:52px;line-height:1.6}
+.db-label-input{font-size:14px;padding:9px 11px;min-height:40px}
+.aselect{appearance:none;-webkit-appearance:none;padding-right:40px;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239aa19b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 14px center;background-size:16px}
+.tsearch{min-height:48px}
+/* labels: sentence case, readable size */
+.albl,.jflbl{font-family:var(--f);font-size:13px;font-weight:500;letter-spacing:0;text-transform:none;color:var(--t2);margin-bottom:7px}
+.jfhint{font-size:12.5px}
+.stab,.fchip{text-transform:none;letter-spacing:0;font-size:13px;padding:9px 14px;min-height:38px}
+.scti{font-family:var(--f);font-size:11.5px;letter-spacing:0;padding:4px 9px}
+.admin-link,.pw-back,.admin-back,.db-toggle{text-transform:none;letter-spacing:0;font-family:var(--f);font-size:13px;font-weight:500}
+.add-ex-btn,.add-phase-btn{text-transform:none;letter-spacing:0;font-family:var(--f);font-size:14px;font-weight:600;min-height:46px}
+.bn{text-transform:none}
+/* comfortable tap targets */
+.abtn.small{min-height:38px;padding:9px 14px}
+.phase-remove,.ex-remove{padding:10px;font-size:15px}
+.alist-actions{gap:8px}
+/* stat chips: never leave a single orphan on the last row */
+.dash-stats-grid:has(>:nth-child(4):last-child){grid-template-columns:repeat(2,1fr)}
+.dash-stats-grid:has(>:nth-child(2):last-child){grid-template-columns:repeat(2,1fr)}
+.dash-stats-grid:has(>:only-child){grid-template-columns:1fr}
+/* two-up rows: short labels keep both columns aligned */
+.agrid2,.ex-builder-grid{gap:12px;align-items:start}
+.ex-builder .albl{padding-right:26px}
+.arow{margin-bottom:14px}
+/* identity chips: two per row when there are four, so labels never clip */
+.dash-identity:has(>:nth-child(4):last-child),.dash-identity:has(>:nth-child(2):last-child){grid-template-columns:repeat(2,1fr)}
+.dash-identity:has(>:only-child){grid-template-columns:1fr}
+.dash-id-lbl{white-space:nowrap}
+/* phone: one nav, not two — the bottom bar already has all five destinations
+   and the header shows the current one, so drop the duplicate tab strip */
+@media(max-width:599px){#s3>.tabs{display:none}}
 </style>
 </head>
 <body>
@@ -929,7 +979,7 @@ html{font-size:16px}
             Drag handles to reorder. Toggle visibility, customize labels, and mark as headline (highlighted with green accent).
           </div>
           <div id="db-active-list" class="db-list"></div>
-          <div style="font-family:var(--m);font-size:10px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase;margin:18px 0 8px">Add More Stats</div>
+          <div style="font-family:var(--f);font-size:13px;font-weight:500;letter-spacing:0;color:var(--t2);margin:18px 0 8px">Add More Stats</div>
           <select class="aselect" id="db-add-select" onchange="addDashWidget()">
             <option value="">+ Choose a stat to add…</option>
           </select>
@@ -1023,8 +1073,8 @@ html{font-size:16px}
         <div class="arow"><label class="albl">Duration</label><input class="ainput" id="sf-duration" placeholder="45 min"></div>
       </div>
       <div class="agrid2">
-        <div class="arow"><label class="albl">Tag (short label)</label><input class="ainput" id="sf-tag" placeholder="Recovery & Activation"></div>
-        <div class="arow"><label class="albl">Keywords (comma separated)</label><input class="ainput" id="sf-tags" placeholder="Foam Rolling, Stretching"></div>
+        <div class="arow"><label class="albl">Tag (short label)</label><input class="ainput" id="sf-tag" placeholder="e.g. Recovery"></div>
+        <div class="arow"><label class="albl">Keywords</label><input class="ainput" id="sf-tags" placeholder="e.g. Mobility, Core"></div>
       </div>
       <div class="arow">
         <label class="albl">Assign To Athletes</label>
@@ -1033,7 +1083,7 @@ html{font-size:16px}
       </div>
       <div class="divider"></div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div style="font-family:var(--m);font-size:10px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase">Phases (optional)</div>
+        <div style="font-family:var(--f);font-size:13px;font-weight:500;letter-spacing:0;color:var(--t2)">Phases (optional)</div>
       </div>
       <div id="phases-container"></div>
       <button class="add-phase-btn" onclick="addPhase()">+ Add Phase</button>
@@ -1053,7 +1103,7 @@ html{font-size:16px}
         <span id="athlete-form-title">New Athlete</span>
         <button class="abtn secondary small" onclick="cancelAthleteEdit()">Cancel</button>
       </div>
-      <div style="font-family:var(--m);font-size:10px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase;margin-bottom:10px;margin-top:4px">Basic Information</div>
+      <div style="font-family:var(--f);font-size:13px;font-weight:500;letter-spacing:0;color:var(--t2);margin-bottom:10px;margin-top:4px">Basic Information</div>
       <div class="agrid2">
         <div class="arow"><label class="albl">Name *</label><input class="ainput" id="af-name" placeholder="Dani"></div>
         <div class="arow"><label class="albl">Initials</label><input class="ainput" id="af-initials" placeholder="D" maxlength="2"></div>
@@ -1063,7 +1113,7 @@ html{font-size:16px}
         <div class="arow"><label class="albl">Team</label><input class="ainput" id="af-team" placeholder="Rapid București"></div>
       </div>
       <div class="arow"><label class="albl">Password</label><input class="ainput" id="af-password" placeholder="athlete2026"></div>
-      <div style="font-family:var(--m);font-size:10px;letter-spacing:.1em;color:var(--t2);text-transform:uppercase;margin-bottom:10px;margin-top:14px">Live Data & Personal</div>
+      <div style="font-family:var(--f);font-size:13px;font-weight:500;letter-spacing:0;color:var(--t2);margin-bottom:10px;margin-top:14px">Live Data & Personal</div>
       <div class="arow"><label class="albl">API-Football Player ID <span style="font-family:var(--f);font-size:10px;color:var(--t3);text-transform:none;letter-spacing:0;font-weight:400">— enables live stats on dashboard</span></label><input class="ainput" id="af-api-id" type="number" placeholder="e.g. 42754"></div>
       <div class="arow"><label class="albl">Personal Motto <span style="font-family:var(--f);font-size:10px;color:var(--t3);text-transform:none;letter-spacing:0;font-weight:400">— shown on athlete's dashboard</span></label><textarea class="atextarea" id="af-motto" rows="2" placeholder='e.g. "Trust the process — every day matters."'></textarea></div>
       <button class="abtn" style="width:100%;margin-top:14px" onclick="saveAthlete()">Save Athlete</button>
@@ -2986,7 +3036,7 @@ function addExercise(phaseId) {
     <button class="ex-remove" onclick="document.getElementById('ex-${exId}').remove()" title="Remove">✕</button>
     <div class="ex-builder-grid">
       <div class="arow"><label class="albl">Exercise name</label><input class="ainput ex-name" placeholder="e.g. Romanian Deadlift"></div>
-      <div class="arow"><label class="albl">Sets / Reps / Duration</label><input class="ainput ex-sets" placeholder="e.g. 3x10 or 30s hold"></div>
+      <div class="arow"><label class="albl">Sets / Reps</label><input class="ainput ex-sets" placeholder="e.g. 3x10 or 30s hold"></div>
     </div>
     <div class="arow"><label class="albl">YouTube Video ID (optional)</label><input class="ainput ex-video" placeholder="e.g. dQw4w9WgXcQ"></div>
     <div class="arow"><label class="albl">Photo URL (optional)</label><input class="ainput ex-photo" placeholder="https://i.imgur.com/abc123.jpg"></div>
@@ -3055,12 +3105,14 @@ function adminForAthlete(s, name) {
   return a === 'all' || String(a).split(',').map(x => x.trim()).includes(name);
 }
 async function adminFetchAllSessions() {
-  const all = [], PAGE = 100;
-  for (let off = 0, guard = 0; guard < 100; guard++) {
+  const all = [], seen = new Set(), PAGE = 100;
+  for (let off = 0, guard = 0; guard < 60; guard++) {
     const page = await sb.get('sessions', `?order=date.desc,id.asc&limit=${PAGE}&offset=${off}`);
     if (!Array.isArray(page)) throw new Error('bad response');
-    if (!page.length) break;
-    all.push(...page);
+    const fresh = page.filter(s => !seen.has(String(s.id)));
+    if (!fresh.length) break;                 // empty page, or the backend ignored offset
+    fresh.forEach(s => seen.add(String(s.id)));
+    all.push(...fresh);
     off += page.length;
   }
   return all;
