@@ -596,6 +596,8 @@ html{font-size:16px}
 .abtn:disabled{opacity:.4;cursor:not-allowed}
 .alist-item.selmode{cursor:pointer}
 .alist-item.sel{border-color:var(--accent);background:rgba(63,178,127,.08)}
+.asess-chips{margin-bottom:12px}
+.asess-n{margin-left:4px;opacity:.6;font-weight:600}
 </style>
 </head>
 <body>
@@ -3047,7 +3049,11 @@ function cancelSessionEdit() {
   phaseCount = 0;
 }
 // ── Admin sessions: load everything (paged), search, select + bulk delete ──
-let adminSess = [], adminSel = new Set(), adminSelMode = false, adminQ = '';
+let adminSess = [], adminSel = new Set(), adminSelMode = false, adminQ = '', adminAth = '', adminAthNames = [];
+function adminForAthlete(s, name) {
+  const a = s.assigned_to || 'all';
+  return a === 'all' || String(a).split(',').map(x => x.trim()).includes(name);
+}
 async function adminFetchAllSessions() {
   const all = [], PAGE = 100;
   for (let off = 0, guard = 0; guard < 100; guard++) {
@@ -3061,8 +3067,8 @@ async function adminFetchAllSessions() {
 }
 function adminVisibleSessions() {
   const q = adminQ.trim().toLowerCase();
-  if (!q) return adminSess;
-  return adminSess.filter(s => [s.title, s.date, s.type, s.tag, s.assigned_to].join(' ').toLowerCase().includes(q));
+  return adminSess.filter(s => (!adminAth || adminForAthlete(s, adminAth)) &&
+    (!q || [s.title, s.date, s.type, s.tag, s.assigned_to].join(' ').toLowerCase().includes(q)));
 }
 function adminSessBar() {
   const bar = document.getElementById('admin-sessions-bar');
@@ -3070,7 +3076,12 @@ function adminSessBar() {
   const vis = adminVisibleSessions();
   const n = adminSel.size;
   const allOn = vis.length > 0 && vis.every(s => adminSel.has(String(s.id)));
+  const chips = ['', ...adminAthNames].map((nm, i) => {
+    const c = nm ? adminSess.filter(s => adminForAthlete(s, nm)).length : adminSess.length;
+    return `<button type="button" class="fchip${adminAth === nm ? ' on' : ''}" onclick="adminPickAthlete(${i - 1})">${nm ? escapeHtml(nm) : 'Everyone'} <span class="asess-n">${c}</span></button>`;
+  }).join('');
   bar.innerHTML = `
+    <div class="filter-row asess-chips">${chips}</div>
     <input class="ainput asess-search" id="asess-search" type="search" placeholder="Search sessions" value="${escapeHtml(adminQ)}" oninput="adminSessSearch(this.value)">
     <div class="asess-row">
       <div class="asess-count">${vis.length === adminSess.length ? adminSess.length + ' session' + (adminSess.length === 1 ? '' : 's') : vis.length + ' of ' + adminSess.length}</div>
@@ -3108,6 +3119,12 @@ function adminSessList() {
     list.appendChild(div);
   });
 }
+function adminPickAthlete(i) {
+  const nm = i < 0 ? '' : adminAthNames[i];
+  adminAth = (adminAth === nm) ? '' : nm;
+  adminSel.clear();
+  adminSessBar(); adminSessList();
+}
 function adminSessSearch(v) {
   adminQ = v;
   adminSessList();
@@ -3144,6 +3161,11 @@ async function loadAdminSessions() {
   list.innerHTML = '<div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div>';
   try {
     adminSess = await adminFetchAllSessions();
+    let names = [];
+    try { const at = await sb.get('athletes', '?select=name&order=name'); if (Array.isArray(at)) names = at.map(a => a.name).filter(Boolean); } catch {}
+    adminSess.forEach(s => { if (s.assigned_to && s.assigned_to !== 'all') String(s.assigned_to).split(',').map(x => x.trim()).filter(Boolean).forEach(n => { if (!names.includes(n)) names.push(n); }); });
+    adminAthNames = names;
+    if (adminAth && !names.includes(adminAth)) adminAth = '';
     const keep = new Set(adminSess.map(s => String(s.id)));
     adminSel = new Set([...adminSel].filter(x => keep.has(x)));
     if (!adminSess.length) {
