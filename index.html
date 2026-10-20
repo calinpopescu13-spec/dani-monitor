@@ -586,6 +586,16 @@ html{font-size:16px}
 .scard-meta span:empty{display:none}
 .scard-meta span+span::before{content:"·";margin-right:8px;color:var(--t3)}
 .scard-meta span:empty+span::before{content:none;margin:0}
+/* admin sessions: search + select */
+#admin-sessions-bar{margin-bottom:12px}
+.asess-search{width:100%;margin-bottom:10px}
+.asess-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.asess-count{flex:1;min-width:80px;font-family:var(--f);font-size:13px;color:var(--t2)}
+.asess-all{display:inline-flex;align-items:center;gap:7px;font-family:var(--f);font-size:13px;font-weight:500;color:var(--tx);cursor:pointer}
+.asess-all input,.asess-chk{width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;cursor:pointer}
+.abtn:disabled{opacity:.4;cursor:not-allowed}
+.alist-item.selmode{cursor:pointer}
+.alist-item.sel{border-color:var(--accent);background:rgba(63,178,127,.08)}
 </style>
 </head>
 <body>
@@ -1029,6 +1039,7 @@ html{font-size:16px}
       <div class="amsg" id="session-msg"></div>
     </div>
     <div class="sh"><div class="shb"></div><div class="sht">All Sessions</div></div>
+    <div id="admin-sessions-bar"></div>
     <div id="admin-sessions-list">
       <div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div>
       <div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div>
@@ -3035,27 +3046,113 @@ function cancelSessionEdit() {
   document.getElementById('phases-container').innerHTML = '';
   phaseCount = 0;
 }
+// ── Admin sessions: load everything (paged), search, select + bulk delete ──
+let adminSess = [], adminSel = new Set(), adminSelMode = false, adminQ = '';
+async function adminFetchAllSessions() {
+  const all = [], PAGE = 100;
+  for (let off = 0, guard = 0; guard < 100; guard++) {
+    const page = await sb.get('sessions', `?order=date.desc,id.asc&limit=${PAGE}&offset=${off}`);
+    if (!Array.isArray(page)) throw new Error('bad response');
+    if (!page.length) break;
+    all.push(...page);
+    off += page.length;
+  }
+  return all;
+}
+function adminVisibleSessions() {
+  const q = adminQ.trim().toLowerCase();
+  if (!q) return adminSess;
+  return adminSess.filter(s => [s.title, s.date, s.type, s.tag, s.assigned_to].join(' ').toLowerCase().includes(q));
+}
+function adminSessBar() {
+  const bar = document.getElementById('admin-sessions-bar');
+  if (!bar) return;
+  const vis = adminVisibleSessions();
+  const n = adminSel.size;
+  const allOn = vis.length > 0 && vis.every(s => adminSel.has(String(s.id)));
+  bar.innerHTML = `
+    <input class="ainput asess-search" id="asess-search" type="search" placeholder="Search sessions" value="${escapeHtml(adminQ)}" oninput="adminSessSearch(this.value)">
+    <div class="asess-row">
+      <div class="asess-count">${vis.length === adminSess.length ? adminSess.length + ' session' + (adminSess.length === 1 ? '' : 's') : vis.length + ' of ' + adminSess.length}</div>
+      ${adminSelMode ? `
+        <label class="asess-all"><input type="checkbox" ${allOn ? 'checked' : ''} onchange="adminSelectAll(this.checked)"> Select all</label>
+        <button class="abtn danger small" ${n ? '' : 'disabled'} onclick="adminDeleteSelected()">Delete${n ? ' (' + n + ')' : ''}</button>
+        <button class="abtn secondary small" onclick="adminToggleSelect(false)">Done</button>`
+      : `<button class="abtn secondary small" ${adminSess.length ? '' : 'disabled'} onclick="adminToggleSelect(true)">Select</button>`}
+    </div>`;
+}
+function adminSessList() {
+  const list = document.getElementById('admin-sessions-list');
+  const vis = adminVisibleSessions();
+  if (!vis.length) { list.innerHTML = '<div class="soon"><div class="soon-t">No sessions found</div></div>'; return; }
+  list.innerHTML = '';
+  vis.forEach(s => {
+    const id = String(s.id), on = adminSel.has(id);
+    const div = document.createElement('div');
+    div.className = 'alist-item' + (adminSelMode ? ' selmode' : '') + (on ? ' sel' : '');
+    const who = (!s.assigned_to || s.assigned_to === 'all') ? 'All athletes' : String(s.assigned_to).split(',').join(', ');
+    div.innerHTML = `
+      ${adminSelMode ? `<input type="checkbox" class="asess-chk" ${on ? 'checked' : ''} aria-label="Select session">` : ''}
+      <div class="alist-info">
+        <div class="alist-name">${escapeHtml(s.title || '')}</div>
+        <div class="alist-sub">${escapeHtml(s.date || '')} · ${escapeHtml(s.type || '')} · ${escapeHtml(s.duration || '')} · ${escapeHtml(who)}</div>
+      </div>
+      ${adminSelMode ? '' : `<div class="alist-actions">
+        <button class="abtn secondary small" onclick="editSession('${s.id}')">Edit</button>
+        <button class="abtn danger small" onclick="deleteSession('${s.id}')">Delete</button>
+      </div>`}`;
+    if (adminSelMode) div.onclick = e => {
+      if (adminSel.has(id)) adminSel.delete(id); else adminSel.add(id);
+      adminSessList(); adminSessBar();
+    };
+    list.appendChild(div);
+  });
+}
+function adminSessSearch(v) {
+  adminQ = v;
+  adminSessList();
+  const bar = document.querySelector('#admin-sessions-bar .asess-count');
+  const vis = adminVisibleSessions();
+  if (bar) bar.textContent = vis.length === adminSess.length ? adminSess.length + ' session' + (adminSess.length === 1 ? '' : 's') : vis.length + ' of ' + adminSess.length;
+}
+function adminToggleSelect(on) {
+  adminSelMode = on;
+  if (!on) adminSel.clear();
+  adminSessBar(); adminSessList();
+}
+function adminSelectAll(on) {
+  adminVisibleSessions().forEach(s => on ? adminSel.add(String(s.id)) : adminSel.delete(String(s.id)));
+  adminSessBar(); adminSessList();
+}
+async function adminDeleteSelected() {
+  const ids = [...adminSel];
+  if (!ids.length) return;
+  if (!confirm(`Delete ${ids.length} session${ids.length === 1 ? '' : 's'}? This cannot be undone.`)) return;
+  try {
+    for (let i = 0; i < ids.length; i += 40) {
+      const chunk = ids.slice(i, i + 40).map(x => encodeURIComponent(x)).join(',');
+      const r = await fetch(`${SB_URL}/rest/v1/sessions?id=in.(${chunk})`, { method: 'DELETE', headers: sb.headers });
+      if (!r.ok) throw new Error('delete failed');
+    }
+  } catch { alert('Some sessions could not be deleted. Please try again.'); }
+  adminSel.clear(); adminSelMode = false;
+  await loadAdminSessions();
+  if (typeof loadSessions === 'function') loadSessions();
+}
 async function loadAdminSessions() {
   const list = document.getElementById('admin-sessions-list');
   list.innerHTML = '<div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div>';
   try {
-    const sessions = await sb.get('sessions', '?order=date.desc');
-    if(!sessions.length) { list.innerHTML='<div class="soon"><div class="soon-t">No sessions yet</div><div class="soon-s">Add your first session above</div></div>'; return; }
-    list.innerHTML = '';
-    sessions.forEach(s => {
-      const div = document.createElement('div'); div.className = 'alist-item';
-      div.innerHTML = `
-        <div class="alist-info">
-          <div class="alist-name">${s.title}</div>
-          <div class="alist-sub">${s.date} · ${s.type||''} · ${s.duration||''} · ${(!s.assigned_to || s.assigned_to === 'all') ? 'All athletes' : s.assigned_to.split(',').join(', ')}</div>
-        </div>
-        <div class="alist-actions">
-          <button class="abtn secondary small" onclick="editSession('${s.id}')">Edit</button>
-          <button class="abtn danger small" onclick="deleteSession('${s.id}')">Delete</button>
-        </div>`;
-      list.appendChild(div);
-    });
-  } catch { list.innerHTML='<div class="errbox">Error loading sessions</div>'; }
+    adminSess = await adminFetchAllSessions();
+    const keep = new Set(adminSess.map(s => String(s.id)));
+    adminSel = new Set([...adminSel].filter(x => keep.has(x)));
+    if (!adminSess.length) {
+      adminSelMode = false; adminSessBar();
+      list.innerHTML = '<div class="soon"><div class="soon-t">No sessions yet</div><div class="soon-s">Add your first session above</div></div>';
+      return;
+    }
+    adminSessBar(); adminSessList();
+  } catch { list.innerHTML = '<div class="errbox">Error loading sessions</div>'; }
 }
 async function editSession(id) {
   const sessions = await sb.get('sessions', `?id=eq.${id}`);
