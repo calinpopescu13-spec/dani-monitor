@@ -4196,6 +4196,22 @@ initApp();
 .sch-off{display:flex;align-items:center;justify-content:center;min-height:80px;height:100%;border-radius:6px;font-family:var(--bb);font-weight:700;font-size:19px;letter-spacing:.04em;color:#ffaadc;background:rgba(255,120,200,.10)}
 .sch-tbl td.sch-offcell{background:rgba(255,120,200,.07);vertical-align:middle}
 .sch-tbl td.sch-offcell .sch-off{background:none;min-height:0}
+.sch-md{display:inline-block;margin-top:5px;padding:2px 7px;border-radius:4px;font-family:var(--f);font-size:11.5px;font-weight:700;letter-spacing:.03em;background:var(--rpd);color:var(--rp3);white-space:nowrap}
+.sch-md.md0{background:rgba(255,82,82,.18);color:#ff8f8f}
+.sch-md.mdp{background:rgba(155,110,230,.16);color:#c8acf6}
+.sch-day-hd .sch-md{margin-top:0}
+.sch-mdnote{margin-top:8px;font-size:12px;color:var(--t3);line-height:1.5}
+.sch-dash{display:flex;align-items:center;gap:14px;background:var(--sf);border:1px solid var(--b2);border-radius:var(--r2);padding:14px;margin-bottom:12px;cursor:pointer;transition:border-color .2s}
+.sch-dash:hover{border-color:rgba(63,178,127,.45)}
+.sch-dash-md{flex-shrink:0;min-width:78px;height:64px;padding:0 10px;border-radius:var(--r2);display:flex;align-items:center;justify-content:center;font-family:var(--bb);font-weight:700;font-size:28px;line-height:1;background:var(--rpd);color:var(--rp3)}
+.sch-dash-md.md0{background:rgba(255,82,82,.18);color:#ff8f8f}
+.sch-dash-md.mdp{background:rgba(155,110,230,.16);color:#c8acf6}
+.sch-dash-info{flex:1;min-width:0}
+.sch-dash-lbl{font-size:12px;font-weight:600;color:var(--t2);letter-spacing:.03em}
+.sch-dash-plan{font-size:14.5px;font-weight:600;color:var(--wh);margin-top:4px;line-height:1.35}
+.sch-dash-next{font-size:12.5px;color:var(--t2);margin-top:5px;line-height:1.4}
+.sch-dash-next b{color:#ff8f8f;font-weight:600}
+.sch-dash>svg{width:18px;height:18px;stroke:var(--t3);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 .sch-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:12px;color:var(--t2)}
 .sch-legend span{display:inline-flex;align-items:center;gap:6px}
 .sch-sw{width:10px;height:10px;border-radius:3px;background:var(--kc);display:inline-block}
@@ -4239,6 +4255,30 @@ initApp();
 .sch-photo{background:none;border:none;font-family:var(--f);cursor:pointer}
 .sch-alist{flex-wrap:wrap}
 .sch-alist .alist-info{min-width:170px}
+
+/* ══ Today's interventions (dashboard) ══ */
+.iv-item{display:flex;align-items:center;gap:12px;background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:12px 12px 12px 14px;margin-bottom:8px;transition:opacity .2s}
+.iv-item.done{opacity:.55}
+.iv-item.done .iv-text{text-decoration:line-through}
+.iv-ico{width:42px;height:42px;border-radius:10px;background:var(--sf2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.iv-body{flex:1;min-width:0}
+.iv-body.link{cursor:pointer}
+.iv-cat{font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--rp3)}
+.iv-text{font-size:15px;font-weight:500;color:var(--wh);line-height:1.4;margin-top:2px;white-space:pre-wrap;word-break:break-word}
+.iv-sub{font-size:12.5px;color:var(--t2);margin-top:3px;line-height:1.4;white-space:pre-wrap;word-break:break-word}
+.iv-open{font-size:12.5px;font-weight:600;color:var(--rp3);margin-top:4px}
+.iv-check{width:42px;height:42px;border-radius:50%;border:1.5px solid var(--b2);background:transparent;color:var(--t3);font-size:17px;font-weight:700;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.iv-check.on{background:var(--accent);border-color:var(--accent);color:#062010}
+.iv-empty{padding:18px 16px;border:1px dashed var(--b2);border-radius:var(--r2);text-align:center;font-size:13.5px;color:var(--t2);line-height:1.5}
+.iv-adm-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.iv-tag{font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;background:var(--rpd);color:var(--rp3)}
+.iv-tag.done{background:rgba(76,217,123,.16);color:var(--gn)}
+/* ══ Profile photo (admin) ══ */
+.ph-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.ph-prev{width:72px;height:72px;border-radius:50%;background:var(--sf2);border:2px solid var(--b2);overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:var(--bb);font-size:28px;color:var(--t2);flex-shrink:0}
+.ph-prev img{width:100%;height:100%;object-fit:cover}
+.ph-btns{display:flex;gap:8px;flex-wrap:wrap}
+.ph-hint{font-size:12px;color:var(--t3);margin-top:6px;line-height:1.5}
 </style>
 <script>
 // ══════════════════════════════════════════════
@@ -4320,6 +4360,30 @@ function schTodayIdx(s) {
   return d >= 0 && d < 7 ? d : -1;
 }
 
+// ── match-day (MD) labels ──
+// MD = match day · MD-n = n days before the next match · MD+n = n days after the last match.
+// Between two matches a day counts down to the closer one; on a tie it shows MD+ (recovery side).
+// Dated weeks also look at neighbouring weeks, so the Monday after a Saturday match is MD+2.
+function schMdOne(has, i) {
+  if (has(i)) return 'MD';
+  let prev = 0, next = 0;
+  for (let k = 1; k <= 7; k++) { if (!prev && has(i - k)) prev = k; if (!next && has(i + k)) next = k; }
+  if (next && (!prev || next < prev)) return 'MD-' + next;
+  if (prev) return 'MD+' + prev;
+  return '';
+}
+function schMdLabels(s, list) {
+  const days = schDays(s);
+  const isMatch = d => d.items.some(it => it.kind === 'match');
+  if (!s.week_start) { const m = days.map(isMatch); return days.map((_, i) => schMdOne(k => k >= 0 && k <= 6 && m[k], i)); }
+  const set = new Set();
+  (list || []).filter(x => x.week_start && String(x.id) !== String(s.id)).concat([s]).forEach(w =>
+    schDays(w).forEach((d, i) => { if (isMatch(d)) set.add(schAddDays(w.week_start, i)); }));
+  return days.map((_, i) => schMdOne(k => set.has(schAddDays(s.week_start, k)), i));
+}
+const schMdHTML = l => l ? `<span class="sch-md ${l === 'MD' ? 'md0' : l.startsWith('MD+') ? 'mdp' : 'mdm'}">${l}</span>` : '';
+const SCH_MD_NOTE = '<div class="sch-mdnote">MD = match day · MD-3 = 3 days before the next match · MD+1 = 1 day after the last match. Worked out from the match entries.</div>';
+
 // ══ ATHLETE VIEW ══
 const SCH = { list: [], idx: 0, view: null, loadedFor: null };
 const SCH_COLS = 'id,title,week_label,week_start,notes,assigned_to,days,has_photo,created_at'; // the photo itself loads on demand
@@ -4327,11 +4391,11 @@ function schItemHTML(it, inTable) {
   const k = SCHED_KINDS[it.kind] || SCHED_KINDS.other;
   return `<div class="sch-it ${k.cls}">${escapeHtml(it.text)}${inTable && it.end ? `<span class="sch-end">until ${escapeHtml(it.end)}</span>` : ''}</div>`;
 }
-function schTableHTML(s, days, ti) {
+function schTableHTML(s, days, ti, md) {
   const times = [...new Set(days.flatMap(d => d.items.map(it => it.start)))].sort((a, b) => schMin(a) - schMin(b));
   const rows = Math.max(times.length, 1);
   const tdc = i => i === ti ? ' class="today"' : '';
-  const head = days.map((d, i) => `<th${tdc(i)} scope="col"><div class="sch-dh">${SCHED_DAYS[i]}</div>${s.week_start ? `<div class="sch-dd">${schFmt(schAddDays(s.week_start, i))}</div>` : ''}</th>`).join('');
+  const head = days.map((d, i) => `<th${tdc(i)} scope="col"><div class="sch-dh">${SCHED_DAYS[i]}</div>${s.week_start ? `<div class="sch-dd">${schFmt(schAddDays(s.week_start, i))}</div>` : ''}${schMdHTML(md[i])}</th>`).join('');
   let body = '';
   for (let r = 0; r < rows; r++) {
     const t = times[r];
@@ -4346,7 +4410,7 @@ function schTableHTML(s, days, ti) {
     ? `<tfoot><tr><th class="sch-tc" scope="row">Focus</th>${days.map((d, i) => `<td${tdc(i)}>${escapeHtml(d.focus)}</td>`).join('')}</tr></tfoot>` : '';
   return `<div class="sch-wrap" id="sch-wrap"><table class="sch-tbl"><colgroup><col class="sch-colt">${'<col>'.repeat(7)}</colgroup><thead><tr><th class="sch-tc">Time</th>${head}</tr></thead><tbody>${body}</tbody>${foot}</table></div>`;
 }
-function schListHTML(s, days, ti) {
+function schListHTML(s, days, ti, md) {
   return days.map((d, i) => {
     const rows = d.items.length
       ? d.items.map(it => `<div class="sch-row"><div class="sch-row-t">${escapeHtml(it.start)}${it.end ? '–' + escapeHtml(it.end) : ''}</div>${schItemHTML(it, false)}</div>`).join('')
@@ -4354,6 +4418,7 @@ function schListHTML(s, days, ti) {
     return `<div class="sch-day${i === ti ? ' today' : ''}">
       <div class="sch-day-hd">
         <div><div class="sch-day-name">${SCHED_DAYS[i]}</div>${s.week_start ? `<div class="sch-day-date">${schFmt(schAddDays(s.week_start, i), { day: 'numeric', month: 'long' })}</div>` : ''}</div>
+        ${schMdHTML(md[i])}
         ${i === ti ? '<span class="sch-today-tag">Today</span>' : ''}
         ${d.focus ? `<span class="sch-focus">${escapeHtml(d.focus)}</span>` : ''}
       </div>${rows}</div>`;
@@ -4390,7 +4455,7 @@ function renderSchedule() {
     return;
   }
   if (!SCH.view) { try { SCH.view = localStorage.getItem('fps_sched_view'); } catch (e) {} if (SCH.view !== 'days') SCH.view = 'table'; }
-  const s = SCH.list[SCH.idx], days = schDays(s), ti = schTodayIdx(s);
+  const s = SCH.list[SCH.idx], days = schDays(s), ti = schTodayIdx(s), md = schMdLabels(s, SCH.list);
   const empty = !days.some(d => d.items.length || d.off);
   const kinds = [...new Set(days.flatMap(d => d.items.map(it => it.kind)).concat(days.some(d => d.off && !d.items.length) ? ['off'] : []))];
   el.innerHTML = `
@@ -4409,8 +4474,9 @@ function renderSchedule() {
       </div>
       ${s.has_photo ? `<button class="sch-photo" onclick="schOpenPhoto('${escapeHtml(String(s.id))}')">View original photo</button>` : ''}
     </div>
-    ${empty ? '<div class="sx-empty">Nothing scheduled this week.</div>' : (SCH.view === 'table' ? schTableHTML(s, days, ti) : schListHTML(s, days, ti))}
+    ${empty ? '<div class="sx-empty">Nothing scheduled this week.</div>' : (SCH.view === 'table' ? schTableHTML(s, days, ti, md) : schListHTML(s, days, ti, md))}
     ${!empty && kinds.length ? `<div class="sch-legend">${kinds.map(k => `<span><i class="sch-sw ${SCHED_KINDS[k].cls}"></i>${SCHED_KINDS[k].lbl}</span>`).join('')}</div>` : ''}
+    ${!empty && md.some(Boolean) ? SCH_MD_NOTE : ''}
     ${s.notes ? `<div class="sch-notes">${escapeHtml(s.notes)}</div>` : ''}`;
   schScrollToday();
 }
@@ -4552,11 +4618,12 @@ function renderSchEditor() {
   const wrap = document.getElementById('sch-days');
   if (!wrap || !schEdit) return;
   const ws = document.getElementById('sch-week').value;
+  const md = schMdLabels({ id: schEditId, week_start: ws || null, days: schEdit.days }, schAdminList);
   const kindOpts = sel => Object.entries(SCHED_KINDS).map(([k, m]) => `<option value="${k}"${sel === k ? ' selected' : ''}>${m.lbl}</option>`).join('');
   wrap.innerHTML = schEdit.days.map((d, i) => `
     <div class="sch-ed-day">
       <div class="sch-ed-hd">
-        <div><div class="sch-ed-name">${SCHED_DAYS[i]}</div>${ws ? `<div class="sch-ed-date">${schFmt(schAddDays(ws, i))}</div>` : ''}</div>
+        <div><div class="sch-ed-name">${SCHED_DAYS[i]}</div>${ws ? `<div class="sch-ed-date">${schFmt(schAddDays(ws, i))}</div>` : ''}${schMdHTML(md[i])}</div>
         <input class="ainput" placeholder="Focus (e.g. AEROB)" aria-label="${SCHED_DAYS[i]} focus" value="${escapeHtml(d.focus)}" oninput="schSetDay(${i},'focus',this.value)">
         <label class="db-toggle"><input type="checkbox" ${d.off ? 'checked' : ''} onchange="schSetDay(${i},'off',this.checked)"> Day off</label>
       </div>
@@ -4574,7 +4641,7 @@ function renderSchEditor() {
     </div>`).join('');
 }
 function schSetDay(i, f, v) { schEdit.days[i][f] = v; }
-function schSetItem(i, j, f, v) { schEdit.days[i].items[j][f] = v; }
+function schSetItem(i, j, f, v) { schEdit.days[i].items[j][f] = v; if (f === 'kind') renderSchEditor(); }
 function schAddItem(i) { schEdit.days[i].items.push({ start: '', end: '', text: '', kind: 'training' }); renderSchEditor(); }
 function schRemoveItem(i, j) { schEdit.days[i].items.splice(j, 1); renderSchEditor(); }
 async function saveSchedule() {
@@ -4602,7 +4669,7 @@ async function saveSchedule() {
     showMsg('sch-msg', schEditId ? 'Week updated ✓' : 'Week saved ✓');
     schResetForm();
     loadAdminSchedules();
-    if (currentProfile) loadSchedule();
+    if (currentProfile) { await loadSchedule(); document.getElementById('sch-dash')?.remove(); schDashCard(); }
   } catch (e) { showMsg('sch-msg', 'Error: ' + e.message, true); }
 }
 async function loadAdminSchedules() {
@@ -4659,6 +4726,290 @@ async function schDelete(id) {
   if (!confirm('Delete this week\'s schedule? This cannot be undone.')) return;
   try { const r = await sb.delete('weekly_schedules', id); if (!r.ok) throw new Error('Delete failed'); if (String(schEditId) === String(id)) schResetForm(); loadAdminSchedules(); if (currentProfile) loadSchedule(); }
   catch (e) { alert('Error: ' + e.message); }
+}
+
+
+// ══ DASHBOARD CARD: today's MD + plan + next match ══
+let schDashBusy = false;
+async function schDashCard() {
+  const body = document.getElementById('dash-body');
+  if (!body || !currentProfile || schDashBusy || document.getElementById('sch-dash') || !document.getElementById('dash-new')) return;
+  schDashBusy = true;
+  try {
+    if (SCH.loadedFor !== currentProfile.name) await loadSchedule();
+    if (document.getElementById('sch-dash')) return;
+    const today = schLocalISO();
+    const s = SCH.list.find(w => w.week_start && w.week_start <= today && schAddDays(w.week_start, 6) >= today);
+    if (!s) return;                                   // no schedule covers today → no card
+    const ti = schTodayIdx(s), d = schDays(s)[ti], md = schMdLabels(s, SCH.list)[ti];
+    let nm = null;                                    // nearest upcoming match across all posted weeks
+    SCH.list.filter(w => w.week_start).forEach(w => schDays(w).forEach((dd, i) => {
+      const date = schAddDays(w.week_start, i);
+      if (date < today) return;
+      dd.items.filter(it => it.kind === 'match').forEach(it => {
+        if (!nm || date < nm.date || (date === nm.date && schMin(it.start) < schMin(nm.it.start))) nm = { date, it };
+      });
+    }));
+    const plan = (d.off && !d.items.length) ? 'Day off'
+      : (d.items.filter(it => it.kind !== 'meal').map(it => `${escapeHtml(it.start)} ${escapeHtml(it.text)}`).join(' · ') || 'Nothing scheduled');
+    let when = '';
+    if (nm) {
+      const n = Math.round((Date.parse(nm.date + 'T00:00:00Z') - Date.parse(today + 'T00:00:00Z')) / 86400000);
+      when = (n === 0 ? 'today' : n === 1 ? 'tomorrow' : schFmt(nm.date, { weekday: 'short', day: 'numeric', month: 'short' })) + (nm.it.start ? ' · ' + escapeHtml(nm.it.start) : '');
+    }
+    const cls = md === 'MD' ? ' md0' : md.startsWith('MD+') ? ' mdp' : '';
+    const html = `
+      <div class="sch-dash" id="sch-dash" role="button" tabindex="0" onclick="goTab('profile')" onkeydown="if(event.key==='Enter')goTab('profile')" aria-label="Open weekly schedule">
+        <div class="sch-dash-md${cls}">${md || '—'}</div>
+        <div class="sch-dash-info">
+          <div class="sch-dash-lbl">Today · ${schFmt(today, { weekday: 'long', day: 'numeric', month: 'short' })}${d.focus ? ' · ' + escapeHtml(d.focus) : ''}</div>
+          <div class="sch-dash-plan">${plan}</div>
+          ${nm ? `<div class="sch-dash-next">Next match: <b>${escapeHtml(nm.it.text)}</b> · ${when}</div>` : ''}
+        </div>
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+      </div>`;
+    const hero = body.querySelector('.dash-hero');
+    if (hero) hero.insertAdjacentHTML('afterend', html); else body.insertAdjacentHTML('afterbegin', html);
+  } catch (e) { /* the card is optional — never break the dashboard */ }
+  finally { schDashBusy = false; }
+}
+
+
+// ══════════════════════════════════════════════
+// DASHBOARD — greeting + photo, MD card, today's interventions
+// ══════════════════════════════════════════════
+const IV_CATS = {
+  sleep:     { lbl: 'Sleep',     ico: '😴' },
+  nutrition: { lbl: 'Nutrition', ico: '🥗' },
+  hydration: { lbl: 'Hydration', ico: '💧' },
+  recovery:  { lbl: 'Recovery',  ico: '🧊' },
+  mobility:  { lbl: 'Mobility',  ico: '🧘' },
+  mental:    { lbl: 'Mental',    ico: '🧠' },
+  medical:   { lbl: 'Medical',   ico: '🩺' },
+  other:     { lbl: 'Note',      ico: '📝' },
+  training:  { lbl: 'Training',  ico: '🏃' }
+};
+const ivCat = k => IV_CATS[k] || IV_CATS.other;
+const fpsPhoto = p => p.custom_photo || p.player_photo || '';
+
+let fpsDashBusy = false;
+async function fpsBuildDash() {
+  const body = document.getElementById('dash-body');
+  if (!body || !currentProfile || fpsDashBusy) return;
+  fpsDashBusy = true;
+  try {
+    let p = currentProfile;
+    try { const f = await sb.get('athletes', `?id=eq.${currentProfile.id}`); if (Array.isArray(f) && f[0]) p = f[0]; } catch (e) {}
+    const photo = fpsPhoto(p);
+    const ctx = { greeting: getGreeting(), today: new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }) };
+    body.innerHTML = `
+      <div id="dash-new">
+        ${SECTION_CATALOG.hero.render(Object.assign({}, p, { player_photo: photo }), ctx)}
+        <div class="sh"><div class="shb"></div><div class="sht">Today's interventions</div></div>
+        <div id="iv-today"><div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div></div>
+      </div>`;
+    ivLoadToday();
+    schDashCard();
+  } finally { fpsDashBusy = false; }
+}
+let IV_TODAY = [];
+async function ivLoadToday() {
+  const el = document.getElementById('iv-today');
+  if (!el || !currentProfile) return;
+  try {
+    const data = await sb.get('interventions', `?athlete_name=eq.${encodeURIComponent(currentProfile.name)}&date=eq.${schLocalISO()}&order=created_at.asc`);
+    if (!Array.isArray(data)) throw new Error((data && data.message) || 'interventions table not available');
+    IV_TODAY = data;
+    ivRenderToday();
+  } catch (e) { el.innerHTML = `<div class="errbox">Could not load today's interventions: ${escapeHtml(e.message)}</div>`; }
+}
+function ivRenderToday() {
+  const el = document.getElementById('iv-today');
+  if (!el) return;
+  if (!IV_TODAY.length) { el.innerHTML = '<div class="iv-empty">Nothing extra for today — just follow the plan.</div>'; return; }
+  el.innerHTML = IV_TODAY.map(iv => {
+    const c = ivCat(iv.kind === 'training' ? 'training' : iv.category);
+    const isT = iv.kind === 'training' && iv.session_id;
+    const main = iv.kind === 'training' ? (iv.session_title || 'Training session') : (iv.text || '');
+    const sub = iv.kind === 'training' ? (iv.text || '') : '';
+    return `<div class="iv-item${iv.done ? ' done' : ''}">
+      <div class="iv-ico" aria-hidden="true">${c.ico}</div>
+      <div class="iv-body${isT ? ' link' : ''}"${isT ? ` role="button" tabindex="0" onclick="ivOpenSession('${escapeHtml(String(iv.session_id))}')"` : ''}>
+        <div class="iv-cat">${c.lbl}</div>
+        <div class="iv-text">${escapeHtml(main)}</div>
+        ${sub ? `<div class="iv-sub">${escapeHtml(sub)}</div>` : ''}
+        ${isT ? '<div class="iv-open">Open session →</div>' : ''}
+      </div>
+      <button class="iv-check${iv.done ? ' on' : ''}" onclick="ivToggle('${escapeHtml(String(iv.id))}')" aria-label="${iv.done ? 'Mark as not done' : 'Mark as done'}" aria-pressed="${iv.done ? 'true' : 'false'}">✓</button>
+    </div>`;
+  }).join('');
+}
+async function ivToggle(id) {
+  const iv = IV_TODAY.find(x => String(x.id) === String(id)); if (!iv) return;
+  iv.done = !iv.done; ivRenderToday();
+  try { const r = await sb.patch('interventions', id, { done: iv.done }); if (!r.ok) throw new Error(); }
+  catch (e) { iv.done = !iv.done; ivRenderToday(); alert('Could not save — check your connection.'); }
+}
+async function ivOpenSession(sid) {
+  let s = (typeof allSessions !== 'undefined' && Array.isArray(allSessions)) ? allSessions.find(x => String(x.id) === String(sid)) : null;
+  if (!s) { try { const r = await sb.get('sessions', `?id=eq.${encodeURIComponent(sid)}`); s = Array.isArray(r) && r[0]; } catch (e) {} }
+  if (s) openSession(s); else alert('This session is no longer available.');
+}
+
+// ── Admin › Athlete View › Interventions ──
+let ivEditId = null, ivType = 'note', ivSessions = [], ivAdminList = [];
+function ivSetType(t) {
+  ivType = t;
+  document.querySelectorAll('#iv-type-chips .fchip').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+  document.getElementById('iv-cat-row').hidden = t !== 'note';
+  document.getElementById('iv-session-row').hidden = t !== 'training';
+  document.getElementById('iv-text-lbl').textContent = t === 'note' ? 'Note for the athlete' : 'Extra note (optional)';
+  document.getElementById('iv-text').placeholder = t === 'note' ? 'e.g. Aim for 8+ hours of sleep tonight — lights off by 23:00' : 'e.g. Do this after training, 2 rounds';
+}
+async function ivLoadSessions() {
+  try {
+    const d = await sb.get('sessions', '?select=id,title,date,type,duration&order=date.desc&limit=300');
+    ivSessions = Array.isArray(d) ? d : [];
+  } catch (e) { ivSessions = []; }
+  const sel = document.getElementById('iv-session'); if (!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— Choose a session from Training —</option>' +
+    ivSessions.map(x => `<option value="${escapeHtml(String(x.id))}">${escapeHtml([x.date, x.title, x.type, x.duration].filter(Boolean).join(' · '))}</option>`).join('');
+  if (cur) sel.value = cur;
+}
+function ivResetForm() {
+  ivEditId = null;
+  document.getElementById('iv-form-title').textContent = 'Add Intervention';
+  document.getElementById('iv-date').value = schLocalISO();
+  document.getElementById('iv-cat').value = 'sleep';
+  document.getElementById('iv-session').value = '';
+  document.getElementById('iv-text').value = '';
+  document.getElementById('iv-days').value = '1';
+  document.getElementById('iv-days-row').hidden = false;
+  ivSetType('note');
+}
+async function ivSave() {
+  if (!avAthlete) return;
+  const date = document.getElementById('iv-date').value;
+  const text = document.getElementById('iv-text').value.trim();
+  const sid = document.getElementById('iv-session').value;
+  if (!date) { showMsg('iv-msg', 'Pick a date', true); return; }
+  if (ivType === 'note' && !text) { showMsg('iv-msg', 'Write the note for the athlete', true); return; }
+  if (ivType === 'training' && !sid) { showMsg('iv-msg', 'Choose a training session', true); return; }
+  const sess = ivSessions.find(x => String(x.id) === String(sid));
+  const base = {
+    athlete_name: avAthlete, kind: ivType,
+    category: ivType === 'note' ? document.getElementById('iv-cat').value : 'training',
+    text: text || null,
+    session_id: ivType === 'training' ? sid : null,
+    session_title: ivType === 'training' ? (sess ? sess.title : null) : null
+  };
+  try {
+    let r;
+    if (ivEditId) r = await sb.patch('interventions', ivEditId, Object.assign({ date }, base));
+    else {
+      const n = Math.max(1, Math.min(14, parseInt(document.getElementById('iv-days').value, 10) || 1));
+      r = await sb.post('interventions', Array.from({ length: n }, (_, k) => Object.assign({ date: schAddDays(date, k), done: false }, base)));
+    }
+    if (!r.ok) throw new Error('Save failed (' + r.status + ') ' + await r.text().catch(() => ''));
+    showMsg('iv-msg', ivEditId ? 'Updated ✓' : 'Saved ✓');
+    ivResetForm(); ivLoadAdmin();
+  } catch (e) { showMsg('iv-msg', 'Error: ' + e.message, true); }
+}
+async function ivLoadAdmin() {
+  const list = document.getElementById('iv-admin-list');
+  if (!list || !avAthlete) return;
+  list.innerHTML = '<div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div>';
+  try {
+    const d = await sb.get('interventions', `?athlete_name=eq.${encodeURIComponent(avAthlete)}&order=date.desc,created_at.desc&limit=100`);
+    if (!Array.isArray(d)) throw new Error((d && d.message) || 'table not available');
+    ivAdminList = d;
+    if (!d.length) { list.innerHTML = '<div class="soon"><div class="soon-t">No interventions yet</div><div class="soon-s">Add the first one above</div></div>'; return; }
+    const today = schLocalISO();
+    list.innerHTML = d.map(iv => {
+      const c = ivCat(iv.kind === 'training' ? 'training' : iv.category);
+      const main = iv.kind === 'training' ? (iv.session_title || 'Training session') : (iv.text || '');
+      return `<div class="av-list-item${ivEditId === iv.id ? ' editing' : ''}">
+        <div class="av-list-head">
+          <div class="iv-adm-head"><span class="av-list-date">${escapeHtml(iv.date)}</span>${iv.date === today ? '<span class="iv-tag">Today</span>' : ''}${iv.done ? '<span class="iv-tag done">Done ✓</span>' : ''}</div>
+          <div class="av-row-actions">
+            <button class="abtn secondary small" onclick="ivEdit('${escapeHtml(String(iv.id))}')">Edit</button>
+            <button class="abtn danger small" onclick="ivDelete('${escapeHtml(String(iv.id))}')" title="Delete">✕</button>
+          </div>
+        </div>
+        <div class="iv-cat">${c.ico} ${c.lbl}</div>
+        <div class="iv-text" style="font-size:14px">${escapeHtml(main)}</div>
+        ${iv.kind === 'training' && iv.text ? `<div class="iv-sub">${escapeHtml(iv.text)}</div>` : ''}
+      </div>`;
+    }).join('');
+  } catch (e) { list.innerHTML = `<div class="errbox">Could not load interventions: ${escapeHtml(e.message)}<br>First time? Run the setup SQL in Supabase.</div>`; }
+}
+function ivEdit(id) {
+  const iv = ivAdminList.find(x => String(x.id) === String(id)); if (!iv) return;
+  ivEditId = iv.id;
+  document.getElementById('iv-form-title').textContent = 'Edit Intervention';
+  ivSetType(iv.kind === 'training' ? 'training' : 'note');
+  document.getElementById('iv-date').value = iv.date || schLocalISO();
+  if (iv.kind !== 'training') document.getElementById('iv-cat').value = IV_CATS[iv.category] ? iv.category : 'other';
+  document.getElementById('iv-session').value = iv.session_id || '';
+  document.getElementById('iv-text').value = iv.text || '';
+  document.getElementById('iv-days-row').hidden = true;
+  document.getElementById('av-sec-interventions').scrollIntoView({ behavior: 'smooth' });
+  ivLoadAdmin();
+}
+async function ivDelete(id) {
+  if (!confirm('Delete this intervention?')) return;
+  try { const r = await sb.delete('interventions', id); if (!r.ok) throw new Error(); if (String(ivEditId) === String(id)) ivResetForm(); ivLoadAdmin(); }
+  catch (e) { alert('Could not delete — try again.'); }
+}
+
+// ── Admin › Athletes › profile photo (stored in athletes.custom_photo, never overwritten by the API sync) ──
+let phAthleteId = null;
+function phRender(src, initials) {
+  const box = document.getElementById('ph-prev'); if (!box) return;
+  box.innerHTML = src ? `<img src="${src}" alt="">` : escapeHtml(initials || '?');
+  document.getElementById('ph-remove').hidden = !src;
+}
+async function phLoad(id) {
+  phAthleteId = id;
+  document.getElementById('ph-wrap').hidden = !id;
+  document.getElementById('ph-new-hint').hidden = !!id;
+  document.getElementById('ph-msg').textContent = '';
+  if (!id) return;
+  try {
+    const r = await sb.get('athletes', `?id=eq.${encodeURIComponent(id)}&select=name,initials,custom_photo,player_photo`);
+    const a = Array.isArray(r) && r[0];
+    if (a) phRender(a.custom_photo || a.player_photo, a.initials || (a.name || '?')[0]);
+    document.getElementById('ph-remove').hidden = !(a && a.custom_photo);
+  } catch (e) {}
+}
+async function phUpload(input) {
+  const file = input.files && input.files[0]; input.value = '';
+  if (!file || !phAthleteId) return;
+  const msg = document.getElementById('ph-msg');
+  msg.textContent = 'Uploading…';
+  try {
+    const orig = await schReadFile(file);
+    const img = new Image();
+    await new Promise((res, rej) => { img.onload = res; img.onerror = () => rej(new Error('this image format can\'t be opened — try a JPG or PNG')); img.src = orig; });
+    const side = Math.min(img.naturalWidth, img.naturalHeight), out = 480;   // square crop from the centre
+    const c = document.createElement('canvas'); c.width = c.height = out;
+    c.getContext('2d').drawImage(img, (img.naturalWidth - side) / 2, (img.naturalHeight - side) / 2, side, side, 0, 0, out, out);
+    const data = c.toDataURL('image/jpeg', 0.82);
+    const r = await sb.patch('athletes', phAthleteId, { custom_photo: data });
+    if (!r.ok) throw new Error('save failed (' + r.status + ') — has the setup SQL been run?');
+    phRender(data); document.getElementById('ph-remove').hidden = false;
+    msg.textContent = 'Photo saved ✓';
+    if (currentProfile && String(currentProfile.id) === String(phAthleteId)) currentProfile.custom_photo = data;
+  } catch (e) { msg.textContent = 'Error: ' + e.message; }
+}
+async function phRemove() {
+  if (!phAthleteId || !confirm('Remove the uploaded photo? The API-Football photo (if any) will be used again.')) return;
+  try {
+    const r = await sb.patch('athletes', phAthleteId, { custom_photo: null }); if (!r.ok) throw new Error();
+    document.getElementById('ph-msg').textContent = 'Photo removed';
+    phLoad(phAthleteId);
+  } catch (e) { alert('Could not remove the photo — try again.'); }
 }
 
 // ══ WIRE INTO THE APP ══
@@ -4724,6 +5075,88 @@ async function schDelete(id) {
     if (currentProfile && SCH.loadedFor !== currentProfile.name) loadSchedule(); // also covers an app that booted before this block ran
     else setTimeout(schScrollToday, 30);
   };
+  // ── new dashboard: greeting + photo, MD card, today's interventions ──
+  buildDash = fpsBuildDash;
+  const dashBody = document.getElementById('dash-body');
+  // if the old dashboard got drawn (app booted before this block ran), redraw it the new way
+  if (dashBody && window.MutationObserver) new MutationObserver(() => {
+    if (!currentProfile) return;
+    if (!document.getElementById('dash-new')) { if (!dashBody.querySelector('.sk-card')) fpsBuildDash(); }
+    else if (!document.getElementById('sch-dash')) schDashCard();
+  }).observe(dashBody, { childList: true });
+  if (currentProfile) fpsBuildDash();
+
+  // profile picker shows the uploaded photo first
+  const _renderProfileMenu = renderProfileMenu;
+  renderProfileMenu = function () {
+    if (Array.isArray(_allAthletes)) _allAthletes = _allAthletes.map(a => a.custom_photo ? Object.assign({}, a, { player_photo: a.custom_photo }) : a);
+    return _renderProfileMenu.apply(this, arguments);
+  };
+
+  // ── Admin › Athlete View: Interventions replaces the old dashboard-layout builder ──
+  const avTabs = document.querySelector('#s-admin .av-subtabs');
+  if (avTabs) {
+    avTabs.querySelectorAll('.stab').forEach(b => { if (/dashboard/i.test(b.getAttribute('onclick') || '')) b.style.display = 'none'; b.classList.remove('on'); });
+    avTabs.insertAdjacentHTML('afterbegin', `<button class="stab on" onclick="goAVSection('interventions',this)">Interventions</button>`);
+    const oldSec = document.getElementById('av-sec-dashboard'); if (oldSec) oldSec.classList.remove('on');
+    avTabs.insertAdjacentHTML('afterend', `
+      <div class="av-section on" id="av-sec-interventions">
+        <div class="aform">
+          <div class="aform-title"><span id="iv-form-title">Add Intervention</span><button class="abtn secondary small" onclick="ivResetForm()">Cancel</button></div>
+          <div class="arow"><label class="albl">Type</label>
+            <div class="filter-row" id="iv-type-chips" style="margin-bottom:0">
+              <button type="button" class="fchip on" data-t="note" onclick="ivSetType('note')">📝 Note</button>
+              <button type="button" class="fchip" data-t="training" onclick="ivSetType('training')">🏃 Training session</button>
+            </div>
+          </div>
+          <div class="agrid2">
+            <div class="arow"><label class="albl" for="iv-date">Date</label><input class="ainput" type="date" id="iv-date"></div>
+            <div class="arow" id="iv-cat-row"><label class="albl" for="iv-cat">Category</label>
+              <select class="aselect" id="iv-cat">${Object.entries(IV_CATS).filter(([k]) => k !== 'training').map(([k, c]) => `<option value="${k}">${c.ico} ${c.lbl}</option>`).join('')}</select>
+            </div>
+            <div class="arow" id="iv-days-row"><label class="albl" for="iv-days">Repeat for</label>
+              <select class="aselect" id="iv-days"><option value="1">Just this day</option><option value="2">2 days</option><option value="3">3 days</option><option value="5">5 days</option><option value="7">7 days</option><option value="14">14 days</option></select>
+            </div>
+          </div>
+          <div class="arow" id="iv-session-row" hidden><label class="albl" for="iv-session">Training session</label><select class="aselect" id="iv-session"></select></div>
+          <div class="arow"><label class="albl" for="iv-text" id="iv-text-lbl">Note for the athlete</label><textarea class="atextarea" id="iv-text" rows="3"></textarea></div>
+          <button class="abtn" style="width:100%" onclick="ivSave()">Save Intervention</button>
+          <div class="amsg" id="iv-msg"></div>
+        </div>
+        <div class="sh"><div class="shb"></div><div class="sht">This athlete's interventions</div></div>
+        <div id="iv-admin-list"></div>
+      </div>`);
+    ivResetForm();
+  }
+  const _onAdminAthleteChange = onAdminAthleteChange;
+  onAdminAthleteChange = async function () {
+    const r = _onAdminAthleteChange.apply(this, arguments);
+    if (avAthlete) { ivResetForm(); ivLoadSessions(); ivLoadAdmin(); }
+    return r;
+  };
+  const _goAVSection = goAVSection;
+  goAVSection = function (id) { _goAVSection.apply(this, arguments); if (id === 'interventions') ivLoadSessions(); };
+
+  // ── Admin › Athletes: profile photo upload in the athlete form ──
+  const afBtn = document.querySelector('#athlete-form > button.abtn');
+  if (afBtn) afBtn.insertAdjacentHTML('beforebegin', `
+    <div class="arow" style="margin-top:14px"><label class="albl">Profile photo <span class="jfhint">— shown on the athlete's dashboard</span></label>
+      <div id="ph-wrap" hidden>
+        <div class="ph-row">
+          <div class="ph-prev" id="ph-prev"></div>
+          <div class="ph-btns">
+            <label class="abtn secondary small" style="display:inline-flex;align-items:center;cursor:pointer">Upload photo<input type="file" accept="image/*" hidden onchange="phUpload(this)"></label>
+            <button type="button" class="abtn danger small" id="ph-remove" onclick="phRemove()" hidden>Remove</button>
+          </div>
+        </div>
+        <div class="ph-hint" id="ph-msg"></div>
+      </div>
+      <div class="ph-hint" id="ph-new-hint">Save the athlete first, then tap Edit to add a photo.</div>
+    </div>`);
+  const _editAthlete = editAthlete;
+  editAthlete = async function (id) { const r = await _editAthlete.apply(this, arguments); phLoad(id); return r; };
+  const _cancelAthleteEdit = cancelAthleteEdit;
+  cancelAthleteEdit = function () { _cancelAthleteEdit.apply(this, arguments); phLoad(null); };
   const _goAdminTab = goAdminTab;
   goAdminTab = function (id) {
     _goAdminTab.apply(this, arguments);
@@ -4731,7 +5164,7 @@ async function schDelete(id) {
   };
 })();
 </script>
-<!-- ═══ END WEEKLY SCHEDULE ═══ -->
+<!-- ═══ END WEEKLY SCHEDULE / DASHBOARD / INTERVENTIONS ═══ -->
 
 </body>
 </html>
