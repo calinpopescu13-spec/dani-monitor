@@ -4273,6 +4273,9 @@ initApp();
 .iv-adm-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .iv-tag{font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;background:var(--rpd);color:var(--rp3)}
 .iv-tag.done{background:rgba(76,217,123,.16);color:var(--gn)}
+/* ══ No more API-Football sync in admin ══ */
+#sync-all-btn,#admin-athletes-list button[title*="API-Football"]{display:none!important}
+.dash-greet-team{font-family:var(--f);font-size:13px;font-weight:600;color:var(--rp3);margin-top:6px;letter-spacing:.02em}
 /* ══ Profile photo (admin) ══ */
 .ph-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .ph-prev{width:72px;height:72px;border-radius:50%;background:var(--sf2);border:2px solid var(--b2);overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:var(--bb);font-size:28px;color:var(--t2);flex-shrink:0}
@@ -4808,6 +4811,9 @@ async function fpsBuildDash() {
         <div class="sh"><div class="shb"></div><div class="sht">Today's interventions</div></div>
         <div id="iv-today"><div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div></div>
       </div>`;
+    const who = [p.position, p.team].filter(Boolean).map(escapeHtml).join(' · ');
+    const dateEl = body.querySelector('.dash-greet-date');
+    if (who && dateEl) dateEl.insertAdjacentHTML('afterend', `<div class="dash-greet-team">${who}</div>`);
     ivLoadToday();
     schDashCard();
   } finally { fpsDashBusy = false; }
@@ -5086,10 +5092,26 @@ async function phRemove() {
   }).observe(dashBody, { childList: true });
   if (currentProfile) fpsBuildDash();
 
+  // ── no API-Football sync any more: hide the Player ID field, clean the athlete list ──
+  const apiRow = document.getElementById('af-api-id') && document.getElementById('af-api-id').closest('.arow');
+  if (apiRow) apiRow.hidden = true;   // kept in the page (hidden) so saving an athlete never wipes an old value
+  document.querySelectorAll('#athlete-form div').forEach(el => { if (el.children.length === 0 && el.textContent.trim() === 'Live Data & Personal') el.textContent = 'Personal'; });
+  const teamLbl = document.querySelector('label[for="af-team"]') || (document.getElementById('af-team') && document.getElementById('af-team').closest('.arow').querySelector('.albl'));
+  if (teamLbl) teamLbl.textContent = 'Team / club';
+  const _loadAdminAthletes = loadAdminAthletes;
+  loadAdminAthletes = async function () {
+    const r = await _loadAdminAthletes.apply(this, arguments);
+    document.querySelectorAll('#admin-athletes-list .alist-sub').forEach(el => {
+      el.textContent = el.textContent.split(' · ').filter(x => !/^(Synced |Never synced)/.test(x.trim())).join(' · ');
+    });
+    return r;
+  };
+  if (document.getElementById('s-admin').classList.contains('on')) loadAdminAthletes();
+
   // profile picker shows the uploaded photo first
   const _renderProfileMenu = renderProfileMenu;
   renderProfileMenu = function () {
-    if (Array.isArray(_allAthletes)) _allAthletes = _allAthletes.map(a => a.custom_photo ? Object.assign({}, a, { player_photo: a.custom_photo }) : a);
+    if (Array.isArray(_allAthletes)) _allAthletes = _allAthletes.map(a => Object.assign({}, a, { player_photo: a.custom_photo || a.player_photo, team_name: a.team || '' }));  // team = the one typed in admin
     return _renderProfileMenu.apply(this, arguments);
   };
 
