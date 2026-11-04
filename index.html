@@ -4144,5 +4144,594 @@ initApp();
 })();
 </script>
 <!-- ═══ SFÂRȘIT DICTARE VOCALĂ ═══ -->
+<!-- ═══════════════════════════════════════════════════════════
+     PROFILE › WEEKLY SCHEDULE
+     Paste this whole block right before </body> (after the voice-dictation block).
+     Needs the Supabase table from weekly_schedules.sql and the Edge Function parse-schedule.
+     ═══════════════════════════════════════════════════════════ -->
+<style>
+@media(min-width:600px){#pg-profile{max-width:1180px}}
+/* kind colours (--kc = accent of each activity type) */
+.k-train{--kc:#f5b333;--kb:rgba(245,179,51,.13);--kt:#f8cd70}
+.k-match{--kc:#ff5252;--kb:rgba(255,82,82,.16);--kt:#ff8f8f}
+.k-str{--kc:#6f8fe0;--kb:rgba(111,143,224,.15);--kt:#aec2f3}
+.k-speed{--kc:#ff8a3c;--kb:rgba(255,138,60,.14);--kt:#ffb37f}
+.k-tech{--kc:#40bed2;--kb:rgba(64,190,210,.13);--kt:#8bdcea}
+.k-rec{--kc:#9b6ee6;--kb:rgba(155,110,230,.16);--kt:#c8acf6}
+.k-meal{--kc:#4cd97b;--kb:transparent;--kt:#4cd97b}
+.k-off{--kc:#ff78c8;--kb:rgba(255,120,200,.12);--kt:#ffaadc}
+.k-other{--kc:#9aa19b;--kb:var(--sf2);--kt:var(--tx)}
+/* header + controls */
+.sch-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.sch-nav{width:44px;height:44px;border-radius:var(--r2);border:1px solid var(--b2);background:var(--sf);color:var(--tx);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.sch-nav:disabled{opacity:.3;cursor:default}
+.sch-nav svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sch-title{flex:1;min-width:0;text-align:center}
+.sch-t1{font-family:var(--bb);font-weight:700;font-size:23px;color:var(--wh);line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sch-t2{font-size:13px;color:var(--t2);margin-top:4px}
+.sch-label{display:inline-block;margin-left:8px;padding:1px 7px;border-radius:4px;background:var(--rpd);color:var(--rp3);font-size:12px;font-weight:700}
+.sch-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.sch-seg{display:inline-flex;background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:3px}
+.sch-seg button{border:none;background:transparent;color:var(--t2);font-family:var(--f);font-weight:600;font-size:13px;padding:8px 14px;border-radius:7px;cursor:pointer;min-height:36px}
+.sch-seg button.on{background:var(--sf3);color:var(--wh)}
+.sch-photo{font-size:13px;font-weight:600;color:var(--rp3);text-decoration:none;padding:8px 2px}
+/* table */
+.sch-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--b);border-radius:var(--r2);background:var(--sf)}
+.sch-tbl{border-collapse:separate;border-spacing:0;width:100%;min-width:840px;table-layout:fixed}
+.sch-tbl col.sch-colt{width:60px}
+.sch-tbl th,.sch-tbl td{border-bottom:1px solid var(--b);border-right:1px solid var(--b);padding:6px;vertical-align:top;text-align:left}
+.sch-tbl tr>*:last-child{border-right:none}
+.sch-tbl thead th{background:var(--sf2);padding:9px 8px}
+.sch-tbl .sch-tc{position:sticky;left:0;z-index:2;background:var(--sf2);font-family:var(--f);font-weight:600;font-size:12.5px;color:var(--t2);font-variant-numeric:tabular-nums;padding:9px 6px}
+.sch-dh{font-family:var(--bb);font-weight:700;font-size:16px;color:var(--wh);line-height:1.1}
+.sch-dd{font-size:12px;color:var(--t3);margin-top:2px}
+.sch-tbl td.today{background:rgba(63,178,127,.06)}
+.sch-tbl thead th.today{background:rgba(63,178,127,.16);box-shadow:inset 0 -2px 0 var(--accent)}
+.sch-tbl tfoot td,.sch-tbl tfoot th{background:var(--sf2);border-bottom:none}
+.sch-tbl tfoot td{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--rp3);word-break:break-word}
+.sch-it{border-left:3px solid var(--kc);background:var(--kb);color:var(--kt);border-radius:6px;padding:6px 7px;font-size:12.5px;font-weight:600;line-height:1.3;margin-bottom:4px;word-break:break-word}
+.sch-it:last-child{margin-bottom:0}
+.sch-it.k-meal{border-left-color:transparent;padding-left:4px;font-weight:500}
+.sch-end{display:block;font-size:11px;font-weight:500;opacity:.75;margin-top:2px}
+.sch-off{display:flex;align-items:center;justify-content:center;min-height:80px;height:100%;border-radius:6px;font-family:var(--bb);font-weight:700;font-size:19px;letter-spacing:.04em;color:#ffaadc;background:rgba(255,120,200,.10)}
+.sch-tbl td.sch-offcell{background:rgba(255,120,200,.07);vertical-align:middle}
+.sch-tbl td.sch-offcell .sch-off{background:none;min-height:0}
+.sch-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:12px;color:var(--t2)}
+.sch-legend span{display:inline-flex;align-items:center;gap:6px}
+.sch-sw{width:10px;height:10px;border-radius:3px;background:var(--kc);display:inline-block}
+.sch-notes{margin-top:12px;padding:12px 14px;background:var(--sf);border:1px solid var(--b);border-left:3px solid var(--accent);border-radius:var(--r2);font-size:14px;line-height:1.55;color:var(--tx);white-space:pre-wrap}
+/* by-day view */
+.sch-day{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);margin-bottom:10px;overflow:hidden}
+.sch-day.today{border-color:rgba(63,178,127,.55)}
+.sch-day-hd{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--b);background:var(--sf2)}
+.sch-day-name{font-family:var(--bb);font-weight:700;font-size:19px;color:var(--wh);line-height:1.1}
+.sch-day-date{font-size:12.5px;color:var(--t2)}
+.sch-today-tag{font-size:11px;font-weight:700;color:#08140e;background:var(--accent);padding:2px 7px;border-radius:4px}
+.sch-focus{margin-left:auto;font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--rp3);background:var(--rpd);padding:4px 8px;border-radius:5px}
+.sch-row{display:flex;gap:12px;padding:9px 14px;border-bottom:1px solid var(--b);align-items:flex-start}
+.sch-row:last-child{border-bottom:none}
+.sch-row-t{width:88px;flex-shrink:0;font-size:13px;font-weight:600;color:var(--t2);padding-top:6px;font-variant-numeric:tabular-nums}
+.sch-row .sch-it{flex:1;margin:0;font-size:14px}
+.sch-empty-day{padding:13px 14px;font-size:13px;color:var(--t3)}
+.sch-day .sch-off{min-height:54px;margin:10px 14px;height:auto}
+/* admin editor */
+.sch-ed-day{border:1px solid var(--b);border-radius:var(--r2);margin-bottom:10px;overflow:hidden}
+.sch-ed-hd{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--sf2);border-bottom:1px solid var(--b);flex-wrap:wrap}
+.sch-ed-name{font-family:var(--bb);font-weight:700;font-size:17px;color:var(--wh);line-height:1.1}
+.sch-ed-date{font-size:12px;color:var(--t3)}
+.sch-ed-hd .ainput{flex:1;min-width:130px;min-height:40px;padding:8px 10px}
+.sch-ed-body{padding:10px 12px}
+.sch-ed-it{display:grid;grid-template-columns:1fr 1fr 1.4fr auto;gap:8px;padding:10px;background:var(--sf);border:1px solid var(--b);border-radius:var(--r1);margin-bottom:8px;align-items:center}
+.sch-ed-it .sch-ed-txt{grid-column:1/-1}
+.sch-ed-it .ainput,.sch-ed-it .aselect{min-height:40px;padding:8px 10px}
+.sch-ed-it .aselect{padding-right:30px;background-position:right 9px center}
+.sch-ed-it .ex-remove{position:static}
+.sch-up{display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 16px;margin-bottom:14px;border:1px dashed rgba(63,178,127,.45);border-radius:var(--r2);background:var(--rpd);text-align:center}
+.sch-up-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;min-height:48px;background:var(--accent);color:#062010;border-radius:var(--r2);font-family:var(--bb);font-weight:700;font-size:18px;cursor:pointer}
+.sch-up-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sch-up.busy .sch-up-btn{opacity:.5;pointer-events:none}
+.sch-up-hint{font-size:12.5px;color:var(--t2);line-height:1.5}
+.sch-up-status{font-size:13px;font-weight:600;color:var(--t2);min-height:18px;line-height:1.45}
+.sch-up-status.ok{color:var(--gn)}.sch-up-status.err{color:var(--rd)}
+.sch-up-thumb{max-width:100%;max-height:180px;border-radius:var(--r1);border:1px solid var(--b2);cursor:zoom-in}
+.sch-viewer{position:fixed;inset:0;z-index:300;background:rgba(5,6,6,.94);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto;cursor:zoom-out}
+.sch-viewer img{max-width:100%;max-height:100%;border-radius:6px}
+.sch-photo{background:none;border:none;font-family:var(--f);cursor:pointer}
+.sch-alist{flex-wrap:wrap}
+.sch-alist .alist-info{min-width:170px}
+</style>
+<script>
+// ══════════════════════════════════════════════
+// PROFILE › WEEKLY SCHEDULE
+// Data: Supabase table weekly_schedules
+//   { title, week_label, week_start (Monday, or null = template), photo_data, has_photo, notes,
+//     assigned_to ('all' | 'Name1,Name2'), days: [{dow 0=Mon..6=Sun, focus, off, items:[{start,end,text,kind}]}] }
+// ══════════════════════════════════════════════
+const SCHED_KINDS = {
+  training:  { lbl: 'Training',       cls: 'k-train' },
+  match:     { lbl: 'Match',          cls: 'k-match' },
+  strength:  { lbl: 'Strength / Gym', cls: 'k-str' },
+  speed:     { lbl: 'Speed / Power',  cls: 'k-speed' },
+  technical: { lbl: 'Technical',      cls: 'k-tech' },
+  recovery:  { lbl: 'Recovery',       cls: 'k-rec' },
+  meal:      { lbl: 'Meal',           cls: 'k-meal' },
+  off:       { lbl: 'Day off',        cls: 'k-off' },
+  other:     { lbl: 'Other',          cls: 'k-other' }
+};
+const SCHED_DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+// ── date / time helpers (local calendar dates, no UTC drift) ──
+const schPad = n => String(n).padStart(2, '0');
+const schLocalISO = (d = new Date()) => d.getFullYear() + '-' + schPad(d.getMonth() + 1) + '-' + schPad(d.getDate());
+function schAddDays(iso, n) { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+function schMonday(iso) { const d = new Date(iso + 'T00:00:00Z'); return schAddDays(iso, -((d.getUTCDay() + 6) % 7)); }
+function schFmt(iso, opts) { return new Date(iso + 'T00:00:00Z').toLocaleDateString('en-GB', Object.assign({ timeZone: 'UTC' }, opts || { day: 'numeric', month: 'short' })); }
+function schRange(s) { return s.week_start ? `${schFmt(s.week_start)} – ${schFmt(schAddDays(s.week_start, 6), { day: 'numeric', month: 'short', year: 'numeric' })}` : 'Template week'; }
+// "11;00", "10.30", "9", "9h" → "11:00", "10:30", "09:00", "09:00"
+function schTime(t) {
+  t = String(t || '').trim().replace(/[.;,hH]/g, ':').replace(/:$/, '');
+  const m = t.match(/^(\d{1,2})(?::(\d{1,2}))?$/);
+  return m ? schPad(+m[1]) + ':' + schPad(+(m[2] || 0)) : t;
+}
+const schMin = t => { const m = /^(\d{2}):(\d{2})$/.exec(t || ''); return m ? +m[1] * 60 + +m[2] : 9999; };
+// best-guess activity type from the (Romanian) text
+function schGuessKind(t) {
+  t = String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  if (/\b(liber|odihna|day off)\b/.test(t)) return 'off';
+  if (/\b(dejun|pranz|cina|masa|gustare|breakfast|lunch|dinner)\b/.test(t)) return 'meal';
+  if (/refacere|recuperare|regenerare|stretching|alergare usoara|masaj|sauna|recovery/.test(t)) return 'recovery';
+  if (/antrenament|training/.test(t)) return 'training';
+  if (/\s[-–]\s|\bvs\.?\b|\bmeci\b|\bjoc\b/.test(t)) return 'match';
+  if (/forta|sala|gym|putere|strength/.test(t)) return 'strength';
+  if (/viteza|sprint|alactic|pliometrie|speed/.test(t)) return 'speed';
+  if (/tehnic|finalizare|technical/.test(t)) return 'technical';
+  return 'other';
+}
+// always returns 7 normalised days, items sorted by start time
+function schDays(s) {
+  const out = SCHED_DAYS.map((_, i) => ({ dow: i, focus: '', off: false, items: [] }));
+  (Array.isArray(s && s.days) ? s.days : []).forEach((d, j) => {
+    if (!d) return;
+    const i = (d.dow === undefined || d.dow === null || d.dow === '') ? j : +d.dow;
+    if (!(i >= 0 && i <= 6)) return;
+    out[i] = {
+      dow: i,
+      focus: String(d.focus || '').trim(),
+      off: !!d.off,
+      items: (Array.isArray(d.items) ? d.items : [])
+        .filter(it => it && String(it.text || '').trim())
+        .map(it => ({
+          start: schTime(it.start), end: it.end ? schTime(it.end) : '',
+          text: String(it.text).trim(),
+          kind: SCHED_KINDS[it.kind] ? it.kind : schGuessKind(it.text)
+        }))
+        .sort((a, b) => schMin(a.start) - schMin(b.start))
+    };
+  });
+  return out;
+}
+function schForAthlete(s, name) {
+  const a = s.assigned_to || 'all';
+  return a === 'all' || String(a).split(',').map(x => x.trim()).includes(name);
+}
+function schTodayIdx(s) {
+  if (!s.week_start) return -1;
+  const d = Math.round((Date.parse(schLocalISO() + 'T00:00:00Z') - Date.parse(s.week_start + 'T00:00:00Z')) / 86400000);
+  return d >= 0 && d < 7 ? d : -1;
+}
+
+// ══ ATHLETE VIEW ══
+const SCH = { list: [], idx: 0, view: null, loadedFor: null };
+const SCH_COLS = 'id,title,week_label,week_start,notes,assigned_to,days,has_photo,created_at'; // the photo itself loads on demand
+function schItemHTML(it, inTable) {
+  const k = SCHED_KINDS[it.kind] || SCHED_KINDS.other;
+  return `<div class="sch-it ${k.cls}">${escapeHtml(it.text)}${inTable && it.end ? `<span class="sch-end">until ${escapeHtml(it.end)}</span>` : ''}</div>`;
+}
+function schTableHTML(s, days, ti) {
+  const times = [...new Set(days.flatMap(d => d.items.map(it => it.start)))].sort((a, b) => schMin(a) - schMin(b));
+  const rows = Math.max(times.length, 1);
+  const tdc = i => i === ti ? ' class="today"' : '';
+  const head = days.map((d, i) => `<th${tdc(i)} scope="col"><div class="sch-dh">${SCHED_DAYS[i]}</div>${s.week_start ? `<div class="sch-dd">${schFmt(schAddDays(s.week_start, i))}</div>` : ''}</th>`).join('');
+  let body = '';
+  for (let r = 0; r < rows; r++) {
+    const t = times[r];
+    body += `<tr><th class="sch-tc" scope="row">${t ? escapeHtml(t) : ''}</th>`;
+    days.forEach((d, i) => {
+      if (d.off && !d.items.length) { if (r === 0) body += `<td rowspan="${rows}" class="sch-offcell${i === ti ? ' today' : ''}"><div class="sch-off">Day off</div></td>`; return; }
+      body += `<td${tdc(i)}>${t ? d.items.filter(it => it.start === t).map(it => schItemHTML(it, true)).join('') : ''}</td>`;
+    });
+    body += '</tr>';
+  }
+  const foot = days.some(d => d.focus)
+    ? `<tfoot><tr><th class="sch-tc" scope="row">Focus</th>${days.map((d, i) => `<td${tdc(i)}>${escapeHtml(d.focus)}</td>`).join('')}</tr></tfoot>` : '';
+  return `<div class="sch-wrap" id="sch-wrap"><table class="sch-tbl"><colgroup><col class="sch-colt">${'<col>'.repeat(7)}</colgroup><thead><tr><th class="sch-tc">Time</th>${head}</tr></thead><tbody>${body}</tbody>${foot}</table></div>`;
+}
+function schListHTML(s, days, ti) {
+  return days.map((d, i) => {
+    const rows = d.items.length
+      ? d.items.map(it => `<div class="sch-row"><div class="sch-row-t">${escapeHtml(it.start)}${it.end ? '–' + escapeHtml(it.end) : ''}</div>${schItemHTML(it, false)}</div>`).join('')
+      : (d.off ? '<div class="sch-off">Day off</div>' : '<div class="sch-empty-day">Nothing scheduled</div>');
+    return `<div class="sch-day${i === ti ? ' today' : ''}">
+      <div class="sch-day-hd">
+        <div><div class="sch-day-name">${SCHED_DAYS[i]}</div>${s.week_start ? `<div class="sch-day-date">${schFmt(schAddDays(s.week_start, i), { day: 'numeric', month: 'long' })}</div>` : ''}</div>
+        ${i === ti ? '<span class="sch-today-tag">Today</span>' : ''}
+        ${d.focus ? `<span class="sch-focus">${escapeHtml(d.focus)}</span>` : ''}
+      </div>${rows}</div>`;
+  }).join('');
+}
+function schPickIdx(list) {
+  const t = schLocalISO();
+  let i = list.findIndex(s => s.week_start && s.week_start <= t && schAddDays(s.week_start, 6) >= t);
+  if (i > -1) return i;                                            // this week
+  i = list.findIndex(s => s.week_start && s.week_start > t);
+  if (i > -1) return i;                                            // next upcoming week
+  for (let k = list.length - 1; k >= 0; k--) if (list[k].week_start) return k; // latest past week
+  return 0;                                                        // only templates
+}
+async function loadSchedule() {
+  const el = document.getElementById('sched-body');
+  if (!el || !currentProfile) return;
+  try {
+    const data = await sb.get('weekly_schedules', '?select=' + SCH_COLS + '&order=week_start.asc.nullslast,created_at.asc');
+    if (!Array.isArray(data)) throw new Error((data && data.message) || 'schedule table not available');
+    SCH.list = data.filter(s => schForAthlete(s, currentProfile.name));
+    SCH.loadedFor = currentProfile.name;
+    SCH.idx = schPickIdx(SCH.list);
+    renderSchedule();
+  } catch (e) {
+    el.innerHTML = `<div class="errbox">Could not load the weekly schedule: ${escapeHtml(e.message)}</div>`;
+  }
+}
+function renderSchedule() {
+  const el = document.getElementById('sched-body');
+  if (!el) return;
+  if (!SCH.list.length) {
+    el.innerHTML = '<div class="soon"><div class="soon-ico">📅</div><div class="soon-t">No schedule yet</div><div class="soon-s">Your coach hasn\'t posted a weekly schedule yet.</div></div>';
+    return;
+  }
+  if (!SCH.view) { try { SCH.view = localStorage.getItem('fps_sched_view'); } catch (e) {} if (SCH.view !== 'days') SCH.view = 'table'; }
+  const s = SCH.list[SCH.idx], days = schDays(s), ti = schTodayIdx(s);
+  const empty = !days.some(d => d.items.length || d.off);
+  const kinds = [...new Set(days.flatMap(d => d.items.map(it => it.kind)).concat(days.some(d => d.off && !d.items.length) ? ['off'] : []))];
+  el.innerHTML = `
+    <div class="sch-head">
+      <button class="sch-nav" onclick="schGo(-1)" ${SCH.idx <= 0 ? 'disabled' : ''} aria-label="Previous week">${SVI.prev}</button>
+      <div class="sch-title">
+        <div class="sch-t1">${escapeHtml(s.title || 'Weekly schedule')}</div>
+        <div class="sch-t2">${escapeHtml(schRange(s))}${s.week_label ? `<span class="sch-label">${escapeHtml(s.week_label)}</span>` : ''}</div>
+      </div>
+      <button class="sch-nav" onclick="schGo(1)" ${SCH.idx >= SCH.list.length - 1 ? 'disabled' : ''} aria-label="Next week">${SVI.next}</button>
+    </div>
+    <div class="sch-bar">
+      <div class="sch-seg" role="group" aria-label="View">
+        <button class="${SCH.view === 'table' ? 'on' : ''}" onclick="schView('table')">Table</button>
+        <button class="${SCH.view === 'days' ? 'on' : ''}" onclick="schView('days')">By day</button>
+      </div>
+      ${s.has_photo ? `<button class="sch-photo" onclick="schOpenPhoto('${escapeHtml(String(s.id))}')">View original photo</button>` : ''}
+    </div>
+    ${empty ? '<div class="sx-empty">Nothing scheduled this week.</div>' : (SCH.view === 'table' ? schTableHTML(s, days, ti) : schListHTML(s, days, ti))}
+    ${!empty && kinds.length ? `<div class="sch-legend">${kinds.map(k => `<span><i class="sch-sw ${SCHED_KINDS[k].cls}"></i>${SCHED_KINDS[k].lbl}</span>`).join('')}</div>` : ''}
+    ${s.notes ? `<div class="sch-notes">${escapeHtml(s.notes)}</div>` : ''}`;
+  schScrollToday();
+}
+function schGo(dir) { const n = SCH.idx + dir; if (n < 0 || n >= SCH.list.length) return; SCH.idx = n; renderSchedule(); }
+function schView(v) { SCH.view = v; try { localStorage.setItem('fps_sched_view', v); } catch (e) {} renderSchedule(); }
+function schScrollToday() {
+  const w = document.getElementById('sch-wrap'); if (!w) return;
+  const th = w.querySelector('thead th.today'); if (!th || !th.offsetWidth) return;
+  const tc = w.querySelector('thead .sch-tc');
+  w.scrollLeft = Math.max(0, th.offsetLeft - (tc ? tc.offsetWidth : 0) - 6);
+}
+function goProf(id, tabEl) {
+  document.querySelectorAll('#pg-profile .spg').forEach(p => p.classList.remove('on'));
+  const target = document.getElementById('spg-p' + id);
+  if (target) target.classList.add('on');
+  document.querySelectorAll('#pg-profile .stab').forEach(t => t.classList.remove('on'));
+  if (tabEl) tabEl.classList.add('on');
+}
+
+// ══ ADMIN EDITOR ══
+let schEdit = null, schEditId = null, schAssigned = ['all'], schAdminList = [], schAthleteNames = [];
+const schBlankDays = () => SCHED_DAYS.map((_, i) => ({ dow: i, focus: '', off: false, items: [] }));
+const schVal = id => document.getElementById(id).value.trim();
+let schPhoto = null; // new photo (data URL) waiting to be saved with the week
+function schSetUpStatus(text, cls) {
+  const st = document.getElementById('sch-up-status');
+  st.textContent = text || ''; st.className = 'sch-up-status' + (cls ? ' ' + cls : '');
+}
+function schSetThumb(src) {
+  const im = document.getElementById('sch-up-thumb');
+  if (src) { im.src = src; im.hidden = false; } else { im.removeAttribute('src'); im.hidden = true; }
+}
+function schResetForm() {
+  schEditId = null; schAssigned = ['all']; schEdit = { days: schBlankDays() }; schPhoto = null;
+  document.getElementById('sch-form-title').textContent = 'New Week';
+  ['sch-title', 'sch-label', 'sch-notes'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('sch-week').value = schMonday(schLocalISO());
+  schSetUpStatus(''); schSetThumb(null);
+  renderSchAssignedChips(); renderSchEditor();
+}
+// ── photo → table (via the Supabase Edge Function "parse-schedule", which asks Claude to read it) ──
+function schReadFile(file) {
+  return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(new Error('could not open the file')); r.readAsDataURL(file); });
+}
+async function schShrink(dataUrl, max, q) {
+  const img = new Image();
+  await new Promise((res, rej) => { img.onload = res; img.onerror = () => rej(new Error('this image format can\'t be opened — try a screenshot or JPG')); img.src = dataUrl; });
+  const s = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  const c = document.createElement('canvas');
+  c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s);
+  const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+  ctx.drawImage(img, 0, 0, c.width, c.height);
+  return c.toDataURL('image/jpeg', q);
+}
+async function schUpload(input) {
+  const file = input.files && input.files[0];
+  input.value = '';
+  if (!file) return;
+  const box = document.getElementById('sch-up');
+  box.classList.add('busy');
+  schSetUpStatus('Preparing the photo…');
+  try {
+    let mediaType, b64, keep = null;
+    if (file.type === 'application/pdf') {
+      if (file.size > 8 * 1024 * 1024) throw new Error('PDF is larger than 8 MB');
+      mediaType = 'application/pdf';
+      b64 = (await schReadFile(file)).split(',')[1];
+    } else {
+      const orig = await schReadFile(file);
+      const big = await schShrink(orig, 2000, 0.88);   // sharp enough to read small text
+      keep = await schShrink(orig, 1400, 0.75);        // lighter copy athletes can open
+      mediaType = 'image/jpeg';
+      b64 = big.split(',')[1];
+      schSetThumb(keep);
+    }
+    schSetUpStatus('Reading the schedule… this takes 10–40 seconds');
+    const r = await fetch(`${SB_URL}/functions/v1/parse-schedule`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY },
+      body: JSON.stringify({ action: 'parseSchedule', image: b64, mediaType, today: schLocalISO() })
+    });
+    let out;
+    try { out = await r.json(); } catch (e) { throw new Error('the photo reader didn\'t answer — is the parse-schedule Edge Function deployed in Supabase?'); }
+    if (out.error) throw new Error(out.error);
+    if (!out.schedule) throw new Error('no schedule came back — check the parse-schedule Edge Function in Supabase');
+    schApplyParsed(out.schedule);
+    if (keep) schPhoto = keep;
+    const n = schEdit.days.reduce((t, d) => t + d.items.length, 0);
+    schSetUpStatus(`Done ✓ ${n} item${n === 1 ? '' : 's'} found — check each day below against the photo, fix anything, then Save Week.`, 'ok');
+  } catch (e) {
+    schSetUpStatus('Could not read it: ' + e.message, 'err');
+  } finally { box.classList.remove('busy'); }
+}
+function schApplyParsed(o) {
+  if (Array.isArray(o)) o = { days: o };
+  if (o.title) document.getElementById('sch-title').value = o.title;
+  document.getElementById('sch-label').value = o.week_label || '';
+  if ('week_start' in o) document.getElementById('sch-week').value = o.week_start ? schMonday(o.week_start) : '';
+  document.getElementById('sch-notes').value = o.notes || '';
+  schEdit = { days: schDays(o) };
+  renderSchEditor();
+}
+function schShowPhoto(src) {
+  if (!src) return;
+  const v = document.createElement('div');
+  v.className = 'sch-viewer';
+  v.innerHTML = `<img src="${src}" alt="Original schedule photo">`;
+  v.onclick = () => v.remove();
+  document.body.appendChild(v);
+}
+async function schOpenPhoto(id) {
+  try {
+    const rows = await sb.get('weekly_schedules', `?id=eq.${encodeURIComponent(id)}&select=photo_data`);
+    const src = rows && rows[0] && rows[0].photo_data;
+    if (src) schShowPhoto(src); else alert('No photo stored for this week.');
+  } catch (e) { alert('Could not load the photo.'); }
+}
+function schWeekChanged() {
+  const el = document.getElementById('sch-week');
+  if (el.value) el.value = schMonday(el.value); // always snap to that week's Monday
+  renderSchEditor();
+}
+function renderSchAssignedChips() {
+  const wrap = document.getElementById('sch-assigned-chips');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  const chip = (label, on, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'fchip' + (on ? ' on' : ''); b.textContent = label; b.onclick = fn; wrap.appendChild(b); };
+  chip('All Athletes', schAssigned[0] === 'all', () => { schAssigned = ['all']; renderSchAssignedChips(); });
+  const names = [...new Set(schAthleteNames.concat(schAssigned.filter(n => n !== 'all')))];
+  names.forEach(n => chip(n, schAssigned.includes(n), () => {
+    if (schAssigned[0] === 'all') schAssigned = [];
+    const i = schAssigned.indexOf(n);
+    if (i > -1) schAssigned.splice(i, 1); else schAssigned.push(n);
+    if (!schAssigned.length) schAssigned = ['all'];
+    renderSchAssignedChips();
+  }));
+}
+function renderSchEditor() {
+  const wrap = document.getElementById('sch-days');
+  if (!wrap || !schEdit) return;
+  const ws = document.getElementById('sch-week').value;
+  const kindOpts = sel => Object.entries(SCHED_KINDS).map(([k, m]) => `<option value="${k}"${sel === k ? ' selected' : ''}>${m.lbl}</option>`).join('');
+  wrap.innerHTML = schEdit.days.map((d, i) => `
+    <div class="sch-ed-day">
+      <div class="sch-ed-hd">
+        <div><div class="sch-ed-name">${SCHED_DAYS[i]}</div>${ws ? `<div class="sch-ed-date">${schFmt(schAddDays(ws, i))}</div>` : ''}</div>
+        <input class="ainput" placeholder="Focus (e.g. AEROB)" aria-label="${SCHED_DAYS[i]} focus" value="${escapeHtml(d.focus)}" oninput="schSetDay(${i},'focus',this.value)">
+        <label class="db-toggle"><input type="checkbox" ${d.off ? 'checked' : ''} onchange="schSetDay(${i},'off',this.checked)"> Day off</label>
+      </div>
+      <div class="sch-ed-body">
+        ${d.items.map((it, j) => `
+        <div class="sch-ed-it">
+          <input class="ainput" type="time" aria-label="Start time" value="${escapeHtml(it.start)}" oninput="schSetItem(${i},${j},'start',this.value)">
+          <input class="ainput" type="time" aria-label="End time (optional)" value="${escapeHtml(it.end)}" oninput="schSetItem(${i},${j},'end',this.value)">
+          <select class="aselect" aria-label="Type" onchange="schSetItem(${i},${j},'kind',this.value)">${kindOpts(it.kind)}</select>
+          <button class="ex-remove" type="button" onclick="schRemoveItem(${i},${j})" title="Remove">✕</button>
+          <input class="ainput sch-ed-txt" placeholder="Activity (e.g. Antrenament)" aria-label="Activity" value="${escapeHtml(it.text)}" oninput="schSetItem(${i},${j},'text',this.value)">
+        </div>`).join('')}
+        <button class="add-ex-btn" type="button" onclick="schAddItem(${i})">+ Add item</button>
+      </div>
+    </div>`).join('');
+}
+function schSetDay(i, f, v) { schEdit.days[i][f] = v; }
+function schSetItem(i, j, f, v) { schEdit.days[i].items[j][f] = v; }
+function schAddItem(i) { schEdit.days[i].items.push({ start: '', end: '', text: '', kind: 'training' }); renderSchEditor(); }
+function schRemoveItem(i, j) { schEdit.days[i].items.splice(j, 1); renderSchEditor(); }
+async function saveSchedule() {
+  const days = schEdit.days.map((d, i) => ({
+    dow: i, focus: String(d.focus || '').trim(), off: !!d.off,
+    items: d.items.filter(it => String(it.text || '').trim()).map(it => ({
+      start: schTime(it.start), end: it.end ? schTime(it.end) : '', text: String(it.text).trim(), kind: it.kind || 'other'
+    })).sort((a, b) => schMin(a.start) - schMin(b.start))
+  }));
+  const noTime = days.findIndex(d => d.items.some(it => !it.start));
+  if (noTime > -1) { showMsg('sch-msg', `Add a start time to every item (${SCHED_DAYS[noTime]})`, true); return; }
+  const data = {
+    title: schVal('sch-title') || 'Weekly schedule',
+    week_label: schVal('sch-label') || null,
+    week_start: schVal('sch-week') || null,
+    notes: schVal('sch-notes') || null,
+    assigned_to: schAssigned[0] === 'all' ? 'all' : schAssigned.join(','),
+    days
+  };
+  if (schPhoto) { data.photo_data = schPhoto; data.has_photo = true; }
+  else if (!schEditId) { data.photo_data = null; data.has_photo = false; }
+  try {
+    const r = schEditId ? await sb.patch('weekly_schedules', schEditId, data) : await sb.post('weekly_schedules', data);
+    if (!r.ok) throw new Error('Save failed (' + r.status + ') ' + await r.text().catch(() => ''));
+    showMsg('sch-msg', schEditId ? 'Week updated ✓' : 'Week saved ✓');
+    schResetForm();
+    loadAdminSchedules();
+    if (currentProfile) loadSchedule();
+  } catch (e) { showMsg('sch-msg', 'Error: ' + e.message, true); }
+}
+async function loadAdminSchedules() {
+  const list = document.getElementById('admin-sched-list');
+  list.innerHTML = '<div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div>';
+  try {
+    const [data, ath] = await Promise.all([
+      sb.get('weekly_schedules', '?select=' + SCH_COLS + '&order=week_start.desc.nullslast,created_at.desc'),
+      sb.get('athletes', '?select=name&order=name').catch(() => [])
+    ]);
+    if (Array.isArray(ath)) { schAthleteNames = ath.map(a => a.name).filter(Boolean); renderSchAssignedChips(); }
+    if (!Array.isArray(data)) throw new Error((data && data.message) || 'table not available');
+    schAdminList = data;
+    if (!data.length) { list.innerHTML = '<div class="soon"><div class="soon-t">No weeks yet</div><div class="soon-s">Build the first one above</div></div>'; return; }
+    list.innerHTML = data.map(s => {
+      const n = schDays(s).reduce((t, d) => t + d.items.length, 0);
+      const who = (!s.assigned_to || s.assigned_to === 'all') ? 'All athletes' : String(s.assigned_to).split(',').join(', ');
+      return `<div class="alist-item sch-alist">
+        <div class="alist-info">
+          <div class="alist-name">${escapeHtml(s.title || 'Weekly schedule')}${s.week_label ? ' · ' + escapeHtml(s.week_label) : ''}</div>
+          <div class="alist-sub">${escapeHtml(schRange(s))} · ${n} item${n === 1 ? '' : 's'} · ${escapeHtml(who)}</div>
+        </div>
+        <div class="alist-actions">
+          <button class="abtn secondary small" onclick="schEditById('${s.id}')">Edit</button>
+          <button class="abtn secondary small" onclick="schDuplicate('${s.id}')" title="Copy into a new week">Copy</button>
+          <button class="abtn danger small" onclick="schDelete('${s.id}')" title="Delete">✕</button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch (e) {
+    list.innerHTML = `<div class="errbox">Could not load schedules: ${escapeHtml(e.message)}<br>First time? Run weekly_schedules.sql in Supabase › SQL Editor.</div>`;
+  }
+}
+function schLoadIntoForm(s, asCopy) {
+  schEditId = asCopy ? null : s.id;
+  document.getElementById('sch-form-title').textContent = asCopy ? 'New Week (copy)' : 'Edit Week';
+  document.getElementById('sch-title').value = s.title || '';
+  document.getElementById('sch-label').value = s.week_label || '';
+  document.getElementById('sch-notes').value = s.notes || '';
+  document.getElementById('sch-week').value = s.week_start ? (asCopy ? schAddDays(s.week_start, 7) : s.week_start) : '';
+  schAssigned = (s.assigned_to && s.assigned_to !== 'all') ? String(s.assigned_to).split(',').map(x => x.trim()).filter(Boolean) : ['all'];
+  schEdit = { days: schDays(s) }; schPhoto = null; schSetThumb(null);
+  schSetUpStatus(!asCopy && s.has_photo ? 'Photo saved with this week — upload a new one to replace it and re-read the table.' : '');
+  renderSchAssignedChips(); renderSchEditor();
+  document.getElementById('sch-form').scrollIntoView({ behavior: 'smooth' });
+}
+function schEditById(id) { const s = schAdminList.find(x => String(x.id) === String(id)); if (s) schLoadIntoForm(s, false); }
+function schDuplicate(id) {
+  const s = schAdminList.find(x => String(x.id) === String(id)); if (!s) return;
+  schLoadIntoForm(s, true);
+  showMsg('sch-msg', 'Copied into the following week — edit and Save');
+}
+async function schDelete(id) {
+  if (!confirm('Delete this week\'s schedule? This cannot be undone.')) return;
+  try { const r = await sb.delete('weekly_schedules', id); if (!r.ok) throw new Error('Delete failed'); if (String(schEditId) === String(id)) schResetForm(); loadAdminSchedules(); if (currentProfile) loadSchedule(); }
+  catch (e) { alert('Error: ' + e.message); }
+}
+
+// ══ WIRE INTO THE APP ══
+(function schInject() {
+  const s3 = document.getElementById('s3');
+  if (!s3 || document.getElementById('pg-profile')) return;
+  s3.querySelector('.tabs').insertAdjacentHTML('beforeend', `<button class="tab" onclick="goTab('profile',this)">Profile</button>`);
+  const bnav = s3.querySelector('.bnav');
+  bnav.insertAdjacentHTML('beforeend', `
+    <button class="bn" id="bn-profile" onclick="goTab('profile',null,'bn-profile')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg>
+      Profile
+    </button>`);
+  bnav.insertAdjacentHTML('beforebegin', `
+    <div class="pg" id="pg-profile">
+      <div class="subtabs">
+        <button class="stab on" onclick="goProf('schedule',this)">Weekly Schedule</button>
+      </div>
+      <div class="spg on" id="spg-pschedule">
+        <div id="sched-body"><div class="sk-card"><div class="sk sk-line lg"></div><div class="sk sk-line"></div></div><div class="sk sk-block"></div></div>
+      </div>
+    </div>`);
+
+  const admin = document.getElementById('s-admin');
+  admin.querySelector('.admin-tabs').insertAdjacentHTML('beforeend', `<button class="admin-tab" onclick="goAdminTab('schedule',this)">Schedule</button>`);
+  admin.insertAdjacentHTML('beforeend', `
+    <div class="admin-pg" id="apg-schedule">
+      <div class="aform" id="sch-form">
+        <div class="aform-title"><span id="sch-form-title">New Week</span><button class="abtn secondary small" onclick="schResetForm()">Cancel</button></div>
+        <div class="sch-up" id="sch-up">
+          <label class="sch-up-btn">
+            <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            Upload schedule photo
+            <input type="file" id="sch-file" accept="image/*,application/pdf" hidden onchange="schUpload(this)">
+          </label>
+          <div class="sch-up-hint">Photo, screenshot or PDF of the week. The app reads it and fills the table below — check it, then Save.</div>
+          <div class="sch-up-status" id="sch-up-status"></div>
+          <img class="sch-up-thumb" id="sch-up-thumb" alt="Uploaded schedule" hidden onclick="schShowPhoto(this.src)">
+        </div>
+        <div class="agrid2">
+          <div class="arow"><label class="albl" for="sch-title">Title</label><input class="ainput" id="sch-title" placeholder="Program săptămânal"></div>
+          <div class="arow"><label class="albl" for="sch-label">Label</label><input class="ainput" id="sch-label" placeholder="e.g. L2"></div>
+        </div>
+        <div class="arow"><label class="albl" for="sch-week">Week starts (Monday) <span class="jfhint">— leave empty for a template microcycle</span></label><input class="ainput" id="sch-week" type="date" onchange="schWeekChanged()"></div>
+        <div class="arow"><label class="albl">Assign to athletes</label><div class="filter-row" id="sch-assigned-chips"></div></div>
+        <div class="divider"></div>
+        <div id="sch-days"></div>
+        <div class="arow"><label class="albl" for="sch-notes">Notes (optional)</label><textarea class="atextarea" id="sch-notes" rows="2" placeholder="Shown under the table"></textarea></div>
+        <button class="abtn" style="width:100%" onclick="saveSchedule()">Save Week</button>
+        <div class="amsg" id="sch-msg"></div>
+      </div>
+      <div class="sh"><div class="shb"></div><div class="sht">All Weeks</div></div>
+      <div id="admin-sched-list"></div>
+    </div>`);
+
+  // hook into existing app functions
+  const _bootApp = bootApp;
+  bootApp = async function () { const r = _bootApp.apply(this, arguments); loadSchedule(); return r; };
+  const _goTab = goTab;
+  goTab = function (id) {
+    _goTab.apply(this, arguments);
+    if (id !== 'profile') return;
+    if (currentProfile && SCH.loadedFor !== currentProfile.name) loadSchedule(); // also covers an app that booted before this block ran
+    else setTimeout(schScrollToday, 30);
+  };
+  const _goAdminTab = goAdminTab;
+  goAdminTab = function (id) {
+    _goAdminTab.apply(this, arguments);
+    if (id === 'schedule') { if (!schEdit) schResetForm(); loadAdminSchedules(); }
+  };
+})();
+</script>
+<!-- ═══ END WEEKLY SCHEDULE ═══ -->
+
 </body>
 </html>
