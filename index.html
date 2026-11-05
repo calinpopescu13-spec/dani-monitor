@@ -4191,6 +4191,16 @@ initApp();
 .sch-tbl tfoot td{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--rp3);word-break:break-word}
 .sch-it{border-left:3px solid var(--kc);background:var(--kb);color:var(--kt);border-radius:6px;padding:6px 7px;font-size:12.5px;font-weight:600;line-height:1.3;margin-bottom:4px;word-break:break-word}
 .sch-it:last-child{margin-bottom:0}
+/* schedule item linked to a Training session */
+button.sch-it{display:block;width:100%;text-align:left;font-family:var(--f);border-top:0;border-right:0;border-bottom:0;cursor:pointer;transition:filter .15s}
+button.sch-it:hover{filter:brightness(1.18)}
+button.sch-it:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sch-sess{display:flex;align-items:center;gap:4px;margin-top:4px;font-size:11px;font-weight:700;letter-spacing:.03em;opacity:.9}
+.sch-sess svg{width:11px;height:11px;fill:currentColor;flex-shrink:0}
+.sch-ed-sess{grid-column:1/-1;display:flex;flex-direction:column;gap:4px}
+.sch-ed-sess .albl{margin:0}
+.sch-ed-sess-info{font-size:12px;color:var(--t3);line-height:1.4}
+.sch-ed-sess-info b{color:var(--rp3);font-weight:600}
 .sch-it.k-meal{border-left-color:transparent;padding-left:4px;font-weight:500}
 .sch-end{display:block;font-size:11px;font-weight:500;opacity:.75;margin-top:2px}
 .sch-off{display:flex;align-items:center;justify-content:center;min-height:80px;height:100%;border-radius:6px;font-family:var(--bb);font-weight:700;font-size:19px;letter-spacing:.04em;color:#ffaadc;background:rgba(255,120,200,.10)}
@@ -4346,6 +4356,7 @@ function schDays(s) {
         .map(it => ({
           start: schTime(it.start), end: it.end ? schTime(it.end) : '',
           text: String(it.text).trim(),
+          session_id: it.session_id ? String(it.session_id) : '',
           kind: SCHED_KINDS[it.kind] ? it.kind : schGuessKind(it.text)
         }))
         .sort((a, b) => schMin(a.start) - schMin(b.start))
@@ -4392,7 +4403,20 @@ const SCH = { list: [], idx: 0, view: null, loadedFor: null };
 const SCH_COLS = 'id,title,week_label,week_start,notes,assigned_to,days,has_photo,created_at'; // the photo itself loads on demand
 function schItemHTML(it, inTable) {
   const k = SCHED_KINDS[it.kind] || SCHED_KINDS.other;
-  return `<div class="sch-it ${k.cls}">${escapeHtml(it.text)}${inTable && it.end ? `<span class="sch-end">until ${escapeHtml(it.end)}</span>` : ''}</div>`;
+  const end = inTable && it.end ? `<span class="sch-end">until ${escapeHtml(it.end)}</span>` : '';
+  if (it.session_id) {
+    return `<button type="button" class="sch-it ${k.cls}" onclick="schOpenSession('${escapeHtml(it.session_id)}')" aria-label="Open training session: ${escapeHtml(it.text)}">${escapeHtml(it.text)}${end}<span class="sch-sess"><svg viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20"/></svg>Open session</span></button>`;
+  }
+  return `<div class="sch-it ${k.cls}">${escapeHtml(it.text)}${end}</div>`;
+}
+// opens the linked Training session in the normal session viewer
+async function schOpenSession(id) {
+  let s = (typeof allSessions !== 'undefined' && Array.isArray(allSessions)) ? allSessions.find(x => String(x.id) === String(id)) : null;
+  if (!s) {
+    try { const rows = await sb.get('sessions', `?id=eq.${encodeURIComponent(id)}`); s = rows && rows[0]; } catch (e) {}
+  }
+  if (s) openSession(s);
+  else alert('This training session was deleted or is no longer available.');
 }
 function schTableHTML(s, days, ti, md) {
   const times = [...new Set(days.flatMap(d => d.items.map(it => it.start)))].sort((a, b) => schMin(a) - schMin(b));
@@ -4501,6 +4525,10 @@ function goProf(id, tabEl) {
 
 // ══ ADMIN EDITOR ══
 let schEdit = null, schEditId = null, schAssigned = ['all'], schAdminList = [], schAthleteNames = [];
+let schSessions = []; // Training library, for linking schedule items to a session
+// Training session type → schedule colour
+const SCH_TYPE_KIND = { gym: 'strength', strength: 'strength', speed: 'speed', recovery: 'recovery', 'match prep': 'training', field: 'training', activation: 'training', cardio: 'training' };
+function schSessLabel(s) { return `${s.title || 'Session'}${s.type ? ' · ' + s.type : ''}${s.date ? ' · ' + s.date : ''}`; }
 const schBlankDays = () => SCHED_DAYS.map((_, i) => ({ dow: i, focus: '', off: false, items: [] }));
 const schVal = id => document.getElementById(id).value.trim();
 let schPhoto = null; // new photo (data URL) waiting to be saved with the week
@@ -4638,20 +4666,57 @@ function renderSchEditor() {
           <select class="aselect" aria-label="Type" onchange="schSetItem(${i},${j},'kind',this.value)">${kindOpts(it.kind)}</select>
           <button class="ex-remove" type="button" onclick="schRemoveItem(${i},${j})" title="Remove">✕</button>
           <input class="ainput sch-ed-txt" placeholder="Activity (e.g. Antrenament)" aria-label="Activity" value="${escapeHtml(it.text)}" oninput="schSetItem(${i},${j},'text',this.value)">
+          <div class="sch-ed-sess">
+            <label class="albl" for="sch-sess-${i}-${j}">Training session (optional)</label>
+            <select class="aselect" id="sch-sess-${i}-${j}" onchange="schLinkSession(${i},${j},this.value)">${schSessOpts(it.session_id)}</select>
+            ${it.session_id ? schSessInfo(it.session_id) : ''}
+          </div>
         </div>`).join('')}
         <button class="add-ex-btn" type="button" onclick="schAddItem(${i})">+ Add item</button>
       </div>
     </div>`).join('');
 }
+function schSessOpts(sel) {
+  let o = '<option value="">— No linked session —</option>';
+  if (sel && !schSessions.some(s => String(s.id) === String(sel))) o += `<option value="${escapeHtml(sel)}" selected>Session not found (deleted?)</option>`;
+  return o + schSessions.map(s => `<option value="${escapeHtml(String(s.id))}"${String(s.id) === String(sel) ? ' selected' : ''}>${escapeHtml(schSessLabel(s))}</option>`).join('');
+}
+function schSessInfo(id) {
+  const s = schSessions.find(x => String(x.id) === String(id));
+  if (!s) return '';
+  const ph = Array.isArray(s.phases) ? s.phases : [];
+  const ex = ph.reduce((t, p) => t + ((p.exercises || []).length), 0);
+  return `<div class="sch-ed-sess-info">Players can tap this item to open <b>${escapeHtml(s.title || 'the session')}</b> · ${ph.length} phase${ph.length === 1 ? '' : 's'}, ${ex} exercise${ex === 1 ? '' : 's'}${s.duration ? ' · ' + escapeHtml(s.duration) : ''}</div>`;
+}
+// link an item to a Training session; fills the activity text and colour when they are still empty / default
+function schLinkSession(i, j, id) {
+  const it = schEdit.days[i].items[j];
+  const prev = schSessions.find(x => String(x.id) === String(it.session_id));
+  it.session_id = id || '';
+  const s = schSessions.find(x => String(x.id) === String(id));
+  if (s) {
+    if (!String(it.text || '').trim() || (prev && it.text === prev.title)) it.text = s.title || it.text;
+    const k = SCH_TYPE_KIND[String(s.type || '').toLowerCase()];
+    if (k && (!it.kind || it.kind === 'training' || it.kind === 'other')) it.kind = k;
+  }
+  renderSchEditor();
+}
+async function schLoadSessions() {
+  try {
+    const rows = await sb.get('sessions', '?select=id,title,date,type,duration,phases&order=date.desc');
+    if (Array.isArray(rows)) { schSessions = rows; if (schEdit) renderSchEditor(); }
+  } catch (e) { /* linking is optional — the editor still works without it */ }
+}
 function schSetDay(i, f, v) { schEdit.days[i][f] = v; }
 function schSetItem(i, j, f, v) { schEdit.days[i].items[j][f] = v; if (f === 'kind') renderSchEditor(); }
-function schAddItem(i) { schEdit.days[i].items.push({ start: '', end: '', text: '', kind: 'training' }); renderSchEditor(); }
+function schAddItem(i) { schEdit.days[i].items.push({ start: '', end: '', text: '', kind: 'training', session_id: '' }); renderSchEditor(); }
 function schRemoveItem(i, j) { schEdit.days[i].items.splice(j, 1); renderSchEditor(); }
 async function saveSchedule() {
   const days = schEdit.days.map((d, i) => ({
     dow: i, focus: String(d.focus || '').trim(), off: !!d.off,
     items: d.items.filter(it => String(it.text || '').trim()).map(it => ({
-      start: schTime(it.start), end: it.end ? schTime(it.end) : '', text: String(it.text).trim(), kind: it.kind || 'other'
+      start: schTime(it.start), end: it.end ? schTime(it.end) : '', text: String(it.text).trim(), kind: it.kind || 'other',
+      ...(it.session_id ? { session_id: String(it.session_id) } : {})
     })).sort((a, b) => schMin(a.start) - schMin(b.start))
   }));
   const noTime = days.findIndex(d => d.items.some(it => !it.start));
@@ -4676,6 +4741,7 @@ async function saveSchedule() {
   } catch (e) { showMsg('sch-msg', 'Error: ' + e.message, true); }
 }
 async function loadAdminSchedules() {
+  schLoadSessions();
   const list = document.getElementById('admin-sched-list');
   list.innerHTML = '<div class="sk-card"><div class="sk sk-line"></div><div class="sk sk-line sm"></div></div>';
   try {
