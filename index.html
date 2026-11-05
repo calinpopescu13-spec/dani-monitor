@@ -5253,6 +5253,1081 @@ async function phRemove() {
 })();
 </script>
 <!-- ═══ END WEEKLY SCHEDULE / DASHBOARD / INTERVENTIONS ═══ -->
+<!-- ═══════════════════════════════════════════════════════════
+     PROFILE › PHYSICAL  +  ADMIN › TESTING
+     Needs physical_testing.sql run once in Supabase › SQL Editor.
+     Sits after the Weekly Schedule block (uses #pg-profile and goProf).
+     ═══════════════════════════════════════════════════════════ -->
+<style>
+#apg-testing [hidden],#spg-pphysical [hidden]{display:none!important}
+.pt-ctl{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.pt-ctl .arow{flex:1 1 180px;min-width:0;margin:0}
+.pt-card{background:var(--sf);border:1px solid var(--b);border-radius:var(--r2);padding:14px;margin-bottom:12px}
+.pt-rhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.pt-rtitle{font-family:var(--f);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--t2)}
+.pt-overall{font-family:var(--bb);font-size:34px;font-weight:700;line-height:1;color:var(--wh);font-variant-numeric:tabular-nums}
+.pt-overall small{font-size:13px;color:var(--t2);font-weight:500;margin-left:6px;font-family:var(--f)}
+.pt-radar{display:block;width:100%;max-width:460px;height:auto;margin:6px auto 0}
+.pt-radar text[data-cat]{cursor:pointer}
+.pt-legend{display:flex;justify-content:center;gap:16px;font-size:12px;color:var(--t2);flex-wrap:wrap}
+.pt-legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.pt-sum{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--t2);border-top:1px solid var(--b);padding-top:10px;margin-top:10px}
+.pt-sum b{font-weight:600}
+.pt-chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;margin-bottom:12px}
+.pt-chips::-webkit-scrollbar{display:none}
+.pt-chip{flex:0 0 auto;display:flex;gap:8px;align-items:center;background:var(--sf);border:1px solid var(--b);color:var(--tx);border-radius:999px;padding:8px 14px;font-family:var(--f);font-size:14px;font-weight:500;cursor:pointer;min-height:40px}
+.pt-chip .s{font-family:var(--bb);font-weight:700;font-variant-numeric:tabular-nums}
+.pt-chip.on{border-color:var(--accent);background:var(--rpd)}
+.pt-chip:focus-visible,.pt-radar text:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pt-ct{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.pt-ct h3{font-family:var(--bb);font-size:24px;font-weight:700;color:var(--wh);margin:0}
+.pt-ct span{font-family:var(--bb);font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}
+.pt-cd{font-size:13px;color:var(--t2);margin-top:4px;line-height:1.45}
+.pt-sub{display:flex;justify-content:space-between;font-family:var(--f);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t2);margin-top:18px}
+.pt-test{border-top:1px solid var(--b);padding-top:14px;margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.pt-tt{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.pt-tn{font-weight:600;color:var(--wh);font-size:15px}
+.pt-tp{font-size:12px;color:var(--t3);margin-top:2px}
+.pt-raw{text-align:right;flex-shrink:0}
+.pt-raw b{font-family:var(--bb);font-size:24px;font-weight:700;color:var(--wh);font-variant-numeric:tabular-nums}
+.pt-raw small{color:var(--t2);margin-left:3px;font-size:12px}
+.pt-delta{display:block;font-size:12px;font-variant-numeric:tabular-nums}
+.pt-sw{position:relative;padding-top:4px}
+.pt-scale{height:8px;border-radius:4px;background:linear-gradient(90deg,#ff5252,#f5b333 30%,#e6d94a 55%,#4cd97b 75%,#00c896);opacity:.35}
+.pt-mark{position:absolute;top:0;width:4px;height:16px;border-radius:2px;background:var(--wh);transform:translateX(-50%);box-shadow:0 0 0 2px var(--sf);transition:left .4s}
+.pt-thr{position:absolute;top:-2px;height:20px;border-left:2px dashed #ff5252}
+.pt-sl{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:var(--t3);margin-top:6px;font-variant-numeric:tabular-nums}
+.pt-tf{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px;align-items:center}
+.pt-pill{font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;border:1px solid currentColor}
+.pt-flag{font-size:12px;font-weight:600}
+.pt-src{font-size:11.5px;color:var(--t3);line-height:1.45}
+.pt-untested{font-size:13px;color:var(--t3);border-top:1px solid var(--b);padding-top:12px;margin-top:14px;line-height:1.5}
+.pt-note{font-size:12px;color:var(--t3);line-height:1.55;margin:4px 0 10px}
+.pt-when{font-size:12.5px;color:var(--t2);margin-top:4px;line-height:1.45}
+.pt-legend i.dash{background:none;border-top:2px dashed rgba(228,230,227,.6);height:0}
+.pt-lbl{font-family:var(--f);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t3)}
+.pt-hist{background:var(--sf2);border:1px solid var(--b);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.pt-spark{display:block;width:100%;height:auto}
+.pt-val{color:var(--wh);font-weight:600}
+.pt-pct{font-family:var(--bb);font-size:30px;font-weight:700;line-height:1;text-align:right;flex-shrink:0;font-variant-numeric:tabular-nums}
+.pt-pct small{display:block;font-family:var(--f);font-size:12px;font-weight:600;margin-top:4px}
+.pt-pbar{position:relative;height:16px}
+.pt-pbar-t{position:absolute;left:0;right:0;top:4px;height:8px;border-radius:4px;background:linear-gradient(90deg,#ff5252,#f5b333 25%,#e6d94a 50%,#4cd97b 75%,#00c896);opacity:.35}
+.pt-pbar-50{position:absolute;left:50%;top:1px;height:14px;border-left:1.5px dashed rgba(228,230,227,.55)}
+.pt-pbar-prev{position:absolute;top:2px;width:10px;height:10px;border-radius:50%;border:2px solid var(--t2);background:var(--sf);transform:translateX(-50%)}
+.pt-pbar-m{position:absolute;top:0;width:16px;height:16px;border-radius:50%;border:2.5px solid var(--sf);transform:translateX(-50%);box-shadow:0 0 0 1px rgba(255,255,255,.25);transition:left .4s}
+.pt-chg{display:flex;gap:10px;align-items:flex-start;background:var(--sf2);border:1px solid var(--b);border-left:3px solid var(--c);border-radius:8px;padding:8px 10px}
+.pt-chg-a{color:var(--c);font-size:16px;line-height:1.2}
+.pt-chg b{color:var(--c);font-family:var(--bb);font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}
+.pt-chg span{display:block;font-size:12px;color:var(--t2);line-height:1.45;margin-top:1px}
+.pt-chg span b{font-family:var(--f);font-size:12px}
+details.pt-hist summary{cursor:pointer;list-style:none}
+details.pt-hist summary::-webkit-details-marker{display:none}
+details.pt-hist summary::before{content:'▸ ';color:var(--t2)}
+details.pt-hist[open] summary::before{content:'▾ '}
+.pt-hs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;border-top:1px solid var(--b);padding-top:8px}
+.pt-hs span{display:block;font-size:11px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pt-hs b{display:block;font-family:var(--bb);font-size:18px;font-weight:700;color:var(--wh);font-variant-numeric:tabular-nums;margin-top:2px}
+.pt-hs b small{font-family:var(--f);font-size:11px;font-weight:500;color:var(--t2)}
+.pt-hs em{display:block;font-style:normal;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}
+/* admin */
+.pt-norms{width:100%;border-collapse:collapse}
+.pt-norms th{font-family:var(--f);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--t2);text-align:left;padding:4px 6px 6px}
+.pt-norms td{padding:4px 6px}
+.pt-norms td:first-child{padding-left:0;font-size:14px;color:var(--tx);width:40%}
+.pt-norms .ainput{min-height:38px;padding:8px}
+.pt-rl{display:grid;grid-template-columns:1fr 130px;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--b)}
+.pt-rl:last-child{border-bottom:none}
+.pt-rl>span{font-size:14px;color:var(--tx);min-width:0}
+.pt-rl small{display:block;color:var(--t3);font-size:12px}
+.pt-rl .ainput{min-height:38px;padding:8px 10px;font-variant-numeric:tabular-nums}
+.pt-rcat{font-family:var(--f);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--rp3);margin:16px 0 2px}
+.pt-derived{font-family:var(--bb);font-size:18px;color:var(--t2);text-align:right;padding-right:6px;font-variant-numeric:tabular-nums}
+.pt-grp{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pt-ng{border:1px solid var(--b);border-radius:var(--r1);padding:10px 12px;margin-bottom:8px;background:var(--sf2)}
+.pt-ng-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pt-ng-h b{flex:1;min-width:140px;font-size:14px;font-weight:600;color:var(--wh)}
+.pt-ng-h .aselect{width:auto;flex:0 1 220px;min-height:38px;padding:7px 10px}
+.pt-ng-b{margin-top:10px}
+.pt-ng-b .arow{margin-bottom:0}
+.pt-pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(64px,1fr));gap:6px}
+.pt-pgrid .ainput{min-height:38px;padding:7px 8px}
+.pt-pgrid .albl{margin-bottom:4px}
+.pt-imp summary{list-style:none;display:flex;justify-content:space-between;align-items:center}
+.pt-imp summary::-webkit-details-marker{display:none}
+.pt-tpl{background:var(--sf2);border:1px solid var(--b);border-radius:var(--r1);padding:10px;font-size:11.5px;line-height:1.5;color:var(--t2);overflow-x:auto;white-space:pre;margin:8px 0 0}
+.pt-imptbl{display:flex;flex-direction:column;gap:6px;margin:12px 0}
+.pt-impr{border:1px solid var(--b);border-left:3px solid var(--accent);border-radius:var(--r1);padding:8px 10px;font-size:13px;color:var(--t2);display:flex;flex-direction:column;gap:2px;min-width:0;word-break:break-word}
+.pt-impr b{color:var(--wh);font-weight:600}
+.pt-impr.bad{border-left-color:#ff5252}
+.pt-impr.bad>div:last-child{color:#ff8a80}
+.pt-new{font-size:11px;font-weight:700;color:var(--rp3);background:var(--rpd);padding:1px 6px;border-radius:4px}
+.pt-q{border:1px solid var(--b);border-radius:var(--r1);padding:12px;margin-bottom:10px;background:var(--sf2)}
+.pt-grp .ainput{flex:1;min-width:160px}
+@media(max-width:400px){.pt-rl{grid-template-columns:1fr 104px}}
+</style>
+<script>
+// ══════════════════════════════════════════════
+// PHYSICAL TESTING
+// Supabase: phys_qualities, phys_groups, phys_tests, phys_sessions, athletes.norm_group
+// ══════════════════════════════════════════════
+let PT_CATS = []; // qualities (radar axes), loaded from phys_qualities
+const PT = { groups: [], tests: [], athletes: [], views: {} };
+const PTA = { tab: 'results', athlete: '', sessions: [], edit: null, test: undefined };
+
+// ── helpers ──
+const ptHas = v => v !== undefined && v !== null && v !== '' && !isNaN(v);
+const ptFmt = (t, v) => Number(v).toFixed(ptHas(t.decimals) ? +t.decimals : 1);
+const ptToday = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+const ptDate = d => d ? new Date(d + 'T00:00:00Z').toLocaleDateString('en-GB', { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric' }) : '';
+const ptSesLabel = s => (s.label ? s.label + ' · ' : '') + ptDate(s.date);
+const ptCatName = id => (PT_CATS.find(c => c.id === id) || { name: id }).name;
+const ptEmpty = (t, s) => `<div class="soon"><div class="soon-ico">📈</div><div class="soon-t">${t}</div><div class="soon-s">${s}</div></div>`;
+function ptBand(p) {
+  if (p == null) return ['#6d746e', 'No reference'];
+  if (p < 25) return ['#ff5252', 'Well below average'];
+  if (p < 50) return ['#f5b333', 'Below average'];
+  if (p < 75) return ['#e6d94a', 'Above average'];
+  if (p < 90) return ['#4cd97b', 'Good'];
+  return ['#00c896', 'Excellent'];
+}
+// all values of a session, including calculated ones (per kg, differences)
+function ptVals(ses) {
+  const r = (ses && ses.results) || {}, out = {};
+  PT.tests.forEach(t => { if (!(t.derive && t.derive.type) && ptHas(r[t.id])) out[t.id] = +r[t.id]; });
+  PT.tests.forEach(t => {
+    const d = t.derive; if (!d || !d.type) return;
+    if (d.type === 'per_kg' && ptHas(out[d.a]) && +ses.body_mass > 0) out[t.id] = out[d.a] / +ses.body_mass;
+    if (d.type === 'diff' && ptHas(out[d.a]) && ptHas(out[d.b])) out[t.id] = out[d.a] - out[d.b];
+  });
+  return out;
+}
+// ── reference values ──
+// norms[groupId] is one of:
+//   {type:'meansd', mean, sd}                      → percentile from the normal curve
+//   {type:'pct', p:{5:v,10:v,25:v,50:v,75:v,90:v,95:v}} → percentile table, interpolated
+//   {type:'raw', values:[...]}                     → rank inside the uploaded population
+// (older rows saved as [mean, sd] still work)
+const PT_PS = [5, 10, 25, 50, 75, 90, 95];
+function ptNorm(t, g) {
+  let n = t.norms && t.norms[g];
+  if (!n) return null;
+  if (Array.isArray(n)) n = { type: 'meansd', mean: n[0], sd: n[1] };
+  if (n.type === 'meansd') return ptHas(n.mean) && +n.sd > 0 ? { type: 'meansd', mean: +n.mean, sd: +n.sd } : null;
+  if (n.type === 'pct') {
+    const pts = PT_PS.filter(p => n.p && ptHas(n.p[p])).map(p => ({ p, v: +n.p[p] }));
+    return pts.length >= 2 ? { type: 'pct', pts } : null;
+  }
+  if (n.type === 'raw') {
+    const vs = (n.values || []).map(Number).filter(x => !isNaN(x)).sort((a, b) => a - b);
+    return vs.length >= 5 ? { type: 'raw', vs } : null;
+  }
+  return null;
+}
+function ptPctValue(pts, p) { // value at percentile p from a table
+  if (p <= pts[0].p) return pts[0].v;
+  for (let i = 1; i < pts.length; i++) if (p <= pts[i].p) { const a = pts[i - 1], b = pts[i]; return a.v + (p - a.p) / (b.p - a.p) * (b.v - a.v); }
+  return pts[pts.length - 1].v;
+}
+// performance percentile 1–99: 90 = better than 90% of the group (times are flipped)
+function ptPctX(t, v, g) {
+  const N = ptNorm(t, g);
+  if (!N) return null;
+  let r, edge = 0;
+  if (N.type === 'meansd') r = normalCdf((v - N.mean) / N.sd) * 100;
+  else if (N.type === 'pct') {
+    const P = N.pts, lo = P[0], hi = P[P.length - 1];
+    if (v <= lo.v) { r = lo.p; if (v < lo.v) edge = -1; }
+    else if (v >= hi.v) { r = hi.p; if (v > hi.v) edge = 1; }
+    else for (let i = 1; i < P.length; i++) if (v <= P[i].v) { const a = P[i - 1], b = P[i]; r = b.v === a.v ? b.p : a.p + (v - a.v) / (b.v - a.v) * (b.p - a.p); break; }
+  } else {
+    let below = 0, eq = 0;
+    N.vs.forEach(x => { if (x < v) below++; else if (x === v) eq++; });
+    r = (below + 0.5 * eq) / N.vs.length * 100;
+  }
+  if (t.lower_better) { r = 100 - r; edge = -edge; }
+  return { p: Math.max(1, Math.min(99, r)), edge };
+}
+function ptPct(t, v, g) { const x = ptPctX(t, v, g); return x ? x.p : null; }
+function ptRank(x) {
+  const r = Math.round(x.p);
+  if (x.edge > 0) return `P${r}+ · top ${100 - r}%`;
+  if (x.edge < 0) return `P${r} or lower · bottom ${r}%`;
+  return r >= 50 ? `P${r} · top ${Math.max(1, 100 - r)}%` : `P${r} · bottom ${Math.max(1, r)}%`;
+}
+// scale for the "vs reference" bar, in the test's own units (worse on the left)
+function ptRef(t, g) {
+  const N = ptNorm(t, g);
+  if (!N) return null;
+  let lo, hi, mid, lbl;
+  if (N.type === 'meansd') { lo = N.mean - 2.5 * N.sd; hi = N.mean + 2.5 * N.sd; mid = N.mean; lbl = `Ref. mean ${ptFmt(t, N.mean)} ± ${ptFmt(t, N.sd)}`; }
+  else if (N.type === 'pct') { lo = N.pts[0].v; hi = N.pts[N.pts.length - 1].v; mid = ptPctValue(N.pts, 50); lbl = `Ref. median ${ptFmt(t, mid)} · P${N.pts[0].p}–P${N.pts[N.pts.length - 1].p}`; }
+  else { lo = N.vs[0]; hi = N.vs[N.vs.length - 1]; const n = N.vs.length; mid = n % 2 ? N.vs[(n - 1) / 2] : (N.vs[n / 2 - 1] + N.vs[n / 2]) / 2; lbl = `Ref. median ${ptFmt(t, mid)} · ${n} players`; }
+  if (lo === hi) { lo -= Math.abs(lo) * 0.1 || 1; hi += Math.abs(hi) * 0.1 || 1; }
+  if (t.lower_better) [lo, hi] = [hi, lo];
+  return { lo, hi, mid, lbl, type: N.type };
+}
+function ptCatScore(c, vals, g) {
+  const ps = PT.tests.filter(t => t.cat === c.id && ptHas(vals[t.id])).map(t => ptPct(t, vals[t.id], g)).filter(p => p != null);
+  return ps.length ? ps.reduce((a, b) => a + b, 0) / ps.length : null;
+}
+function ptPrev(ss, i, tid) {
+  for (let j = i + 1; j < ss.length; j++) { const v = ptVals(ss[j])[tid]; if (ptHas(v)) return { v, s: ss[j] }; }
+  return null;
+}
+
+// ── data ──
+async function ptLoadBase() {
+  const [q, g, t] = await Promise.all([
+    sb.get('phys_qualities', '?order=sort.asc,created_at.asc'),
+    sb.get('phys_groups', '?order=sort.asc,created_at.asc'),
+    sb.get('phys_tests', '?order=sort.asc,created_at.asc')
+  ]);
+  if (!Array.isArray(q) || !Array.isArray(g) || !Array.isArray(t)) {
+    throw new Error(((q && q.message) || (g && g.message) || (t && t.message) || 'tables not found') + '. First time? Run physical_testing.sql in Supabase › SQL Editor.');
+  }
+  PT_CATS = q.map(x => ({ id: String(x.id), name: x.name, short: x.short || x.name, desc: x.descr || '', sort: x.sort || 0 }));
+  const ci = id => { const i = PT_CATS.findIndex(c => c.id === id); return i < 0 ? 99 : i; };
+  PT.groups = g;
+  PT.tests = t.map(x => Object.assign({}, x, { norms: x.norms || {}, derive: x.derive || null }))
+    .sort((a, b) => ci(a.cat) - ci(b.cat) || String(a.sub || '').localeCompare(String(b.sub || '')) || (a.sort || 0) - (b.sort || 0) || String(a.name).localeCompare(String(b.name)));
+}
+async function ptGetSessions(name) {
+  const d = await sb.get('phys_sessions', `?athlete_name=eq.${encodeURIComponent(name)}&order=date.desc,created_at.desc`);
+  if (!Array.isArray(d)) throw new Error((d && d.message) || 'could not load sessions');
+  return d;
+}
+
+// ══ PROFILE VIEW (used by the player page and the admin preview) ══
+// Diagram = the latest result of every test (each with its own testing date) vs the reference group.
+// Below = each test against the player's own history.
+function ptSet(key, f, v) { PT.views[key][f] = v; ptRender(key); }
+// latest value of every test on or before a date: { testId: { v, date } }
+function ptLatest(ss, upto) {
+  const out = {};
+  ss.forEach(s => {
+    if (upto && s.date > upto) return;
+    const vals = ptVals(s);
+    Object.keys(vals).forEach(id => { if (!out[id] || s.date > out[id].date) out[id] = { v: vals[id], date: s.date }; });
+  });
+  return out;
+}
+// one value per testing date, oldest first
+function ptHistory(ss, tid, upto) {
+  const byDate = {};
+  ss.forEach(s => { if (upto && s.date > upto) return; const v = ptVals(s)[tid]; if (ptHas(v) && !(s.date in byDate)) byDate[s.date] = v; });
+  return Object.keys(byDate).sort().map(d => ({ date: d, v: byDate[d] }));
+}
+function ptCatScoreL(c, L, g) {
+  const ps = PT.tests.filter(t => t.cat === c.id && L[t.id]).map(t => ptPct(t, L[t.id].v, g)).filter(p => p != null);
+  return ps.length ? ps.reduce((a, b) => a + b, 0) / ps.length : null;
+}
+const ptDays = d => Math.round((Date.parse(ptToday() + 'T00:00:00Z') - Date.parse(d + 'T00:00:00Z')) / 86400000);
+const ptShort = d => new Date(d + 'T00:00:00Z').toLocaleDateString('en-GB', { timeZone: 'UTC', day: 'numeric', month: 'short' });
+function ptRender(key) {
+  const V = PT.views[key], el = V && document.getElementById(V.el);
+  if (!el) return;
+  if (!PT.tests.length) { el.innerHTML = ptEmpty('No tests set up yet', 'Add tests and their reference values in Admin › Testing.'); return; }
+  const ss = V.sessions;
+  if (!ss.length) { el.innerHTML = ptEmpty('No test results yet', key === 'me' ? 'Your coach hasn\'t entered any test results for you yet.' : 'Save the first testing day above.'); return; }
+  const dates = [...new Set(ss.map(s => s.date))].sort().reverse();
+  if (V.asOf && !dates.includes(V.asOf)) V.asOf = '';
+  const upto = V.asOf || dates[0];
+  const L = ptLatest(ss, upto);
+  const axes = PT_CATS.filter(c => PT.tests.some(t => t.cat === c.id));
+  if (!PT.groups.some(g => String(g.id) === String(V.gid))) V.gid = (PT.groups.find(g => String(g.id) === String(V.defGroup)) || PT.groups[0] || {}).id;
+  if (!axes.some(c => c.id === V.cat)) V.cat = (axes.find(c => c.id === 'str') || axes[0]).id;
+  const g = V.gid, grp = PT.groups.find(x => String(x.id) === String(g));
+  const sc = axes.map(c => ptCatScoreL(c, L, g));
+  const ok = sc.filter(v => v != null), avg = ok.length ? ok.reduce((a, b) => a + b, 0) / ok.length : null;
+  const used = PT.tests.filter(t => L[t.id]);
+  const oldest = used.length ? used.map(t => L[t.id].date).sort()[0] : null;
+  const k = `'${key}'`;
+  el.innerHTML = `
+    <div class="pt-ctl">
+      <div class="arow"><label class="albl" for="pt-asof-${key}">Results up to</label>
+        <select class="aselect" id="pt-asof-${key}" onchange="ptSet(${k},'asOf',this.value)"><option value="">Latest results</option>${dates.map(d => `<option value="${d}"${d === V.asOf ? ' selected' : ''}>${escapeHtml(ptDate(d))}</option>`).join('')}</select></div>
+      <div class="arow"><label class="albl" for="pt-grp-${key}">Compare with</label>
+        <select class="aselect" id="pt-grp-${key}" onchange="ptSet(${k},'gid',this.value)">${PT.groups.map(x => `<option value="${x.id}"${String(x.id) === String(g) ? ' selected' : ''}>${escapeHtml(x.name)}</option>`).join('')}</select></div>
+    </div>
+    <div class="pt-card">
+      <div class="pt-rhead"><div class="pt-rtitle">Physical profile vs reference</div><div class="pt-overall">${avg == null ? '–' : 'P' + Math.round(avg)}<small>average</small></div></div>
+      <div class="pt-when">Compared with ${escapeHtml(grp ? grp.name : 'the reference group')} · latest result of ${used.length} test${used.length === 1 ? '' : 's'}, tested ${oldest && oldest !== upto ? ptDate(oldest) + ' – ' : ''}${ptDate(upto)}</div>
+      ${ptRadar(key, axes, sc, V.cat)}
+      <div class="pt-legend"><span><i style="background:var(--accent)"></i>Player (percentile)</span><span><i class="dash"></i>Group median · P50</span></div>
+    </div>
+    <div class="pt-chips" role="group" aria-label="Test categories">${axes.map((c, j) => `<button type="button" class="pt-chip${c.id === V.cat ? ' on' : ''}" aria-pressed="${c.id === V.cat}" onclick="ptSet(${k},'cat','${c.id}')">${escapeHtml(c.name)}<span class="s" style="color:${ptBand(sc[j])[0]}">${sc[j] == null ? '–' : 'P' + Math.round(sc[j])}</span></button>`).join('')}</div>
+    ${ptCatHTML(V, axes, sc, L, ss, upto, dates)}
+    <div class="pt-note">The diagram uses the most recent result of each test, placed as a percentile in the chosen reference group: P90 means better than 90% of that group (for times, faster is better). Each quality is the average percentile of its tests. Each test shows its own percentile and how much it went up or down since the athlete's previous test.</div>`;
+}
+function ptRadar(key, axes, sc, cat) {
+  const N = axes.length;
+  if (N < 3) return '';
+  const CX = 230, CY = 182, R = 118;
+  const pt = (i, v) => { const a = -Math.PI / 2 + i * 2 * Math.PI / N; return [CX + Math.cos(a) * R * v / 100, CY + Math.sin(a) * R * v / 100]; };
+  const poly = vals => vals.map((v, i) => pt(i, v == null ? 0 : v).map(n => n.toFixed(1)).join(',')).join(' ');
+  let s = '';
+  [25, 75, 100].forEach(l => { s += `<polygon points="${poly(Array(N).fill(l))}" fill="none" stroke="rgba(255,255,255,.08)"/>`; });
+  axes.forEach((c, i) => { const [x, y] = pt(i, 100); s += `<line x1="${CX}" y1="${CY}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="rgba(255,255,255,.08)"/>`; });
+  s += `<polygon points="${poly(sc)}" fill="rgba(63,178,127,.18)" stroke="#3fb27f" stroke-width="2.5" stroke-linejoin="round"/>`;
+  s += `<polygon points="${poly(Array(N).fill(50))}" fill="none" stroke="#e4e6e3" stroke-opacity=".55" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+  sc.forEach((v, i) => {
+    if (v == null) return;
+    const [x, y] = pt(i, v);
+    s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5" fill="${ptBand(v)[0]}" stroke="#121513" stroke-width="1.5"/>`;
+  });
+  axes.forEach((c, i) => {
+    const [x, y] = pt(i, 121), on = c.id === cat;
+    const anchor = Math.abs(x - CX) < 8 ? 'middle' : x > CX ? 'start' : 'end';
+    const dy = y < CY - 60 ? -6 : y > CY + 60 ? 14 : 4;
+    s += `<text x="${x.toFixed(1)}" y="${(y + dy).toFixed(1)}" text-anchor="${anchor}" fill="${on ? '#f3f4f2' : '#9aa19b'}" font-size="13" font-weight="${on ? 700 : 500}" font-family="Barlow,sans-serif" data-cat="${c.id}" tabindex="0" role="button" onclick="ptSet('${key}','cat','${c.id}')" onkeydown="if(event.key==='Enter')ptSet('${key}','cat','${c.id}')">${escapeHtml(c.short)}${sc[i] == null ? ' –' : ' P' + Math.round(sc[i])}</text>`;
+  });
+  return `<svg class="pt-radar" viewBox="0 0 460 368" role="img" aria-label="Physical profile radar chart">${s}</svg>`;
+}
+// small line chart of values over time. o: { fmt, lower, ref, thr, min, max, refLbl }
+function ptSpark(pts, o) {
+  const W = 320, H = 92, L = 8, Rr = 44, T = 14, B = 22;
+  const t0 = Date.parse(pts[0].date), t1 = Date.parse(pts[pts.length - 1].date), span = t1 - t0;
+  const xs = pts.map((p, i) => L + (span > 0 ? (Date.parse(p.date) - t0) / span : i / Math.max(1, pts.length - 1)) * (W - L - Rr));
+  const vals = pts.map(p => p.v);
+  let lo = o.min != null ? o.min : Math.min(...vals), hi = o.max != null ? o.max : Math.max(...vals);
+  const extra = [o.ref, o.thr].filter(v => ptHas(v) && o.min == null);
+  extra.forEach(v => { const pad = (hi - lo) || Math.abs(hi) * 0.1 || 1; if (v >= lo - pad && v <= hi + pad) { lo = Math.min(lo, v); hi = Math.max(hi, v); } });
+  if (hi === lo) { const d = Math.abs(hi) * 0.05 || 1; lo -= d; hi += d; }
+  const pad = o.min != null ? 0 : (hi - lo) * 0.12; lo -= pad; hi += pad;
+  const y = v => T + (1 - (v - lo) / (hi - lo)) * (H - T - B);
+  let s = '';
+  const hline = (v, col, lbl) => {
+    if (!ptHas(v) || v < lo || v > hi) return;
+    s += `<line x1="${L}" x2="${W - Rr + 4}" y1="${y(v).toFixed(1)}" y2="${y(v).toFixed(1)}" stroke="${col}" stroke-opacity=".7" stroke-dasharray="4 4"/><text x="${W - Rr + 8}" y="${(y(v) + 4).toFixed(1)}" fill="${col}" font-size="10.5" font-family="Barlow,sans-serif">${lbl}</text>`;
+  };
+  hline(o.ref, '#9aa19b', o.refLbl || 'Ref.');
+  hline(o.thr, '#ff5252', 'Risk');
+  s += `<polyline points="${pts.map((p, i) => xs[i].toFixed(1) + ',' + y(p.v).toFixed(1)).join(' ')}" fill="none" stroke="#3fb27f" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  pts.forEach((p, i) => {
+    const last = i === pts.length - 1;
+    s += `<circle cx="${xs[i].toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="${last ? 5 : 3.5}" fill="${last ? '#f3f4f2' : '#3fb27f'}" stroke="#181c19" stroke-width="1.5"><title>${ptShort(p.date)}: ${o.fmt(p.v)}</title></circle>`;
+  });
+  const lx = xs[xs.length - 1], ly = y(vals[vals.length - 1]);
+  s += `<text x="${lx.toFixed(1)}" y="${(ly < T + 12 ? ly + 18 : ly - 9).toFixed(1)}" text-anchor="end" fill="#f3f4f2" font-size="11" font-weight="700" font-family="Barlow,sans-serif">${o.fmt(vals[vals.length - 1])}</text>`;
+  s += `<text x="${L}" y="${H - 5}" fill="#6d746e" font-size="10.5" font-family="Barlow,sans-serif">${ptShort(pts[0].date)}</text>`;
+  if (pts.length > 1) s += `<text x="${(W - Rr).toFixed(1)}" y="${H - 5}" text-anchor="end" fill="#6d746e" font-size="10.5" font-family="Barlow,sans-serif">${ptShort(pts[pts.length - 1].date)}</text>`;
+  return `<svg class="pt-spark" viewBox="0 0 ${W} ${H}" role="img" aria-label="Results over time">${s}</svg>`;
+}
+function ptCatHTML(V, axes, sc, L, ss, upto, dates) {
+  const ci = axes.findIndex(c => c.id === V.cat), c = axes[ci];
+  const tests = PT.tests.filter(t => t.cat === c.id);
+  const done = tests.filter(t => L[t.id]), not = tests.filter(t => !L[t.id]);
+  let h = `<div class="pt-card"><div class="pt-ct"><h3>${escapeHtml(c.name)}</h3><span style="color:${ptBand(sc[ci])[0]}">${sc[ci] == null ? '–' : 'P' + Math.round(sc[ci])}</span></div><div class="pt-cd" style="margin-top:0">Average percentile of ${done.filter(t => ptPct(t, L[t.id].v, V.gid) != null).length} test${done.filter(t => ptPct(t, L[t.id].v, V.gid) != null).length === 1 ? '' : 's'} with normative data</div><div class="pt-cd">${escapeHtml(c.desc)}</div>`;
+  // category score at every date this category was tested
+  const ids = new Set(tests.map(t => String(t.id)));
+  const cd = dates.filter(d => d <= upto && ss.some(s => s.date === d && Object.keys(ptVals(s)).some(id => ids.has(id)))).sort();
+  const cpts = cd.map(d => ({ date: d, v: ptCatScoreL(c, ptLatest(ss, d), V.gid) })).filter(p => p.v != null);
+  if (cpts.length > 1) {
+    const dv = cpts[cpts.length - 1].v - cpts[cpts.length - 2].v;
+    h += `<div class="pt-hist" style="margin-top:12px"><div class="pt-lbl">${escapeHtml(c.name)} percentile over time <span style="color:${dv >= 0 ? '#4cd97b' : '#ff5252'};text-transform:none;letter-spacing:0">${dv >= 0 ? '+' : '−'}${Math.abs(dv).toFixed(0)} percentile points since ${ptShort(cpts[cpts.length - 2].date)}</span></div>${ptSpark(cpts, { fmt: v => Math.round(v), min: 0, max: 100, ref: 50, refLbl: 'P50' })}</div>`;
+  }
+  [...new Set(done.map(t => t.sub || ''))].forEach(sub => {
+    const st = done.filter(t => (t.sub || '') === sub);
+    if (sub) {
+      const ps = st.map(t => ptPct(t, L[t.id].v, V.gid)).filter(p => p != null);
+      const s = ps.length ? ps.reduce((a, b) => a + b, 0) / ps.length : null;
+      h += `<div class="pt-sub"><span>${escapeHtml(sub)}</span><span style="color:${ptBand(s)[0]}">${s == null ? '–' : 'P' + Math.round(s)}</span></div>`;
+    }
+    st.forEach(t => { h += ptTestHTML(t, L[t.id], V.gid, ptHistory(ss, t.id, upto)); });
+  });
+  if (!done.length) h += `<div class="pt-cd" style="margin-top:12px">No ${escapeHtml(c.name.toLowerCase())} results yet.</div>`;
+  if (not.length) h += `<div class="pt-untested">Not tested yet: ${not.map(t => escapeHtml(t.name)).join(', ')}</div>`;
+  return h + '</div>';
+}
+function ptChange(t, from, to) {
+  const dv = to - from, better = t.lower_better ? dv < 0 : dv > 0, same = Math.abs(dv) < 1e-9;
+  const pc = from ? ` (${dv >= 0 ? '+' : '−'}${Math.abs(dv / from * 100).toFixed(1)}%)` : '';
+  return same ? '<em style="color:var(--t3)">no change</em>'
+    : `<em style="color:${better ? '#4cd97b' : '#ff5252'}">${dv > 0 ? '+' : '−'}${ptFmt(t, Math.abs(dv))}${pc}</em>`;
+}
+function ptTestHTML(t, cur, g, hist) {
+  const v = cur.v, px = ptPctX(t, v, g), p = px ? px.p : null, [col] = ptBand(p), ref = ptRef(t, g);
+  const u = escapeHtml(t.unit || '');
+  const prev = hist.length > 1 ? hist[hist.length - 2] : null;
+  // change vs the athlete's previous result
+  let chg;
+  if (prev) {
+    const dv = v - prev.v, better = t.lower_better ? dv < 0 : dv > 0, same = Math.abs(dv) < 1e-9;
+    const pp = ptPct(t, prev.v, g), dp = p != null && pp != null ? Math.round(p) - Math.round(pp) : null;
+    const c = same ? 'var(--t2)' : better ? '#4cd97b' : '#ff5252';
+    const arrow = same ? '→' : better ? '▲' : '▼';
+    const pc = prev.v ? ` (${dv >= 0 ? '+' : '−'}${Math.abs(dv / prev.v * 100).toFixed(1)}%)` : '';
+    chg = `<div class="pt-chg" style="--c:${c}">
+      <span class="pt-chg-a">${arrow}</span>
+      <div><b>${same ? 'No change' : (dv > 0 ? '+' : '−') + ptFmt(t, Math.abs(dv)) + ' ' + u + pc}</b>
+        <span>vs previous test · ${ptFmt(t, prev.v)} ${u} on ${ptShort(prev.date)}${dp != null ? ` · <b style="color:${dp === 0 ? 'var(--t2)' : dp > 0 ? '#4cd97b' : '#ff5252'}">${dp > 0 ? '+' : dp < 0 ? '−' : '±'}${Math.abs(dp)} percentile point${Math.abs(dp) === 1 ? '' : 's'}</b>` : ''}</span></div></div>`;
+  } else {
+    chg = `<div class="pt-chg" style="--c:var(--t3)"><span class="pt-chg-a">•</span><div><b>First result</b><span>Change shows from the next test</span></div></div>`;
+  }
+  // percentile bar 0–100
+  let bar = '';
+  if (p != null) {
+    const pp = prev ? ptPct(t, prev.v, g) : null;
+    bar = `<div class="pt-pbar"><div class="pt-pbar-t"></div><div class="pt-pbar-50"></div>
+        ${pp != null ? `<div class="pt-pbar-prev" style="left:${pp}%" title="Previous: P${Math.round(pp)}"></div>` : ''}
+        <div class="pt-pbar-m" style="left:${p}%;background:${col}"></div></div>
+      <div class="pt-sl"><span>P1</span><span>${ref ? ref.lbl : ''}</span><span>P99</span></div>`;
+  }
+  let flag = '';
+  if (ptHas(t.threshold)) {
+    const th = +t.threshold, worse = t.lower_better ? v > th : v < th;
+    flag = Math.abs(v - th) < 1e-9 ? `<span class="pt-flag" style="color:#f5b333">At the ${th} ${u} threshold</span>`
+      : worse ? `<span class="pt-flag" style="color:#ff5252">${t.lower_better ? 'Above' : 'Below'} the ${th} ${u} risk threshold</span>`
+      : `<span class="pt-flag" style="color:#4cd97b">Clear of the ${th} ${u} threshold</span>`;
+  }
+  // full history, opened on demand
+  let hh = '';
+  if (hist.length > 1) {
+    const first = hist[0];
+    const best = hist.reduce((b, x) => (t.lower_better ? x.v < b.v : x.v > b.v) ? x : b, hist[0]);
+    const isBest = best.date === hist[hist.length - 1].date;
+    hh = `<details class="pt-hist"><summary class="pt-lbl">History · ${hist.length} tests${isBest ? ' · <span style="color:#4cd97b;text-transform:none;letter-spacing:0">personal best</span>' : ''}</summary>
+      ${ptSpark(hist, { fmt: x => ptFmt(t, x), lower: t.lower_better, ref: ref ? ref.mid : null, thr: ptHas(t.threshold) ? +t.threshold : null })}
+      <div class="pt-hs">
+        <div><span>Best · ${ptShort(best.date)}</span><b>${ptFmt(t, best.v)} <small>${u}</small></b>${isBest ? '<em style="color:#4cd97b">Personal best</em>' : ''}</div>
+        <div><span>First · ${ptShort(first.date)}</span><b>${ptFmt(t, first.v)} <small>${u}</small></b>${ptChange(t, first.v, v)}</div>
+        <div><span>Since first</span><b>${(() => { const a = ptPct(t, first.v, g); return a != null && p != null ? (Math.round(p) - Math.round(a) >= 0 ? '+' : '−') + Math.abs(Math.round(p) - Math.round(a)) : '–'; })()}</b><em style="color:var(--t3)">percentile points</em></div>
+      </div></details>`;
+  }
+  const age = ptDays(cur.date);
+  return `<div class="pt-test">
+    <div class="pt-tt"><div style="min-width:0"><div class="pt-tn">${escapeHtml(t.name)}</div>
+      <div class="pt-tp"><b class="pt-val">${ptFmt(t, v)} ${u}</b> · tested ${ptDate(cur.date)}${age > 180 ? ' · <span style="color:#f5b333">over 6 months ago</span>' : ''}</div></div>
+      <div class="pt-pct" style="color:${col}">${p != null ? 'P' + Math.round(p) + (px.edge > 0 ? '+' : '') : '–'}<small>${p != null ? ptRank(px).split(' · ')[1] : 'no reference'}</small></div></div>
+    ${bar}
+    ${chg}
+    ${flag ? `<div class="pt-tf">${flag}</div>` : ''}
+    ${t.proto || t.source ? `<div class="pt-src">${[t.proto, t.source].filter(Boolean).map(escapeHtml).join(' · ')}</div>` : ''}
+    ${hh}
+  </div>`;
+}
+
+// ── player page ──
+async function ptLoadPlayer() {
+  const el = document.getElementById('pt-body');
+  if (!el || !currentProfile) return;
+  const old = PT.views.me, same = old && old.athlete === currentProfile.name;
+  if (!same) el.innerHTML = '<div class="sk-card"><div class="sk sk-line lg"></div><div class="sk sk-line"></div></div><div class="sk sk-block"></div>';
+  try {
+    const [, sessions] = await Promise.all([ptLoadBase(), ptGetSessions(currentProfile.name)]);
+    let def = currentProfile.norm_group;
+    try { const a = await sb.get('athletes', `?id=eq.${currentProfile.id}&select=norm_group`); if (Array.isArray(a) && a[0]) def = a[0].norm_group; } catch (e) {}
+    PT.views.me = { el: 'pt-body', athlete: currentProfile.name, sessions, defGroup: def, gid: same ? old.gid : def, asOf: same ? old.asOf : '', cat: old ? old.cat : 'str' };
+    ptRender('me');
+  } catch (e) {
+    el.innerHTML = `<div class="errbox">Could not load physical testing: ${escapeHtml(e.message)}</div>`;
+  }
+}
+
+// ══ ADMIN › TESTING ══
+async function ptAdmOpen() {
+  const box = document.getElementById('pt-adm');
+  box.innerHTML = '<div class="sk-card"><div class="sk sk-line lg"></div><div class="sk sk-line"></div></div>';
+  try {
+    await ptLoadBase();
+    let a = await sb.get('athletes', '?select=id,name,weight_kg,norm_group&order=name');
+    if (!Array.isArray(a)) a = await sb.get('athletes', '?select=id,name,weight_kg&order=name');
+    PT.athletes = Array.isArray(a) ? a : [];
+    if (PTA.athlete) PTA.sessions = await ptGetSessions(PTA.athlete);
+    ptAdmRender();
+  } catch (e) {
+    box.innerHTML = `<div class="errbox">Could not load testing data: ${escapeHtml(e.message)}</div>`;
+  }
+}
+function ptAdm(tab, el) {
+  PTA.tab = tab;
+  document.querySelectorAll('#apg-testing .subtabs .stab').forEach(b => b.classList.toggle('on', b === el));
+  ptAdmRender();
+}
+function ptAdmRender() {
+  if (PTA.tab === 'tests') ptAdmTests();
+  else if (PTA.tab === 'groups') ptAdmGroups();
+  else if (PTA.tab === 'quals') ptAdmQual();
+  else ptAdmResults();
+}
+
+// ── results ──
+function ptAdmResults() {
+  const box = document.getElementById('pt-adm');
+  let h = `<div class="aform"><div class="arow" style="margin:0"><label class="albl" for="pt-ath">Athlete</label>
+    <select class="aselect" id="pt-ath" onchange="ptAdmAthlete(this.value)"><option value="">— Select an athlete —</option>${PT.athletes.map(a => `<option value="${escapeHtml(a.name)}"${a.name === PTA.athlete ? ' selected' : ''}>${escapeHtml(a.name)}</option>`).join('')}</select></div></div>`;
+  const a = PT.athletes.find(x => x.name === PTA.athlete);
+  if (!a) { box.innerHTML = h + ptEmpty('Select an athlete', 'Enter their test results and see the physical profile they will see.'); return; }
+  if (!PT.tests.length) { box.innerHTML = h + ptEmpty('No tests yet', 'Add tests first under Tests &amp; norms.'); return; }
+  h += `<div class="aform"><div class="arow" style="margin:0"><label class="albl" for="pt-ng">Default reference group for ${escapeHtml(a.name)}</label>
+    <select class="aselect" id="pt-ng" onchange="ptAdmSetGroup(this.value)"><option value="">— First group in the list —</option>${PT.groups.map(g => `<option value="${g.id}"${String(g.id) === String(a.norm_group) ? ' selected' : ''}>${escapeHtml(g.name)}</option>`).join('')}</select>
+    <div class="amsg" id="pt-ng-msg"></div></div></div>`;
+  h += ptSesForm(a);
+  h += `<div class="sh"><div class="shb"></div><div class="sht">Testing days</div></div>`;
+  h += PTA.sessions.length ? PTA.sessions.map(s => {
+    const n = Object.keys(ptVals(s)).length;
+    return `<div class="alist-item"><div class="alist-info"><div class="alist-name">${escapeHtml(s.label || 'Testing session')}</div>
+      <div class="alist-sub">${escapeHtml(ptDate(s.date))} · ${n} result${n === 1 ? '' : 's'}${s.body_mass ? ' · ' + escapeHtml(s.body_mass) + ' kg' : ''}</div></div>
+      <div class="alist-actions"><button class="abtn secondary small" onclick="ptAdmEdit('${s.id}')">Edit</button><button class="abtn danger small" onclick="ptAdmDelSes('${s.id}')" title="Delete">✕</button></div></div>`;
+  }).join('') : '<div class="soon"><div class="soon-t">No sessions yet</div><div class="soon-s">Save the first one above</div></div>';
+  h += `<div class="sh"><div class="shb"></div><div class="sht">Profile preview</div></div><div id="pt-adm-prev"></div>`;
+  box.innerHTML = h;
+  ptAdmCalc();
+  const old = PT.views.adm, same = old && old.athlete === a.name;
+  PT.views.adm = { el: 'pt-adm-prev', athlete: a.name, sessions: PTA.sessions, defGroup: a.norm_group, gid: same ? old.gid : a.norm_group, asOf: same ? old.asOf : '', cat: old ? old.cat : 'str' };
+  ptRender('adm');
+}
+function ptSesForm(a) {
+  const e = PTA.edit, r = (e && e.results) || {};
+  const bm = e ? e.body_mass : (PTA.sessions[0] && PTA.sessions[0].body_mass) || a.weight_kg || '';
+  let h = `<div class="aform" id="pt-sform"><div class="aform-title"><span>${e ? 'Edit testing day' : 'New testing day'}</span>${e ? '<button class="abtn secondary small" onclick="ptAdmEdit(null)">Cancel</button>' : ''}</div>
+    <div class="agrid2">
+      <div class="arow"><label class="albl" for="pt-sd">Testing date *</label><input class="ainput" type="date" id="pt-sd" value="${e ? escapeHtml(e.date) : ptToday()}"></div>
+      <div class="arow"><label class="albl" for="pt-sl">Name</label><input class="ainput" id="pt-sl" placeholder="e.g. Pre-season" value="${escapeHtml((e && e.label) || '')}"></div>
+    </div>
+    <div class="arow"><label class="albl" for="pt-bm">Body mass (kg) <span class="jfhint">— used for the per-kg results</span></label><input class="ainput" type="number" step="any" inputmode="decimal" id="pt-bm" value="${ptHas(bm) ? escapeHtml(bm) : ''}" oninput="ptAdmCalc()"></div>
+    <div class="pt-note">Fill in only the tests done on this date. Tests done on different days? Save one entry per day: the profile always uses the latest result of each test. Results marked "calculated" fill in by themselves.</div>`;
+  PT_CATS.forEach(c => {
+    const ts = PT.tests.filter(t => t.cat === c.id);
+    if (!ts.length) return;
+    h += `<div class="pt-rcat">${escapeHtml(c.name)}</div>`;
+    ts.forEach(t => {
+      const der = t.derive && t.derive.type;
+      const meta = [t.sub, t.unit, der ? 'calculated' : ''].filter(Boolean).map(escapeHtml).join(' · ');
+      h += `<div class="pt-rl"><span>${escapeHtml(t.name)}<small>${meta}</small></span>${der
+        ? `<div class="pt-derived" id="pt-d-${t.id}">–</div>`
+        : `<input class="ainput" type="number" step="any" inputmode="decimal" id="pt-r-${t.id}" aria-label="${escapeHtml(t.name)}" value="${ptHas(r[t.id]) ? escapeHtml(r[t.id]) : ''}" oninput="ptAdmCalc()">`}</div>`;
+    });
+  });
+  h += `<div class="arow" style="margin-top:14px"><label class="albl" for="pt-sn">Notes (optional)</label><textarea class="atextarea" id="pt-sn" rows="2">${escapeHtml((e && e.notes) || '')}</textarea></div>
+    <button class="abtn" style="width:100%" onclick="ptAdmSave()">${e ? 'Update session' : 'Save session'}</button><div class="amsg" id="pt-smsg"></div></div>`;
+  return h;
+}
+function ptAdmForm() {
+  const results = {};
+  PT.tests.forEach(t => { const el = document.getElementById('pt-r-' + t.id); if (el && el.value.trim() !== '' && !isNaN(el.value)) results[t.id] = +el.value; });
+  const bm = document.getElementById('pt-bm').value.trim();
+  return { date: document.getElementById('pt-sd').value, label: document.getElementById('pt-sl').value.trim(), body_mass: bm === '' ? null : +bm, results, notes: document.getElementById('pt-sn').value.trim() };
+}
+function ptAdmCalc() {
+  if (!document.getElementById('pt-sform')) return;
+  const vals = ptVals(ptAdmForm());
+  PT.tests.forEach(t => { const el = document.getElementById('pt-d-' + t.id); if (el) el.textContent = ptHas(vals[t.id]) ? ptFmt(t, vals[t.id]) : '–'; });
+}
+async function ptAdmSave() {
+  const f = ptAdmForm();
+  if (!f.date) { showMsg('pt-smsg', 'Pick a date', true); return; }
+  if (!Object.keys(f.results).length) { showMsg('pt-smsg', 'Enter at least one result', true); return; }
+  const data = { athlete_name: PTA.athlete, date: f.date, label: f.label || null, body_mass: f.body_mass, results: f.results, notes: f.notes || null };
+  const wasEdit = !!PTA.edit;
+  try {
+    const r = wasEdit ? await sb.patch('phys_sessions', PTA.edit.id, data) : await sb.post('phys_sessions', data);
+    if (!r.ok) throw new Error('Save failed (' + r.status + ') ' + await r.text().catch(() => ''));
+    PTA.edit = null;
+    PTA.sessions = await ptGetSessions(PTA.athlete);
+    if (PT.views.adm) PT.views.adm.asOf = '';
+    ptAdmResults();
+    showMsg('pt-smsg', wasEdit ? 'Session updated ✓' : 'Session saved ✓');
+  } catch (e) { showMsg('pt-smsg', 'Error: ' + e.message, true); }
+}
+async function ptAdmAthlete(name) {
+  PTA.athlete = name; PTA.edit = null; PTA.sessions = [];
+  if (name) { try { PTA.sessions = await ptGetSessions(name); } catch (e) { alert('Could not load sessions: ' + e.message); } }
+  ptAdmResults();
+}
+function ptAdmEdit(id) {
+  PTA.edit = id ? PTA.sessions.find(s => String(s.id) === String(id)) || null : null;
+  ptAdmResults();
+  document.getElementById('pt-sform').scrollIntoView({ behavior: 'smooth' });
+}
+async function ptAdmDelSes(id) {
+  if (!confirm('Delete this testing session and all its results? This cannot be undone.')) return;
+  try {
+    const r = await sb.delete('phys_sessions', id);
+    if (!r.ok) throw new Error('Delete failed');
+    if (PTA.edit && String(PTA.edit.id) === String(id)) PTA.edit = null;
+    PTA.sessions = await ptGetSessions(PTA.athlete);
+    ptAdmResults();
+  } catch (e) { alert('Error: ' + e.message); }
+}
+async function ptAdmSetGroup(gid) {
+  const a = PT.athletes.find(x => x.name === PTA.athlete);
+  if (!a) return;
+  try {
+    const r = await sb.patch('athletes', a.id, { norm_group: gid || null });
+    if (!r.ok) throw new Error('Save failed (' + r.status + ')');
+    a.norm_group = gid || null;
+    if (PT.views.adm) { PT.views.adm.defGroup = a.norm_group; PT.views.adm.gid = a.norm_group; ptRender('adm'); }
+    showMsg('pt-ng-msg', 'Saved ✓');
+  } catch (e) { showMsg('pt-ng-msg', 'Error: ' + e.message, true); }
+}
+
+// ── tests & norms ──
+function ptNormEditor(t, g) {
+  const raw = t && t.norms && t.norms[g.id];
+  const n = Array.isArray(raw) ? { type: 'meansd', mean: raw[0], sd: raw[1] } : (raw || {});
+  const ty = n.type || '';
+  const val = x => ptHas(x) ? escapeHtml(x) : '';
+  return `<div class="pt-ng">
+    <div class="pt-ng-h"><b>${escapeHtml(g.name)}</b>
+      <select class="aselect" id="pt-nt-${g.id}" aria-label="${escapeHtml(g.name)} data type" onchange="ptAdmNT('${g.id}')">
+        <option value=""${!ty ? ' selected' : ''}>No data</option>
+        <option value="meansd"${ty === 'meansd' ? ' selected' : ''}>Mean &amp; SD</option>
+        <option value="pct"${ty === 'pct' ? ' selected' : ''}>Percentile table</option>
+        <option value="raw"${ty === 'raw' ? ' selected' : ''}>Raw values (population)</option>
+      </select></div>
+    <div class="pt-ng-b agrid2" id="pt-nb-meansd-${g.id}"${ty === 'meansd' ? '' : ' hidden'}>
+      <div class="arow"><label class="albl" for="pt-nm-${g.id}">Mean</label><input class="ainput" type="number" step="any" id="pt-nm-${g.id}" value="${val(n.mean)}"></div>
+      <div class="arow"><label class="albl" for="pt-ns-${g.id}">SD</label><input class="ainput" type="number" step="any" id="pt-ns-${g.id}" value="${val(n.sd)}"></div>
+    </div>
+    <div class="pt-ng-b" id="pt-nb-pct-${g.id}"${ty === 'pct' ? '' : ' hidden'}>
+      <div class="pt-pgrid">${PT_PS.map(p => `<div><label class="albl" for="pt-np${p}-${g.id}">P${p}</label><input class="ainput" type="number" step="any" id="pt-np${p}-${g.id}" value="${val(n.p && n.p[p])}"></div>`).join('')}</div>
+      <div class="pt-note" style="margin:6px 0 0">P90 = the value 90% of the group scored below. Values go up from P5 to P95. For times the app flips it, so a fast time gets a high percentile.</div>
+    </div>
+    <div class="pt-ng-b" id="pt-nb-raw-${g.id}"${ty === 'raw' ? '' : ' hidden'}>
+      <textarea class="atextarea" id="pt-nr-${g.id}" rows="3" placeholder="Paste one value per player, separated by spaces or new lines">${escapeHtml((n.values || []).join(' '))}</textarea>
+      <div class="pt-note" style="margin:6px 0 0">At least 5 values. The player's percentile is the share of this population they beat.</div>
+    </div>
+  </div>`;
+}
+function ptAdmNT(gid) {
+  const ty = document.getElementById('pt-nt-' + gid).value;
+  ['meansd', 'pct', 'raw'].forEach(k => { document.getElementById(`pt-nb-${k}-${gid}`).hidden = k !== ty; });
+}
+const ptNumList = s => String(s || '').split(/[\s|;]+/).map(x => x.trim().replace(/^(-?\d+),(\d+)$/, '$1.$2')).filter(Boolean).map(Number).filter(x => !isNaN(x));
+function ptReadNorm(g) {
+  const ty = document.getElementById('pt-nt-' + g.id).value;
+  if (!ty) return { ok: true, n: null };
+  if (ty === 'meansd') {
+    const m = document.getElementById('pt-nm-' + g.id).value.trim(), s = document.getElementById('pt-ns-' + g.id).value.trim();
+    if (m === '' || !(+s > 0)) return { err: `${g.name}: enter a mean and an SD above 0` };
+    return { ok: true, n: { type: 'meansd', mean: +m, sd: +s } };
+  }
+  if (ty === 'pct') {
+    const p = {};
+    PT_PS.forEach(k => { const v = document.getElementById(`pt-np${k}-${g.id}`).value.trim(); if (v !== '') p[k] = +v; });
+    const ks = Object.keys(p).map(Number).sort((a, b) => a - b);
+    if (ks.length < 2) return { err: `${g.name}: fill at least two percentiles` };
+    for (let i = 1; i < ks.length; i++) if (p[ks[i]] < p[ks[i - 1]]) return { err: `${g.name}: values must go up from P5 to P95 (P90 = the value 90% scored below)` };
+    return { ok: true, n: { type: 'pct', p } };
+  }
+  const values = ptNumList(document.getElementById('pt-nr-' + g.id).value);
+  if (values.length < 5) return { err: `${g.name}: paste at least 5 values` };
+  return { ok: true, n: { type: 'raw', values } };
+}
+const ptNormKind = (t, g) => { const N = ptNorm(t, g); return N ? { meansd: 'mean & SD', pct: 'percentiles', raw: 'raw values' }[N.type] : ''; };
+function ptAdmTests() {
+  const box = document.getElementById('pt-adm');
+  const t = PTA.test || null; // null = new test
+  const der = (t && t.derive) || {};
+  const subs = [...new Set(PT.tests.map(x => x.sub).filter(Boolean))];
+  const others = PT.tests.filter(x => !t || String(x.id) !== String(t.id)).filter(x => !(x.derive && x.derive.type));
+  const tOpts = sel => `<option value="">— Choose a test —</option>` + others.map(x => `<option value="${x.id}"${String(x.id) === String(sel) ? ' selected' : ''}>${escapeHtml(x.name)}${x.unit ? ' (' + escapeHtml(x.unit) + ')' : ''}</option>`).join('');
+  const defCat = t ? t.cat : (PT_CATS[0] || {}).id;
+  if (!PT_CATS.length) { box.innerHTML = ptEmpty('No qualities yet', 'Add the qualities you test (the radar axes) in the Qualities tab first.'); return; }
+  let h = ptImportCard() + `<div class="aform" id="pt-tform">
+    <div class="aform-title"><span>${t ? 'Edit test' : 'New test'}</span>${t ? '<button class="abtn secondary small" onclick="ptAdmTest(null)">Cancel</button>' : ''}</div>
+    <div class="agrid2">
+      <div class="arow"><label class="albl" for="pt-tn">Test name *</label><input class="ainput" id="pt-tn" placeholder="e.g. Copenhagen adduction" value="${escapeHtml((t && t.name) || '')}"></div>
+      <div class="arow"><label class="albl" for="pt-tc">Quality *</label><select class="aselect" id="pt-tc">${PT_CATS.map(c => `<option value="${escapeHtml(c.id)}"${defCat === c.id ? ' selected' : ''}>${escapeHtml(c.name)}</option>`).join('')}</select></div>
+    </div>
+    <div class="agrid2">
+      <div class="arow"><label class="albl" for="pt-ts">Region / sub-group</label><input class="ainput" id="pt-ts" list="pt-subs" placeholder="e.g. Hamstrings, Groin" value="${escapeHtml((t && t.sub) || '')}"><datalist id="pt-subs">${subs.map(s => `<option value="${escapeHtml(s)}">`).join('')}</datalist></div>
+      <div class="arow"><label class="albl" for="pt-tp">Protocol</label><input class="ainput" id="pt-tp" placeholder="Device, position, side" value="${escapeHtml((t && t.proto) || '')}"></div>
+    </div>
+    <div class="agrid2">
+      <div class="arow"><label class="albl" for="pt-tu">Unit</label><input class="ainput" id="pt-tu" placeholder="N, kg, s, cm" value="${escapeHtml((t && t.unit) || '')}"></div>
+      <div class="arow"><label class="albl" for="pt-tl">Better result</label><select class="aselect" id="pt-tl"><option value="0"${t && t.lower_better ? '' : ' selected'}>Higher is better</option><option value="1"${t && t.lower_better ? ' selected' : ''}>Lower is better (times)</option></select></div>
+    </div>
+    <div class="agrid2">
+      <div class="arow"><label class="albl" for="pt-td">Decimals</label><select class="aselect" id="pt-td">${[0, 1, 2, 3].map(n => `<option${n === (t && ptHas(t.decimals) ? +t.decimals : 1) ? ' selected' : ''}>${n}</option>`).join('')}</select></div>
+      <div class="arow"><label class="albl" for="pt-tt">Risk threshold <span class="jfhint">— optional</span></label><input class="ainput" type="number" step="any" id="pt-tt" placeholder="e.g. 337" value="${t && ptHas(t.threshold) ? escapeHtml(t.threshold) : ''}"></div>
+    </div>
+    <div class="arow"><label class="albl" for="pt-tdt">Result is</label>
+      <select class="aselect" id="pt-tdt" onchange="ptAdmDer()">
+        <option value=""${!der.type ? ' selected' : ''}>Entered by hand</option>
+        <option value="per_kg"${der.type === 'per_kg' ? ' selected' : ''}>Calculated: another test ÷ body mass</option>
+        <option value="diff"${der.type === 'diff' ? ' selected' : ''}>Calculated: one test minus another</option>
+      </select></div>
+    <div class="agrid2" id="pt-dwrap"${der.type ? '' : ' hidden'}>
+      <div class="arow"><label class="albl" for="pt-da">Test</label><select class="aselect" id="pt-da">${tOpts(der.a)}</select></div>
+      <div class="arow" id="pt-dbwrap"${der.type === 'diff' ? '' : ' hidden'}><label class="albl" for="pt-db">Minus</label><select class="aselect" id="pt-db">${tOpts(der.b)}</select></div>
+    </div>
+    <div class="divider"></div>
+    <div class="aform-title" style="font-size:16px"><span>Normative data</span></div>
+    <div class="pt-note">For each reference group, enter what the study gives you: mean and SD, a percentile table, or the raw values of a population. Players then get a percentile: P90 means better than 90% of that group.</div>
+    ${PT.groups.length ? PT.groups.map(g => ptNormEditor(t, g)).join('') : '<div class="pt-note">Add a reference group first (Reference groups tab).</div>'}
+    <div class="arow" style="margin-top:12px"><label class="albl" for="pt-tsrc">Source of the norms</label><input class="ainput" id="pt-tsrc" placeholder="e.g. Author et al. 2020, journal — population" value="${escapeHtml((t && t.source) || '')}"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="abtn" style="flex:1" onclick="ptAdmSaveTest()">${t ? 'Update test' : 'Save test'}</button>${t ? '<button class="abtn danger" onclick="ptAdmDelTest()">Delete</button>' : ''}</div>
+    <div class="amsg" id="pt-tmsg"></div>
+  </div>`;
+  PT_CATS.forEach(c => {
+    const ts = PT.tests.filter(x => x.cat === c.id);
+    h += `<div class="sh"><div class="shb"></div><div class="sht">${escapeHtml(c.name)} · ${ts.length}</div></div>`;
+    if (!ts.length) { h += '<div class="pt-note">No tests for this quality yet.</div>'; return; }
+    h += ts.map(x => {
+      const have = PT.groups.filter(g => ptNorm(x, g.id)).length;
+      const kinds = [...new Set(PT.groups.map(g => ptNormKind(x, g.id)).filter(Boolean))].join(', ');
+      const meta = [x.sub, x.unit, x.lower_better ? 'lower is better' : 'higher is better', x.derive && x.derive.type ? 'calculated' : ''].filter(Boolean).map(escapeHtml).join(' · ');
+      return `<div class="alist-item"><div class="alist-info"><div class="alist-name">${escapeHtml(x.name)}</div>
+        <div class="alist-sub">${meta} · <span style="color:${have === PT.groups.length ? 'var(--gn)' : 'var(--am)'}">norms for ${have}/${PT.groups.length} groups${kinds ? ' (' + kinds + ')' : ''}</span></div></div>
+        <div class="alist-actions"><button class="abtn secondary small" onclick="ptAdmTest('${x.id}')">Edit</button></div></div>`;
+    }).join('');
+  });
+  const orphan = PT.tests.filter(x => !PT_CATS.some(c => c.id === x.cat));
+  if (orphan.length) h += `<div class="sh"><div class="shb"></div><div class="sht">No quality · ${orphan.length}</div></div>` + orphan.map(x => `<div class="alist-item"><div class="alist-info"><div class="alist-name">${escapeHtml(x.name)}</div><div class="alist-sub">Not shown on the profile. Edit it and pick a quality.</div></div><div class="alist-actions"><button class="abtn secondary small" onclick="ptAdmTest('${x.id}')">Edit</button></div></div>`).join('');
+  box.innerHTML = h;
+}
+function ptAdmDer() {
+  const v = document.getElementById('pt-tdt').value;
+  document.getElementById('pt-dwrap').hidden = !v;
+  document.getElementById('pt-dbwrap').hidden = v !== 'diff';
+}
+function ptAdmTest(id) {
+  PTA.test = id ? PT.tests.find(x => String(x.id) === String(id)) || null : null;
+  ptAdmTests();
+  document.getElementById('pt-tform').scrollIntoView({ behavior: 'smooth' });
+}
+async function ptAdmSaveTest() {
+  const t = PTA.test || null;
+  const name = document.getElementById('pt-tn').value.trim();
+  if (!name) { showMsg('pt-tmsg', 'Give the test a name', true); return; }
+  const dt = document.getElementById('pt-tdt').value;
+  let derive = null;
+  if (dt) {
+    const a = document.getElementById('pt-da').value, b = document.getElementById('pt-db').value;
+    if (!a || (dt === 'diff' && (!b || a === b))) { showMsg('pt-tmsg', dt === 'diff' ? 'Choose two different tests to subtract' : 'Choose which test to divide by body mass', true); return; }
+    derive = dt === 'diff' ? { type: 'diff', a, b } : { type: 'per_kg', a };
+  }
+  const norms = {};
+  for (const g of PT.groups) {
+    const r = ptReadNorm(g);
+    if (r.err) { showMsg('pt-tmsg', r.err, true); return; }
+    if (r.n) norms[g.id] = r.n;
+  }
+  const thr = document.getElementById('pt-tt').value.trim();
+  const data = {
+    name, cat: document.getElementById('pt-tc').value,
+    sub: document.getElementById('pt-ts').value.trim() || null,
+    proto: document.getElementById('pt-tp').value.trim() || null,
+    unit: document.getElementById('pt-tu').value.trim() || null,
+    lower_better: document.getElementById('pt-tl').value === '1',
+    decimals: +document.getElementById('pt-td').value,
+    threshold: thr === '' ? null : +thr,
+    source: document.getElementById('pt-tsrc').value.trim() || null,
+    derive, norms
+  };
+  if (!t) data.sort = PT.tests.reduce((m, x) => Math.max(m, x.sort || 0), 0) + 1;
+  try {
+    const r = t ? await sb.patch('phys_tests', t.id, data) : await sb.post('phys_tests', data);
+    if (!r.ok) throw new Error('Save failed (' + r.status + ') ' + await r.text().catch(() => ''));
+    await ptLoadBase();
+    PTA.test = null;
+    ptAdmTests();
+    showMsg('pt-tmsg', t ? 'Test updated ✓' : 'Test saved ✓');
+  } catch (e) { showMsg('pt-tmsg', 'Error: ' + e.message, true); }
+}
+
+// ── import normative data from CSV / Excel ──
+const PT_TEMPLATE = `test,group,mean,sd,p5,p10,p25,p50,p75,p90,p95,values,source
+Nordic hamstring,Senior professional (male),380,70,,,,,,,,,Author et al. 2020
+10 m sprint,U19 elite academy,,,1.70,1.73,1.77,1.82,1.88,1.94,1.98,,Author et al. 2021
+Countermovement jump,U17 elite academy,,,,,,,,,,32.1 35.4 36.0 38.2 40.5 41.0,Club data 2025`;
+function ptImportCard() {
+  return `<details class="aform pt-imp"${PTA.imp ? ' open' : ''}>
+    <summary class="aform-title" style="cursor:pointer;margin:0"><span>Upload normative data</span><span class="jfhint">CSV or Excel</span></summary>
+    <div style="margin-top:12px">
+      <div class="pt-note">One row per test and group. Fill <b>mean + sd</b>, or the <b>p5…p95</b> columns, or <b>values</b> (one number per player, separated by spaces). Test and group names must match the ones here; new group names are created for you. Semicolons and decimal commas from Romanian Excel work too.</div>
+      <pre class="pt-tpl" id="pt-tpl">${escapeHtml(PT_TEMPLATE)}</pre>
+      <div class="pt-note" style="margin-top:4px">The numbers in this template only show the format.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px"><button class="abtn secondary small" onclick="ptCopyTpl()">Copy template</button>
+        <label class="abtn secondary small" style="cursor:pointer">Choose file<input type="file" id="pt-impf" accept=".csv,.txt,.tsv,.xlsx,.xls" hidden onchange="ptImpFile(this)"></label></div>
+      <label class="albl" for="pt-impt">Or paste the table here</label>
+      <textarea class="atextarea" id="pt-impt" rows="4" placeholder="Paste from Excel or a CSV file">${escapeHtml(PTA.impText || '')}</textarea>
+      <button class="abtn" style="width:100%;margin-top:10px" onclick="ptImpCheck()">Check data</button>
+      <div class="amsg" id="pt-imsg"></div>
+      <div id="pt-imprev">${PTA.impPrev || ''}</div>
+    </div>
+  </details>`;
+}
+function ptCopyTpl() {
+  const done = () => showMsg('pt-imsg', 'Template copied ✓');
+  try { navigator.clipboard.writeText(PT_TEMPLATE).then(done, () => ptSelect('pt-tpl')); } catch (e) { ptSelect('pt-tpl'); }
+}
+function ptSelect(id) { const r = document.createRange(); r.selectNodeContents(document.getElementById(id)); const s = getSelection(); s.removeAllRanges(); s.addRange(r); showMsg('pt-imsg', 'Selected — press Ctrl+C to copy'); }
+function ptLoadXLSX() {
+  if (window.XLSX) return Promise.resolve();
+  return new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'; s.onload = res; s.onerror = () => rej(new Error('could not load the Excel reader')); document.head.appendChild(s); });
+}
+async function ptImpFile(input) {
+  const f = input.files && input.files[0]; input.value = '';
+  if (!f) return;
+  try {
+    let text;
+    if (/\.xlsx?$/i.test(f.name)) {
+      await ptLoadXLSX();
+      const wb = XLSX.read(await f.arrayBuffer(), { type: 'array' });
+      text = XLSX.utils.sheet_to_csv(wb.Sheets[wb.SheetNames[0]], { FS: '\t' });
+    } else text = await f.text();
+    document.getElementById('pt-impt').value = text;
+    ptImpCheck();
+  } catch (e) { showMsg('pt-imsg', 'Could not read the file: ' + e.message, true); }
+}
+function ptParseTable(text) {
+  text = String(text || '').replace(/^﻿/, '');
+  const first = text.split(/\r?\n/)[0] || '';
+  const cnt = c => first.split(c).length - 1;
+  const delim = cnt('\t') ? '\t' : cnt(';') > cnt(',') ? ';' : ',';
+  const rows = []; let row = [], cell = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (q) { if (ch === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += ch; }
+    else if (ch === '"') q = true;
+    else if (ch === delim) { row.push(cell); cell = ''; }
+    else if (ch === '\n' || ch === '\r') { if (ch === '\r' && text[i + 1] === '\n') i++; row.push(cell); rows.push(row); row = []; cell = ''; }
+    else cell += ch;
+  }
+  if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+  const ne = rows.filter(r => r.some(c => c.trim() !== ''));
+  if (ne.length < 2) return [];
+  const key = h => {
+    h = h.trim().toLowerCase().replace(/\s+/g, ' ');
+    const m = /^p?0*(\d{1,2})(th)?$/.exec(h);
+    if (m && PT_PS.includes(+m[1])) return 'p' + (+m[1]);
+    if (/^(test|exercise|test name|exercitiu|exercițiu)$/.test(h)) return 'test';
+    if (/^(group|reference group|population|grup)$/.test(h)) return 'group';
+    if (/^(mean|average|medie)$/.test(h)) return 'mean';
+    if (/^(sd|std|stdev|standard deviation|dev std|abatere standard)$/.test(h)) return 'sd';
+    if (/^(values|raw|raw values|data|valori)$/.test(h)) return 'values';
+    if (/^(source|reference|sursa|sursă)$/.test(h)) return 'source';
+    return h;
+  };
+  const head = ne[0].map(key);
+  return ne.slice(1).map(r => { const o = {}; head.forEach((h, i) => { o[h] = (r[i] || '').trim(); }); return o; });
+}
+const ptNum1 = s => { s = String(s == null ? '' : s).trim(); if (s === '') return NaN; return +s.replace(/^(-?\d+),(\d+)$/, '$1.$2'); };
+const ptKey = s => String(s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+function ptImpCheck() {
+  PTA.impText = document.getElementById('pt-impt').value;
+  const rows = ptParseTable(PTA.impText);
+  if (!rows.length) { PTA.imp = null; document.getElementById('pt-imprev').innerHTML = ''; showMsg('pt-imsg', 'No rows found. The first line must be the column names (test, group, …).', true); return; }
+  const items = rows.map(r => {
+    const it = { test: r.test || '', group: r.group || '', source: r.source || '' };
+    const t = PT.tests.find(x => ptKey(x.name) === ptKey(it.test));
+    it.t = t;
+    const vals = ptNumList(r.values);
+    const p = {}; PT_PS.forEach(k => { const v = ptNum1(r['p' + k]); if (!isNaN(v)) p[k] = v; });
+    const pk = Object.keys(p).map(Number).sort((a, b) => a - b);
+    if (!t) it.err = 'Unknown test — add it first or fix the name';
+    else if (!it.group) it.err = 'Group is missing';
+    else if (vals.length) { if (vals.length < 5) it.err = 'Needs at least 5 values'; else it.n = { type: 'raw', values: vals }; }
+    else if (pk.length) {
+      if (pk.length < 2) it.err = 'Needs at least two percentiles';
+      else if (pk.some((k, i) => i && p[k] < p[pk[i - 1]])) it.err = 'Percentile values must go up from p5 to p95';
+      else it.n = { type: 'pct', p };
+    } else {
+      const m = ptNum1(r.mean), s = ptNum1(r.sd);
+      if (isNaN(m) || !(s > 0)) it.err = 'Fill mean + sd, the percentile columns, or values';
+      else it.n = { type: 'meansd', mean: m, sd: s };
+    }
+    it.newGroup = !!(it.group && !PT.groups.some(g => ptKey(g.name) === ptKey(it.group)));
+    return it;
+  });
+  PTA.imp = items;
+  const ok = items.filter(i => !i.err), newG = [...new Set(ok.filter(i => i.newGroup).map(i => i.group.trim()))];
+  const desc = n => n.type === 'meansd' ? `mean ${n.mean} · SD ${n.sd}` : n.type === 'pct' ? Object.keys(n.p).map(k => `P${k} ${n.p[k]}`).join(' · ') : `${n.values.length} values`;
+  PTA.impPrev = `<div class="pt-imptbl">${items.map(i => `<div class="pt-impr${i.err ? ' bad' : ''}">
+      <div><b>${escapeHtml(i.t ? i.t.name : i.test || '—')}</b> · ${escapeHtml(i.group || '—')}${i.newGroup && !i.err ? ' <span class="pt-new">new group</span>' : ''}</div>
+      <div>${i.err ? escapeHtml(i.err) : escapeHtml(desc(i.n))}</div></div>`).join('')}</div>
+    ${newG.length ? `<div class="pt-note">New reference groups will be created: ${newG.map(escapeHtml).join(', ')}.</div>` : ''}
+    ${ok.length ? `<button class="abtn" style="width:100%" onclick="ptImpRun()">Import ${ok.length} row${ok.length === 1 ? '' : 's'}</button>` : ''}
+    ${ok.length < items.length ? `<div class="pt-note">${items.length - ok.length} row${items.length - ok.length === 1 ? '' : 's'} with problems will be skipped.</div>` : ''}`;
+  document.getElementById('pt-imprev').innerHTML = PTA.impPrev;
+}
+async function ptImpRun() {
+  const items = (PTA.imp || []).filter(i => !i.err);
+  if (!items.length) return;
+  try {
+    for (const name of [...new Set(items.filter(i => i.newGroup).map(i => i.group.trim()))]) {
+      if (PT.groups.some(g => ptKey(g.name) === ptKey(name))) continue;
+      const r = await sb.post('phys_groups', { name, sort: PT.groups.reduce((m, g) => Math.max(m, g.sort || 0), 0) + 1 });
+      if (!r.ok) throw new Error('could not create group ' + name);
+      await ptLoadBase();
+    }
+    const byTest = {};
+    items.forEach(i => { (byTest[i.t.id] = byTest[i.t.id] || []).push(i); });
+    for (const tid of Object.keys(byTest)) {
+      const t = PT.tests.find(x => String(x.id) === String(tid));
+      const norms = Object.assign({}, t.norms);
+      let source = t.source;
+      byTest[tid].forEach(i => { const g = PT.groups.find(x => ptKey(x.name) === ptKey(i.group)); if (g) norms[g.id] = i.n; if (i.source) source = i.source; });
+      const r = await sb.patch('phys_tests', t.id, { norms, source: source || null });
+      if (!r.ok) throw new Error('could not save ' + t.name);
+    }
+    await ptLoadBase();
+    PTA.imp = null; PTA.impPrev = ''; PTA.impText = '';
+    ptAdmTests();
+    showMsg('pt-imsg', `Imported ${items.length} row${items.length === 1 ? '' : 's'} ✓`);
+    document.querySelector('.pt-imp').open = true;
+  } catch (e) { showMsg('pt-imsg', 'Error: ' + e.message, true); }
+}
+async function ptAdmDelTest() {
+  const t = PTA.test; if (!t) return;
+  const users = PT.tests.filter(x => x.derive && (String(x.derive.a) === String(t.id) || String(x.derive.b) === String(t.id)));
+  if (users.length) { showMsg('pt-tmsg', `Used by ${users.map(x => x.name).join(', ')}. Change or delete that test first.`, true); return; }
+  if (!confirm(`Delete "${t.name}"? Its results stay in old sessions but are no longer shown.`)) return;
+  try {
+    const r = await sb.delete('phys_tests', t.id);
+    if (!r.ok) throw new Error('Delete failed');
+    await ptLoadBase(); PTA.test = null; ptAdmTests();
+  } catch (e) { showMsg('pt-tmsg', 'Error: ' + e.message, true); }
+}
+
+// ── qualities (radar axes) ──
+function ptAdmQual() {
+  const used = id => PT.tests.filter(t => t.cat === id).length;
+  document.getElementById('pt-adm').innerHTML = `<div class="aform">
+    <div class="aform-title"><span>Qualities</span></div>
+    <div class="pt-note">The physical qualities you test. Each one is an axis on the radar, and every test belongs to one. A quality with no tests is not shown to players.</div>
+    ${PT_CATS.map((c, i) => `<div class="pt-q">
+      <div class="agrid2">
+        <div class="arow"><label class="albl" for="pt-qn-${escapeHtml(c.id)}">Name</label><input class="ainput" id="pt-qn-${escapeHtml(c.id)}" value="${escapeHtml(c.name)}"></div>
+        <div class="arow"><label class="albl" for="pt-qs-${escapeHtml(c.id)}">Radar label <span class="jfhint">— short</span></label><input class="ainput" id="pt-qs-${escapeHtml(c.id)}" value="${escapeHtml(c.short)}"></div>
+      </div>
+      <div class="arow"><label class="albl" for="pt-qd-${escapeHtml(c.id)}">Description for players</label><input class="ainput" id="pt-qd-${escapeHtml(c.id)}" value="${escapeHtml(c.desc)}"></div>
+      <div class="pt-grp"><span class="pt-note" style="flex:1;margin:0">${used(c.id)} test${used(c.id) === 1 ? '' : 's'}</span>
+        <button class="abtn secondary small" onclick="ptQMove(${i},-1)" ${i ? '' : 'disabled'} aria-label="Move up">↑</button>
+        <button class="abtn secondary small" onclick="ptQMove(${i},1)" ${i < PT_CATS.length - 1 ? '' : 'disabled'} aria-label="Move down">↓</button>
+        <button class="abtn secondary small" onclick="ptQSave('${escapeHtml(c.id)}')">Save</button>
+        <button class="abtn danger small" onclick="ptQDel('${escapeHtml(c.id)}')" title="Remove">✕</button></div>
+    </div>`).join('') || '<div class="pt-note">No qualities yet.</div>'}
+    <div class="divider"></div>
+    <div class="agrid2">
+      <div class="arow"><label class="albl" for="pt-qnew">New quality</label><input class="ainput" id="pt-qnew" placeholder="e.g. Repeated sprint ability"></div>
+      <div class="arow"><label class="albl" for="pt-qnews">Radar label</label><input class="ainput" id="pt-qnews" placeholder="e.g. RSA"></div>
+    </div>
+    <button class="abtn" style="width:100%" onclick="ptQAdd()">Add quality</button>
+    <div class="amsg" id="pt-qmsg"></div></div>`;
+}
+async function ptQAdd() {
+  const name = document.getElementById('pt-qnew').value.trim(), short = document.getElementById('pt-qnews').value.trim();
+  if (!name) return;
+  const id = name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 24) + '-' + Math.random().toString(36).slice(2, 6);
+  try {
+    const r = await sb.post('phys_qualities', { id, name, short: short || null, descr: null, sort: PT_CATS.reduce((m, c) => Math.max(m, c.sort || 0), 0) + 1 });
+    if (!r.ok) throw new Error('Save failed (' + r.status + ')');
+    await ptLoadBase(); ptAdmQual(); showMsg('pt-qmsg', 'Quality added ✓ — now add its tests under Tests & norms');
+  } catch (e) { showMsg('pt-qmsg', 'Error: ' + e.message, true); }
+}
+async function ptQSave(id) {
+  const name = document.getElementById('pt-qn-' + id).value.trim();
+  if (!name) { showMsg('pt-qmsg', 'A quality needs a name', true); return; }
+  try {
+    const r = await sb.patch('phys_qualities', id, { name, short: document.getElementById('pt-qs-' + id).value.trim() || null, descr: document.getElementById('pt-qd-' + id).value.trim() || null });
+    if (!r.ok) throw new Error('Save failed (' + r.status + ')');
+    await ptLoadBase(); ptAdmQual(); showMsg('pt-qmsg', 'Saved ✓');
+  } catch (e) { showMsg('pt-qmsg', 'Error: ' + e.message, true); }
+}
+async function ptQMove(i, dir) {
+  const a = PT_CATS[i], b = PT_CATS[i + dir];
+  if (!a || !b) return;
+  try {
+    const sa = a.sort || i, sb2 = b.sort || i + dir;
+    await sb.patch('phys_qualities', a.id, { sort: sb2 === sa ? sa + dir : sb2 });
+    await sb.patch('phys_qualities', b.id, { sort: sa });
+    await ptLoadBase(); ptAdmQual();
+  } catch (e) { showMsg('pt-qmsg', 'Error: ' + e.message, true); }
+}
+async function ptQDel(id) {
+  const c = PT_CATS.find(x => x.id === id); if (!c) return;
+  const n = PT.tests.filter(t => t.cat === id).length;
+  if (n) { showMsg('pt-qmsg', `${escapeHtml(c.name)} still has ${n} test${n === 1 ? '' : 's'}. Move or delete them first.`, true); return; }
+  if (!confirm(`Remove the quality "${escapeHtml(c.name)}"?`)) return;
+  try {
+    const r = await sb.delete('phys_qualities', id);
+    if (!r.ok) throw new Error('Delete failed');
+    await ptLoadBase(); ptAdmQual();
+  } catch (e) { showMsg('pt-qmsg', 'Error: ' + e.message, true); }
+}
+
+// ── reference groups ──
+function ptAdmGroups() {
+  document.getElementById('pt-adm').innerHTML = `<div class="aform">
+    <div class="aform-title"><span>Reference groups</span></div>
+    <div class="pt-note">The populations players are compared with. Each test gets normative data per group under Tests &amp; norms, typed in or uploaded.</div>
+    ${PT.groups.map(g => `<div class="pt-grp" style="margin-bottom:8px"><input class="ainput" id="pt-gn-${g.id}" aria-label="Group name" value="${escapeHtml(g.name)}"><button class="abtn secondary small" onclick="ptAdmRenameGroup('${g.id}')">Save</button><button class="abtn danger small" onclick="ptAdmDelGroup('${g.id}')" title="Remove">✕</button></div>`).join('') || '<div class="pt-note">No groups yet.</div>'}
+    <div class="divider"></div>
+    <div class="pt-grp"><input class="ainput" id="pt-gnew" placeholder="e.g. Women senior professional" aria-label="New group name"><button class="abtn" onclick="ptAdmAddGroup()">Add group</button></div>
+    <div class="amsg" id="pt-gmsg"></div></div>`;
+}
+async function ptAdmAddGroup() {
+  const name = document.getElementById('pt-gnew').value.trim();
+  if (!name) return;
+  try {
+    const r = await sb.post('phys_groups', { name, sort: PT.groups.reduce((m, g) => Math.max(m, g.sort || 0), 0) + 1 });
+    if (!r.ok) throw new Error('Save failed (' + r.status + ')');
+    await ptLoadBase(); ptAdmGroups(); showMsg('pt-gmsg', 'Group added ✓ — now add its reference values to each test');
+  } catch (e) { showMsg('pt-gmsg', 'Error: ' + e.message, true); }
+}
+async function ptAdmRenameGroup(id) {
+  const name = document.getElementById('pt-gn-' + id).value.trim();
+  if (!name) return;
+  try {
+    const r = await sb.patch('phys_groups', id, { name });
+    if (!r.ok) throw new Error('Save failed (' + r.status + ')');
+    await ptLoadBase(); ptAdmGroups(); showMsg('pt-gmsg', 'Saved ✓');
+  } catch (e) { showMsg('pt-gmsg', 'Error: ' + e.message, true); }
+}
+async function ptAdmDelGroup(id) {
+  const g = PT.groups.find(x => String(x.id) === String(id)); if (!g) return;
+  if (!confirm(`Remove "${g.name}" and its reference values from every test?`)) return;
+  try {
+    for (const t of PT.tests.filter(x => x.norms && x.norms[id])) {
+      const norms = Object.assign({}, t.norms); delete norms[id];
+      await sb.patch('phys_tests', t.id, { norms });
+    }
+    const r = await sb.delete('phys_groups', id);
+    if (!r.ok) throw new Error('Delete failed');
+    await ptLoadBase(); ptAdmGroups();
+  } catch (e) { showMsg('pt-gmsg', 'Error: ' + e.message, true); }
+}
+
+// ══ WIRE INTO THE APP ══
+(function ptInject() {
+  const prof = document.getElementById('pg-profile');
+  if (prof && !document.getElementById('spg-pphysical')) {
+    prof.querySelector('.subtabs').insertAdjacentHTML('beforeend', `<button class="stab" onclick="goProf('physical',this)">Physical</button>`);
+    prof.insertAdjacentHTML('beforeend', `<div class="spg" id="spg-pphysical"><div id="pt-body"></div></div>`);
+  }
+  const admin = document.getElementById('s-admin');
+  if (admin && !document.getElementById('apg-testing')) {
+    admin.querySelector('.admin-tabs').insertAdjacentHTML('beforeend', `<button class="admin-tab" onclick="goAdminTab('testing',this)">Testing</button>`);
+    admin.insertAdjacentHTML('beforeend', `
+      <div class="admin-pg" id="apg-testing">
+        <div class="subtabs">
+          <button class="stab on" onclick="ptAdm('results',this)">Results</button>
+          <button class="stab" onclick="ptAdm('tests',this)">Tests &amp; norms</button>
+          <button class="stab" onclick="ptAdm('quals',this)">Qualities</button>
+          <button class="stab" onclick="ptAdm('groups',this)">Reference groups</button>
+        </div>
+        <div id="pt-adm"></div>
+      </div>`);
+  }
+  const _goProf = goProf;
+  goProf = function (id) { _goProf.apply(this, arguments); if (id === 'physical') ptLoadPlayer(); };
+  const _goTab = goTab;
+  goTab = function (id) {
+    _goTab.apply(this, arguments);
+    const sp = document.getElementById('spg-pphysical');
+    if (id === 'profile' && sp && sp.classList.contains('on')) ptLoadPlayer();
+  };
+  const _goAdminTab = goAdminTab;
+  goAdminTab = function (id) { _goAdminTab.apply(this, arguments); if (id === 'testing') ptAdmOpen(); };
+})();
+</script>
+<!-- ═══ END PHYSICAL TESTING ═══ -->
+
 
 </body>
 </html>
